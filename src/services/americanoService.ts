@@ -19,6 +19,8 @@ export function getPadelPlayers(): PadelPlayer[] {
 export function prepareGames(players: PadelPlayer[]): PadelGame[] {
     const padelGames: PadelGame[] = [];
 
+    // TODO: Recreate padel games to have players instead of home/away so one can easily filter.
+
     padelGames.push(
         {
             home: { player1: players[0], player2: players[1], score: 0 },
