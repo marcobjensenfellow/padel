@@ -45,8 +45,10 @@ export default {
     };
   },
   methods: {
-    onAddPlayers() {
-      this.games = prepareGames(this.players as PadelPlayer[]);
+    onAddPlayers(): void {
+      const self = this as any;
+      self.games = prepareGames(self.players);
+      console.log(self.games);
     },
     getPlayerPlaceholder(index: number) {
       const playerNumber = Number(index) + 1;
