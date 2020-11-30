@@ -1,13 +1,16 @@
 <template>
-  
+  <AmericanoResult></AmericanoResult>
 </template>
 
 <script>
-export default {
+import AmericanoResult from "../components/AmericanoResult";
 
-}
+export default {
+  components: {
+    AmericanoResult,
+  },
+};
 </script>
 
 <style>
-
 </style>
