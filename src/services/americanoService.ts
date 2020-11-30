@@ -1,15 +1,16 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "../models/padelPlayer.interface";
 
+// TODO: remove names
 const padelPlayers: PadelPlayer[] = [
-    { name: "", score: 0, id: 1 },
-    { name: "", score: 0, id: 2 },
-    { name: "", score: 0, id: 3 },
-    { name: "", score: 0, id: 4 },
-    { name: "", score: 0, id: 5 },
-    { name: "", score: 0, id: 6 },
-    { name: "", score: 0, id: 7 },
-    { name: "", score: 0, id: 8 },
+    { name: "1", score: 0, id: 1 },
+    { name: "2", score: 0, id: 2 },
+    { name: "3", score: 0, id: 3 },
+    { name: "4", score: 0, id: 4 },
+    { name: "5", score: 0, id: 5 },
+    { name: "6", score: 0, id: 6 },
+    { name: "7", score: 0, id: 7 },
+    { name: "8", score: 0, id: 8 },
 ];
 
 export function getPadelPlayers(): PadelPlayer[] {
