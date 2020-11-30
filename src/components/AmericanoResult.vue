@@ -35,13 +35,12 @@ import { getPadelPlayers, prepareGames } from "../services/americanoService";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 
 const padelPlayers = getPadelPlayers();
-const padelGames: PadelGame[] = [];
 
 export default {
   data() {
     return {
       players: getPadelPlayers(),
-      games: padelGames,
+      games: [] as PadelGame[],
     };
   },
   methods: {
