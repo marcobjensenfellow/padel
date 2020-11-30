@@ -33,10 +33,11 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { getPadelPlayers, prepareGames } from "../services/americanoService";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { defineComponent } from "vue";
 
 const padelPlayers = getPadelPlayers();
 
-export default {
+export default defineComponent({
   data() {
     return {
       players: getPadelPlayers(),
@@ -45,16 +46,15 @@ export default {
   },
   methods: {
     onAddPlayers(): void {
-      const self = this as any;
-      self.games = prepareGames(self.players);
-      console.log(self.games);
+      this.games = prepareGames(this.players);
+      console.log(this.games);
     },
     getPlayerPlaceholder(index: number) {
       const playerNumber = Number(index) + 1;
       return "Spelare " + playerNumber;
     },
   },
-};
+});
 </script>
 
 <style>
