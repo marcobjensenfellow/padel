@@ -26,7 +26,7 @@
         <div class="form-group">
           <div v-if="games.length > 0">
             <div v-for="(game, index) in games" :key="game.id">
-              <div v-if="isSameRound(index)">Round: {{game.round}}</div>
+              <div v-if="IsNewRound(index)">Round: {{game.round}}</div>
               <div>Game: {{game.id}}</div>
             </div>
           </div>
@@ -63,7 +63,7 @@ export default defineComponent({
       const playerNumber = Number(index) + 1;
       return "Spelare " + playerNumber;
     },
-    isSameRound(index: number) {
+    IsNewRound(index: number) {
       return index % 2 == 0;
     },
   },
