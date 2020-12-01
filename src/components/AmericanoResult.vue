@@ -43,8 +43,6 @@ import { getPadelPlayers, prepareGames } from "../services/americanoService";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { defineComponent } from "vue";
 
-const padelPlayers = getPadelPlayers();
-
 export default defineComponent({
   data() {
     return {
