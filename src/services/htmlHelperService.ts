@@ -1,11 +1,8 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
+import store from "@/store/index";
 
-export function getFullPlayerNames(
-    padelPlayers: PadelPlayer[],
-    game: PadelGame,
-    side: string
-) {
+export function getFullPlayerNames(game: PadelGame, side: string) {
     let isHome: boolean;
 
     if (side === "home") {
@@ -19,9 +16,13 @@ export function getFullPlayerNames(
 
     const players = game.players.filter((p) => p.home === isHome);
 
-    const firstPlayer = padelPlayers.find((p) => p.id === players[0].playerId);
+    const firstPlayer = store.getters.americanoStore.getPlayers.find(
+        (p) => p.id === players[0].playerId
+    );
 
-    const secondPlayer = padelPlayers.find((p) => p.id === players[1].playerId);
+    const secondPlayer = store.getters.americanoStore.getPlayers.find(
+        (p) => p.id === players[1].playerId
+    );
 
     if (!firstPlayer || !secondPlayer) {
         console.error(

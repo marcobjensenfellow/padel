@@ -6,7 +6,7 @@
       <form @submit.prevent="onAddPlayers">
         <label>Namn</label>
         <div
-          v-for="(player, index) in players"
+          v-for="(player, index) in getPlayers"
           :key="player.id"
           class="form-group"
         >
@@ -25,11 +25,11 @@
       </form>
 
       <!-- SHOW GAMES -->
-      <div v-if="games.length > 0">
+      <div v-if="getGames.length > 0">
         <h3 class="text-center">Matcher</h3>
         <form @submit.prevent="onCalculateScore">
           <div class="form-group">
-            <div v-for="(game, index) in games" :key="game.id">
+            <div v-for="(game, index) in getGames" :key="game.id">
               <div>
                 <div v-if="IsNewRound(index)">Round: {{ game.round }}</div>
                 <div>Game: {{ game.id }}</div>
@@ -63,7 +63,6 @@
 
 <script lang="ts">
 import { PadelGame } from "@/models/padelGame.interface";
-import { getPadelPlayers, prepareGames } from "../services/americanoService";
 import { getFullPlayerNames } from "../services/htmlHelperService";
 import { updatePlayerScores } from "../services/scoreService";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
@@ -72,19 +71,16 @@ import store from "@/store/index";
 
 export default defineComponent({
   data() {
-    return {
-      players: getPadelPlayers(),
-      games: [] as PadelGame[],
-    };
+    return {};
   },
   methods: {
     onAddPlayers(): void {
-      this.games = prepareGames(this.players);
+      store.dispatch.americanoStore.prepareGames();
     },
     onCalculateScore(): void {
       console.log("calculate score");
-      this.players = updatePlayerScores(this.players, this.games);
-      console.log(this.players);
+      store.dispatch.americanoStore.updatePlayerScores();
+      console.log(this.getPlayers);
     },
     getPlayerPlaceholder(index: number) {
       const playerNumber = Number(index) + 1;
@@ -94,7 +90,15 @@ export default defineComponent({
       return index % 2 == 0;
     },
     getPlayerNames(game: PadelGame, side: string) {
-      return getFullPlayerNames(this.players, game, side);
+      return getFullPlayerNames(game, side);
+    },
+  },
+  computed: {
+    getPlayers() {
+      return store.getters.americanoStore.getPlayers;
+    },
+    getGames() {
+      return store.getters.americanoStore.getGames;
     },
   },
 });
