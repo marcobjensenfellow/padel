@@ -6,6 +6,6 @@ import store from "./store/index";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 createApp(App)
-    .use(store)
+    .use(store.original)
     .use(router)
     .mount("#app");

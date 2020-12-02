@@ -68,6 +68,7 @@ import { getFullPlayerNames } from "../services/htmlHelperService";
 import { updatePlayerScores } from "../services/scoreService";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { defineComponent } from "vue";
+import store from "@/store/index";
 
 export default defineComponent({
   data() {
