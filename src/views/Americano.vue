@@ -1,10 +1,7 @@
 <template>
   <div class="row justify-content-center">
-    <div class="col-md-5">
-      <!-- ADD PLAYERS  -->
+    <div class="col-8">
       <AddPlayers></AddPlayers>
-
-      <!-- SHOW GAMES -->
       <ShowGames></ShowGames>
     </div>
   </div>

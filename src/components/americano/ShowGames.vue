@@ -3,25 +3,32 @@
     <h3 class="text-center">Matcher</h3>
     <form @submit.prevent="onCalculateScore">
       <div class="form-group">
-        <div v-for="(game, index) in getGames" :key="game.id">
-          <div>
-            <div v-if="IsNewRound(index)">Round: {{ game.round }}</div>
-            <div>Game: {{ game.id }}</div>
-            <div>
-              <div>Home: {{ getPlayerNames(game, "home") }}</div>
-              <input
-                type="text"
-                class="form-control"
-                v-model="game.homeScore"
-              />
+        <div class="score-container">
+          <div v-for="(game, index) in getGames" :key="game.id">
+            <div v-if="IsNewRound(index)" class="score-round">
+              Omgång: {{ game.round }}
             </div>
-            <div>
-              <div>Away: {{ getPlayerNames(game, "away") }}</div>
-              <input
-                type="text"
-                class="form-control"
-                v-model="game.awayScore"
-              />
+
+            <div class="game-container row justify-content-center">
+              <table>
+                <tbody>
+                  <tr>
+                    <td class="team-element">
+                      {{ getPlayerNames(game, "home") }}
+                    </td>
+                    <td>
+                      <input v-model="game.homeScore" class="input-element" />
+                    </td>
+                    <td>VS</td>
+                    <td>
+                      <input v-model="game.awayScore" class="input-element" />
+                    </td>
+                    <td class="team-element">
+                      {{ getPlayerNames(game, "away") }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -61,4 +68,29 @@ export default defineComponent({
 </script>
 
 <style>
+.score-container {
+  border-radius: 0.375rem;
+  background-color: lightblue;
+  overflow: auto;
+}
+
+.score-round {
+  background-color: gray;
+  text-align: left;
+  color: white;
+  padding: 0.2rem;
+}
+
+.game-container {
+  background-color: lightgreen;
+  border: 0.1rem solid black;
+}
+
+.input-element {
+  width: 35px;
+}
+
+.team-element {
+  width: 200px;
+}
 </style>
