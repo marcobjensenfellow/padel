@@ -6,11 +6,13 @@ import { updatePlayerScores } from "@/services/scoreService";
 export interface AmericanoStoreState {
     games: PadelGame[];
     players: PadelPlayer[];
+    step: number;
 }
 
 export interface AmericanoStoreGetters {
     getGames: PadelGame[];
     getPlayers: PadelPlayer[];
+    getStep: number;
 }
 
 export interface AmericanoStoreActions {
@@ -23,6 +25,7 @@ export default {
     state: {
         games: [],
         players: getPadelPlayers(),
+        step: 1,
     } as AmericanoStoreState,
     mutations: {
         UPDATE_GAMES(state: AmericanoStoreState, games: PadelGame[]) {
@@ -30,6 +33,12 @@ export default {
         },
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
+        },
+        INCREMENT_STEP(state: AmericanoStoreState) {
+            state.step += 1;
+        },
+        DECREMENT_STEP(state: AmericanoStoreState) {
+            state.step -= 1;
         },
     },
     actions: {
@@ -48,5 +57,6 @@ export default {
     getters: {
         getGames: (state: AmericanoStoreState) => state.games,
         getPlayers: (state: AmericanoStoreState) => state.players,
+        getStep: (state: AmericanoStoreState) => state.step,
     },
 };

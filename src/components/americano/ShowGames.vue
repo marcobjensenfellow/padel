@@ -8,8 +8,10 @@
             <div v-if="IsNewRound(index)" class="score-round">
               Omgång: {{ game.round }}
             </div>
-
-            <div class="game-container row justify-content-center">
+            <div
+              class="game-container"
+              :class="{ 'second-match': isSecondGame(game) }"
+            >
               <table>
                 <tbody>
                   <tr>
@@ -53,10 +55,13 @@ export default defineComponent({
       store.dispatch.americanoStore.updatePlayerScores();
     },
     IsNewRound(index: number) {
-      return index % 2 == 0;
+      return index % 2 === 0;
     },
     getPlayerNames(game: PadelGame, side: string) {
       return getFullPlayerNames(game, side);
+    },
+    isSecondGame(game: PadelGame) {
+      return game.matchNumber === 2;
     },
   },
   computed: {
@@ -72,25 +77,31 @@ export default defineComponent({
   border-radius: 0.375rem;
   background-color: lightblue;
   overflow: auto;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .score-round {
-  background-color: gray;
+  background-color: #34495e;
   text-align: left;
   color: white;
-  padding: 0.2rem;
+  padding: 0.4rem;
 }
 
 .game-container {
-  background-color: lightgreen;
-  border: 0.1rem solid black;
+  background-color: #ecf0f1;
+  padding: 0.2rem;
 }
 
 .input-element {
   width: 35px;
+  text-align: center;
 }
 
 .team-element {
   width: 200px;
+}
+
+.second-match {
+  border-top: 0.1rem solid #2c3e50;
 }
 </style>

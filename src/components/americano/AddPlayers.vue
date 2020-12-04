@@ -32,6 +32,7 @@ export default defineComponent({
   methods: {
     onAddPlayers(): void {
       store.dispatch.americanoStore.prepareGames();
+      store.commit.americanoStore.INCREMENT_STEP();
     },
     getPlayerPlaceholder(index: number) {
       const playerNumber = Number(index) + 1;
