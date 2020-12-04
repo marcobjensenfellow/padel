@@ -25,3 +25,17 @@ export function updatePlayerScores(
 
     return players;
 }
+
+function compareScore(a: PadelPlayer, b: PadelPlayer) {
+    if (a.score > b.score) {
+        return -1;
+    }
+    if (a.score < b.score) {
+        return 1;
+    }
+    return 0;
+}
+
+export function sortByScore(players: PadelPlayer[]) {
+    return players.sort(compareScore);
+}

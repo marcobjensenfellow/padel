@@ -1,7 +1,7 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { getPadelPlayers, prepareGames } from "@/services/americanoService";
-import { updatePlayerScores } from "@/services/scoreService";
+import { sortByScore, updatePlayerScores } from "@/services/scoreService";
 
 export interface AmericanoStoreState {
     games: PadelGame[];
@@ -52,6 +52,10 @@ export default {
                 getters.getGames
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
+        },
+        sortPlayers({ commit, getters }: AmericanoStoreActions) {
+            const sortedPlayers = sortByScore(getters.getPlayers);
+            commit("UPDATE_PLAYERS", sortedPlayers);
         },
     },
     getters: {

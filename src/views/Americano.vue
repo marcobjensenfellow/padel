@@ -4,6 +4,7 @@
       <div class="col-8 col-sm-5 col-md-4 col-lg-5">
         <AddPlayers v-if="getStep === 1"></AddPlayers>
         <ShowGames v-if="getStep === 2"></ShowGames>
+        <ShowScore v-if="getStep === 3"></ShowScore>
       </div>
     </div>
   </div>
@@ -12,6 +13,7 @@
 <script lang="ts">
 import AddPlayers from "@/components/americano/AddPlayers.vue";
 import ShowGames from "@/components/americano/ShowGames.vue";
+import ShowScore from "@/components/americano/ShowScore.vue";
 import { defineComponent } from "vue";
 import store from "@/store/index";
 
@@ -19,6 +21,7 @@ export default defineComponent({
   components: {
     AddPlayers,
     ShowGames,
+    ShowScore,
   },
   computed: {
     getStep(): number {

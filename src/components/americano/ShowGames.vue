@@ -53,6 +53,7 @@ export default defineComponent({
     onCalculateScore(): void {
       console.log("calculate score");
       store.dispatch.americanoStore.updatePlayerScores();
+      store.commit.americanoStore.INCREMENT_STEP();
     },
     IsNewRound(index: number) {
       return index % 2 === 0;
