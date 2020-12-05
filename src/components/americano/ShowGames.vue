@@ -101,7 +101,7 @@ export default defineComponent({
 }
 
 .score-round {
-  background-color: #2f3640;
+  background-color: var(--main-gray);
   text-align: left;
   color: white;
   padding: 0.4rem;
@@ -114,7 +114,7 @@ export default defineComponent({
 
 .team {
   font-weight: bold;
-  color: #2f3640;
+  color: var(--main-gray);
 }
 
 .vs {
@@ -131,12 +131,12 @@ export default defineComponent({
 }
 
 .second-match {
-  border-top: 0.1rem solid #2f3640;
+  border-top: 0.1rem solid var(--main-gray);
 }
 
 .btn-pdl {
   color: #fff;
-  background-color: #2f3640;
-  border-color: #2f3640;
+  background-color: var(--main-gray);
+  border-color: var(--main-gray);
 }
 </style>

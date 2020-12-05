@@ -1,6 +1,6 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Navbar</a>
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-pdl">
+    <a class="navbar-brand" href="#">Padel Americano</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -15,7 +15,6 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <router-link class="nav-item nav-link" to="/">Americano</router-link>
-        <router-link class="nav-item nav-link" to="/about">About</router-link>
       </div>
     </div>
   </nav>
@@ -26,4 +25,7 @@ export default {};
 </script>
 
 <style>
+.navbar-pdl {
+  background-color: var(--main-gray);
+}
 </style>
