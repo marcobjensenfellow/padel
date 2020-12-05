@@ -18,7 +18,9 @@
       </div>
 
       <div class="form-group">
-        <button class="btn btn-pdl">{{ getAddPlayerText }}</button>
+        <button class="btn btn-pdl">
+          {{ getAddPlayerText }} <i class="las la-arrow-right"></i>
+        </button>
       </div>
     </form>
   </div>
