@@ -101,6 +101,13 @@ export default {
         newGame({ commit }: AmericanoStoreActions) {
             commit("RESET");
         },
+        saveStateManually({ getters }: AmericanoStoreActions) {
+            saveAmericanoState(
+                getters.getPlayers,
+                getters.getGames,
+                getters.getStep
+            );
+        },
     },
     getters: {
         getGames: (state: AmericanoStoreState) => state.games,

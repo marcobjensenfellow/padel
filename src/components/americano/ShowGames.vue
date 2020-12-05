@@ -24,14 +24,14 @@
                     v-model="game.homeScore"
                     class="input-element"
                     required
-                    @focusout="removeNotNumbers(game, 'home')"
+                    @focusout="handleFocusChange(game, 'home')"
                   />
                   -
                   <input
                     v-model="game.awayScore"
                     class="input-element"
                     required
-                    @focusout="removeNotNumbers(game, 'away')"
+                    @focusout="handleFocusChange(game, 'away')"
                   />
                 </div>
               </div>
@@ -81,8 +81,9 @@ export default defineComponent({
       store.dispatch.americanoStore.sortPlayersById();
       store.commit.americanoStore.DECREMENT_STEP();
     },
-    removeNotNumbers(game: PadelGame, side: string) {
+    handleFocusChange(game: PadelGame, side: string) {
       removeNotNumbers(game, side);
+      store.dispatch.americanoStore.saveStateManually();
     },
   },
   computed: {
