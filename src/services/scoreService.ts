@@ -15,6 +15,14 @@ export function updatePlayerScores(
                 return;
             }
 
+            if (game.homeScore === null) {
+                game.homeScore = 0;
+            }
+
+            if (game.awayScore === null) {
+                game.awayScore = 0;
+            }
+
             if (playerScore.home) {
                 player.score += Number(game.homeScore);
             } else {

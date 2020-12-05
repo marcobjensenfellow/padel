@@ -6,6 +6,6 @@ export interface PadelGame {
     matchNumber: number;
     id: number;
     players: PlayerScore[];
-    homeScore: number;
-    awayScore: number;
+    homeScore: number | null;
+    awayScore: number | null;
 }

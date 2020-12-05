@@ -22,8 +22,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
 
     padelGames.push(
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[0].id,
@@ -47,8 +47,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 1,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[4].id,
@@ -72,8 +72,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 2,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[0].id,
@@ -97,8 +97,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 3,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[1].id,
@@ -122,8 +122,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 4,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[0].id,
@@ -147,8 +147,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 5,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[2].id,
@@ -172,8 +172,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 6,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[2].id,
@@ -197,8 +197,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 7,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[3].id,
@@ -222,8 +222,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 8,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[4].id,
@@ -247,8 +247,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 9,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[1].id,
@@ -272,8 +272,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 10,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[0].id,
@@ -297,8 +297,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 11,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[3].id,
@@ -322,8 +322,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 12,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[2].id,
@@ -347,8 +347,8 @@ export function prepareGames(players: PadelPlayer[]): PadelGame[] {
             id: 13,
         },
         {
-            homeScore: 0,
-            awayScore: 0,
+            homeScore: null,
+            awayScore: null,
             players: [
                 {
                     playerId: players[3].id,
