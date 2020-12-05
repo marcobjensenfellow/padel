@@ -47,3 +47,33 @@ function compareScore(a: PadelPlayer, b: PadelPlayer) {
 export function sortByScore(players: PadelPlayer[]) {
     return players.sort(compareScore);
 }
+
+function getValidScore(score: number | null) {
+    if (score === null) {
+        return null;
+    }
+
+    if (isNaN(score)) {
+        return null;
+    }
+
+    return score;
+}
+
+export function removeNotNumbers(game: PadelGame, side: string) {
+    let isHome;
+    if (side === "home") {
+        isHome = true;
+    } else if (side === "away") {
+        isHome = false;
+    } else {
+        console.log("Side is not defined");
+        return;
+    }
+
+    if (isHome) {
+        game.homeScore = getValidScore(game.homeScore);
+    } else if (isHome === false) {
+        game.awayScore = getValidScore(game.awayScore);
+    }
+}

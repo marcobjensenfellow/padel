@@ -15,14 +15,24 @@
               <div class="d-flex flex-row justify-content-between">
                 <div class="team-element p-2">
                   <span class="team">{{ getPlayerNames(game, "home") }}</span>
-                  vs
+                  <span class="vs"> vs </span>
                   <span class="team">{{ getPlayerNames(game, "away") }}</span>
                 </div>
 
                 <div class="team-element p-2 align-self-center">
-                  <input v-model="game.homeScore" class="input-element" />
-                  VS
-                  <input v-model="game.awayScore" class="input-element" />
+                  <input
+                    v-model="game.homeScore"
+                    class="input-element"
+                    required
+                    @focusout="removeNotNumbers(game, 'home')"
+                  />
+                  -
+                  <input
+                    v-model="game.awayScore"
+                    class="input-element"
+                    required
+                    @focusout="removeNotNumbers(game, 'away')"
+                  />
                 </div>
               </div>
             </div>
@@ -30,7 +40,7 @@
         </div>
         <div class="clearfix">
           <div class="float-left">
-            <button @click="goBack" class="btn btn-pdl mt-3">
+            <button type="button" @click="goBack" class="btn btn-pdl mt-3">
               <i class="las la-arrow-left"></i> Ändra lag
             </button>
           </div>
@@ -50,6 +60,7 @@ import { defineComponent } from "vue";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
 import { getFullPlayerNames } from "@/services/htmlHelperService";
+import { removeNotNumbers } from "@/services/scoreService";
 
 export default defineComponent({
   methods: {
@@ -70,6 +81,9 @@ export default defineComponent({
     goBack(): void {
       store.commit.americanoStore.DECREMENT_STEP();
     },
+    removeNotNumbers(game: PadelGame, side: string) {
+      removeNotNumbers(game, side);
+    },
   },
   computed: {
     getGames() {
@@ -80,26 +94,14 @@ export default defineComponent({
 </script>
 
 <style>
-/* FIX BOOTSTRAP  */
-.table {
-  margin-bottom: 0;
-}
-
-/* FIX BOOTSTRAP  */
-.table td {
-  padding: 0;
-  vertical-align: baseline;
-}
-
 .score-container {
   border-radius: 0.375rem;
-  background-color: lightblue;
   overflow: auto;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .score-round {
-  background-color: #34495e;
+  background-color: #2f3640;
   text-align: left;
   color: white;
   padding: 0.4rem;
@@ -112,6 +114,11 @@ export default defineComponent({
 
 .team {
   font-weight: bold;
+  color: #2f3640;
+}
+
+.vs {
+  color: #e74c3c;
 }
 
 .vs-element {
@@ -124,12 +131,12 @@ export default defineComponent({
 }
 
 .second-match {
-  border-top: 0.1rem solid #2c3e50;
+  border-top: 0.1rem solid #2f3640;
 }
 
 .btn-pdl {
   color: #fff;
-  background-color: #34495e;
-  border-color: #34495e;
+  background-color: #2f3640;
+  border-color: #2f3640;
 }
 </style>
