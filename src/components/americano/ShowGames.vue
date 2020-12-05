@@ -14,9 +14,9 @@
             >
               <div class="d-flex flex-row justify-content-between">
                 <div class="team-element p-2">
-                  <span class="team">{{ getPlayerNames(game, "home") }}</span>
+                  <span class="team">{{ getPlayerNames(game, 1) }}</span>
                   <span class="vs"> vs </span>
-                  <span class="team">{{ getPlayerNames(game, "away") }}</span>
+                  <span class="team">{{ getPlayerNames(game, 2) }}</span>
                 </div>
 
                 <div class="team-element p-2 align-self-center">
@@ -72,7 +72,7 @@ export default defineComponent({
     IsNewRound(index: number) {
       return index % 2 === 0;
     },
-    getPlayerNames(game: PadelGame, side: string) {
+    getPlayerNames(game: PadelGame, side: GameSide) {
       return getFullPlayerNames(game, side);
     },
     isSecondGame(game: PadelGame) {
