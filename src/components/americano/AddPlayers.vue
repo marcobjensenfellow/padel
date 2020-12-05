@@ -91,7 +91,4 @@ export default defineComponent({
 </script>
 
 <style>
-/* .form-control {
-  width: 50%;
-} */
 </style>

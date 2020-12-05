@@ -1,6 +1,7 @@
 import { FullAmericanoState } from "@/models/fullAmericanoState.interface";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { PadelRules } from "@/models/padelRules.interface";
 
 const _fullAmericanoState = "fullAmericanoState";
 
@@ -8,16 +9,15 @@ export function saveAmericanoState(
     players: PadelPlayer[],
     games: PadelGame[],
     step: number,
-    maxScore: number
+    rules: PadelRules
 ): void {
-    const saveObject: FullAmericanoState = { players, games, step, maxScore };
+    const saveObject: FullAmericanoState = { players, games, step, rules };
 
     localStorage.setItem(_fullAmericanoState, JSON.stringify(saveObject));
 }
 
 export function loadAmericanoState(): FullAmericanoState | null {
     const loadedState = localStorage.getItem(_fullAmericanoState);
-    localStorage.removeItem(_fullAmericanoState);
 
     if (loadedState === null) {
         return null;

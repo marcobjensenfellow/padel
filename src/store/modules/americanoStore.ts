@@ -1,6 +1,7 @@
 import { GameSide } from "@/models/gameSide.enum";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { PadelRules } from "@/models/padelRules.interface";
 import { getPadelPlayers, prepareGames } from "@/services/americanoService";
 import {
     evenScore,
@@ -19,7 +20,7 @@ export interface AmericanoStoreState {
     players: PadelPlayer[];
     step: number;
     isGamePrepared: boolean;
-    maxScore: number;
+    rules: PadelRules;
 }
 
 export interface AmericanoStoreGetters {
@@ -28,6 +29,7 @@ export interface AmericanoStoreGetters {
     getStep: number;
     getIsGamePrepared: boolean;
     getMaxScore: number;
+    getRules: PadelRules;
 }
 
 export interface AmericanoStoreActions {
@@ -43,7 +45,9 @@ export default {
         players: getPadelPlayers(),
         step: 1,
         isGamePrepared: false,
-        maxScore: 32,
+        rules: {
+            maxScore: 32,
+        },
     } as AmericanoStoreState,
     mutations: {
         UPDATE_GAMES(state: AmericanoStoreState, games: PadelGame[]) {
@@ -53,7 +57,7 @@ export default {
                 state.players,
                 state.games,
                 state.step,
-                state.maxScore
+                state.rules
             );
         },
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
@@ -62,7 +66,7 @@ export default {
                 state.players,
                 state.games,
                 state.step,
-                state.maxScore
+                state.rules
             );
         },
         INCREMENT_STEP(state: AmericanoStoreState) {
@@ -71,7 +75,7 @@ export default {
                 state.players,
                 state.games,
                 state.step,
-                state.maxScore
+                state.rules
             );
         },
         DECREMENT_STEP(state: AmericanoStoreState) {
@@ -80,18 +84,18 @@ export default {
                 state.players,
                 state.games,
                 state.step,
-                state.maxScore
+                state.rules
             );
         },
         SET_MAX_SCORE(state: AmericanoStoreState, score: number) {
-            state.maxScore = score;
+            state.rules.maxScore = score;
         },
         RESET(state: AmericanoStoreState) {
             state.players = getPadelPlayers();
             state.games = [];
             state.step = 1;
             state.isGamePrepared = false;
-            state.maxScore = 32;
+            state.rules.maxScore = 32;
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
@@ -105,7 +109,7 @@ export default {
             state.games = americanoState.games;
             state.step = americanoState.step;
             state.isGamePrepared = true;
-            state.maxScore = americanoState.maxScore;
+            state.rules.maxScore = americanoState.rules.maxScore;
         },
     },
     actions: {
@@ -136,7 +140,7 @@ export default {
                 getters.getPlayers,
                 getters.getGames,
                 getters.getStep,
-                getters.getMaxScore
+                getters.getRules
             );
         },
     },
@@ -145,6 +149,7 @@ export default {
         getPlayers: (state: AmericanoStoreState) => state.players,
         getStep: (state: AmericanoStoreState) => state.step,
         getIsGamePrepared: (state: AmericanoStoreState) => state.isGamePrepared,
-        getMaxScore: (state: AmericanoStoreState) => state.maxScore,
+        getMaxScore: (state: AmericanoStoreState) => state.rules.maxScore,
+        getRules: (state: AmericanoStoreState) => state.rules,
     },
 };
