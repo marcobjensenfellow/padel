@@ -1,4 +1,5 @@
 <template>
+  <h3 class="text-center md-3">Resultat</h3>
   <table class="table table-hover">
     <thead>
       <tr>

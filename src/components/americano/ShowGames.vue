@@ -12,26 +12,18 @@
               class="game-container"
               :class="{ 'second-match': isSecondGame(game) }"
             >
-              <div class="table-responsive">
-                <table class="table">
-                  <tbody>
-                    <tr>
-                      <td class="team-element">
-                        {{ getPlayerNames(game, "home") }}
-                      </td>
-                      <td>
-                        <input v-model="game.homeScore" class="input-element" />
-                      </td>
-                      <td>VS</td>
-                      <td>
-                        <input v-model="game.awayScore" class="input-element" />
-                      </td>
-                      <td class="team-element">
-                        {{ getPlayerNames(game, "away") }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="d-flex flex-row justify-content-between">
+                <div class="team-element p-2">
+                  <span class="team">{{ getPlayerNames(game, "home") }}</span>
+                  vs
+                  <span class="team">{{ getPlayerNames(game, "away") }}</span>
+                </div>
+
+                <div class="team-element p-2 align-self-center">
+                  <input v-model="game.homeScore" class="input-element" />
+                  VS
+                  <input v-model="game.awayScore" class="input-element" />
+                </div>
               </div>
             </div>
           </div>
@@ -76,8 +68,8 @@ export default defineComponent({
       return game.matchNumber === 2;
     },
     goBack(): void {
-        store.commit.americanoStore.DECREMENT_STEP();
-    }
+      store.commit.americanoStore.DECREMENT_STEP();
+    },
   },
   computed: {
     getGames() {
@@ -88,6 +80,17 @@ export default defineComponent({
 </script>
 
 <style>
+/* FIX BOOTSTRAP  */
+.table {
+  margin-bottom: 0;
+}
+
+/* FIX BOOTSTRAP  */
+.table td {
+  padding: 0;
+  vertical-align: baseline;
+}
+
 .score-container {
   border-radius: 0.375rem;
   background-color: lightblue;
@@ -103,8 +106,16 @@ export default defineComponent({
 }
 
 .game-container {
-  background-color: #ecf0f1;
-  /* padding: 0.2rem; */
+  background-color: white;
+  padding: 0.2rem;
+}
+
+.team {
+  font-weight: bold;
+}
+
+.vs-element {
+  width: 150px;
 }
 
 .input-element {
