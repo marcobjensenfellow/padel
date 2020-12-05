@@ -24,6 +24,7 @@ export interface AmericanoStoreGetters {
 export interface AmericanoStoreActions {
     commit: Function;
     getters: AmericanoStoreGetters;
+    dispatch: Function;
 }
 
 export default {
@@ -51,6 +52,7 @@ export default {
             state.players = getPadelPlayers();
             state.games = [];
             state.step = 1;
+            state.isGamePrepared = false;
         },
         GAME_PREPARED(state: AmericanoStoreState) {
             state.isGamePrepared = true;
@@ -76,6 +78,10 @@ export default {
         sortPlayersById({ commit, getters }: AmericanoStoreActions) {
             const sortedPlayers = sortById(getters.getPlayers);
             commit("UPDATE_PLAYERS", sortedPlayers);
+        },
+        newGame({ commit, dispatch }: AmericanoStoreActions) {
+            dispatch("sortPlayersById");
+            commit("RESET");
         },
     },
     getters: {

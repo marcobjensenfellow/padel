@@ -37,7 +37,7 @@ export default defineComponent({
       store.commit.americanoStore.DECREMENT_STEP();
     },
     newGame(): void {
-      store.commit.americanoStore.RESET();
+      store.dispatch.americanoStore.newGame();
     },
   },
   computed: {
