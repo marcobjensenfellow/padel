@@ -40,6 +40,11 @@ export default {
         DECREMENT_STEP(state: AmericanoStoreState) {
             state.step -= 1;
         },
+        RESET(state: AmericanoStoreState) {
+            state.players = getPadelPlayers();
+            state.games = [];
+            state.step = 1;
+        },
     },
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {

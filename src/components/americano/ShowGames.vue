@@ -12,31 +12,42 @@
               class="game-container"
               :class="{ 'second-match': isSecondGame(game) }"
             >
-              <table>
-                <tbody>
-                  <tr>
-                    <td class="team-element">
-                      {{ getPlayerNames(game, "home") }}
-                    </td>
-                    <td>
-                      <input v-model="game.homeScore" class="input-element" />
-                    </td>
-                    <td>VS</td>
-                    <td>
-                      <input v-model="game.awayScore" class="input-element" />
-                    </td>
-                    <td class="team-element">
-                      {{ getPlayerNames(game, "away") }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="table-responsive">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td class="team-element">
+                        {{ getPlayerNames(game, "home") }}
+                      </td>
+                      <td>
+                        <input v-model="game.homeScore" class="input-element" />
+                      </td>
+                      <td>VS</td>
+                      <td>
+                        <input v-model="game.awayScore" class="input-element" />
+                      </td>
+                      <td class="team-element">
+                        {{ getPlayerNames(game, "away") }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
-          Beräkna resultat
-        </button>
+        <div class="clearfix">
+          <div class="float-left">
+            <button @click="goBack" class="btn btn-pdl mt-3">
+              <i class="las la-arrow-left"></i> Ändra lag
+            </button>
+          </div>
+          <div class="float-right">
+            <button type="submit" class="btn btn-pdl mt-3">
+              Beräkna resultat <i class="las la-arrow-right"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   </div>
@@ -64,6 +75,9 @@ export default defineComponent({
     isSecondGame(game: PadelGame) {
       return game.matchNumber === 2;
     },
+    goBack(): void {
+        store.commit.americanoStore.DECREMENT_STEP();
+    }
   },
   computed: {
     getGames() {
@@ -90,7 +104,7 @@ export default defineComponent({
 
 .game-container {
   background-color: #ecf0f1;
-  padding: 0.2rem;
+  /* padding: 0.2rem; */
 }
 
 .input-element {
@@ -98,11 +112,13 @@ export default defineComponent({
   text-align: center;
 }
 
-.team-element {
-  width: 200px;
-}
-
 .second-match {
   border-top: 0.1rem solid #2c3e50;
+}
+
+.btn-pdl {
+  color: #fff;
+  background-color: #34495e;
+  border-color: #34495e;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <div style="max-width: 80rem">
+  <div>
     <div class="row justify-content-center">
-      <div class="col-8 col-sm-5 col-md-4 col-lg-5">
+      <div class="col-11 col-sm-10 col-md-8 col-lg-8 p-4">
         <AddPlayers v-if="getStep === 1"></AddPlayers>
         <ShowGames v-if="getStep === 2"></ShowGames>
         <ShowScore v-if="getStep === 3"></ShowScore>

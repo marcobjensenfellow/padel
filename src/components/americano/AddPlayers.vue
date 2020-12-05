@@ -18,7 +18,7 @@
       </div>
 
       <div class="form-group">
-        <button class="btn btn-primary btn-block">Lägg till spelare</button>
+        <button class="btn btn-pdl">Lägg till spelare</button>
       </div>
     </form>
   </div>
