@@ -24,14 +24,14 @@
                     v-model="game.homeScore"
                     class="input-element"
                     required
-                    @focusout="handleFocusChange(game, 'home')"
+                    @focusout="handleFocusChange(game, 1)"
                   />
                   -
                   <input
                     v-model="game.awayScore"
                     class="input-element"
                     required
-                    @focusout="handleFocusChange(game, 'away')"
+                    @focusout="handleFocusChange(game, 2)"
                   />
                 </div>
               </div>
@@ -60,7 +60,8 @@ import { defineComponent } from "vue";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
 import { getFullPlayerNames } from "@/services/htmlHelperService";
-import { removeNotNumbers } from "@/services/scoreService";
+import { evenScore, removeNotNumbers } from "@/services/scoreService";
+import { GameSide } from "@/models/gameSide.enum";
 
 export default defineComponent({
   methods: {
@@ -81,8 +82,9 @@ export default defineComponent({
       store.dispatch.americanoStore.sortPlayersById();
       store.commit.americanoStore.DECREMENT_STEP();
     },
-    handleFocusChange(game: PadelGame, side: string) {
-      removeNotNumbers(game, side);
+    handleFocusChange(game: PadelGame, side: GameSide) {
+      removeNotNumbers(game, side, store.getters.americanoStore.getMaxScore);
+      evenScore(game, store.getters.americanoStore.getMaxScore, side);
       store.dispatch.americanoStore.saveStateManually();
     },
   },

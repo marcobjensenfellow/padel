@@ -5,4 +5,5 @@ export interface FullAmericanoState {
     players: PadelPlayer[];
     games: PadelGame[];
     step: number;
+    maxScore: number;
 }

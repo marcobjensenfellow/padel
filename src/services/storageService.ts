@@ -7,9 +7,10 @@ const _fullAmericanoState = "fullAmericanoState";
 export function saveAmericanoState(
     players: PadelPlayer[],
     games: PadelGame[],
-    step: number
+    step: number,
+    maxScore: number
 ): void {
-    const saveObject: FullAmericanoState = { players, games, step };
+    const saveObject: FullAmericanoState = { players, games, step, maxScore };
 
     localStorage.setItem(_fullAmericanoState, JSON.stringify(saveObject));
 }

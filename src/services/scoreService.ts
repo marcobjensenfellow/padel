@@ -1,3 +1,4 @@
+import { GameSide } from "@/models/gameSide.enum";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 
@@ -65,7 +66,7 @@ export function sortById(players: PadelPlayer[]) {
     return players.sort(compareId);
 }
 
-function getValidScore(score: number | null) {
+function getValidScore(score: number | null, maxScore: number) {
     if (score === null) {
         return null;
     }
@@ -74,23 +75,47 @@ function getValidScore(score: number | null) {
         return null;
     }
 
+    if (score > maxScore) {
+        return maxScore;
+    }
+
+    if (score < 0) {
+        return 0;
+    }
+
     return score;
 }
 
-export function removeNotNumbers(game: PadelGame, side: string) {
-    let isHome;
-    if (side === "home") {
-        isHome = true;
-    } else if (side === "away") {
-        isHome = false;
+export function removeNotNumbers(
+    game: PadelGame,
+    side: GameSide,
+    maxScore: number
+) {
+    if (side === GameSide.Home) {
+        game.homeScore = getValidScore(game.homeScore, maxScore);
+    } else if (side === GameSide.Away) {
+        game.awayScore = getValidScore(game.awayScore, maxScore);
     } else {
-        console.log("Side is not defined");
-        return;
+        console.log("Side not defined");
+    }
+}
+
+export function evenScore(game: PadelGame, maxScore: number, side: GameSide) {
+    if (side === GameSide.Home) {
+        if (game.homeScore === null) {
+            return;
+        }
+
+        const newAwayScore = maxScore - game.homeScore;
+        game.awayScore = newAwayScore;
     }
 
-    if (isHome) {
-        game.homeScore = getValidScore(game.homeScore);
-    } else if (isHome === false) {
-        game.awayScore = getValidScore(game.awayScore);
+    if (side === GameSide.Away) {
+        if (game.awayScore === null) {
+            return;
+        }
+
+        const newAwayScore = maxScore - game.awayScore;
+        game.homeScore = newAwayScore;
     }
 }
