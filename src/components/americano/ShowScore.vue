@@ -21,7 +21,7 @@
       <i class="las la-arrow-left"></i> Resultat
     </button>
     <button @click="newGame" class="btn btn-pdl mt-3 float-right">
-      Ny match
+      Ny match <i class="las la-undo-alt"></i>
     </button>
   </div>
 </template>
