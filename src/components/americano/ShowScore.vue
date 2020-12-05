@@ -42,7 +42,7 @@ export default defineComponent({
   },
   computed: {
     getPlayers() {
-      store.dispatch.americanoStore.sortPlayers();
+      store.dispatch.americanoStore.sortPlayersByScore();
       return store.getters.americanoStore.getPlayers;
     },
   },

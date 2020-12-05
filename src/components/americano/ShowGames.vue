@@ -65,7 +65,6 @@ import { removeNotNumbers } from "@/services/scoreService";
 export default defineComponent({
   methods: {
     onCalculateScore(): void {
-      console.log("calculate score");
       store.dispatch.americanoStore.updatePlayerScores();
       store.commit.americanoStore.INCREMENT_STEP();
     },
@@ -79,6 +78,7 @@ export default defineComponent({
       return game.matchNumber === 2;
     },
     goBack(): void {
+      store.dispatch.americanoStore.sortPlayersById();
       store.commit.americanoStore.DECREMENT_STEP();
     },
     removeNotNumbers(game: PadelGame, side: string) {

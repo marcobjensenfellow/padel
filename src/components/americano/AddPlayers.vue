@@ -18,7 +18,7 @@
       </div>
 
       <div class="form-group">
-        <button class="btn btn-pdl">Lägg till spelare</button>
+        <button class="btn btn-pdl">{{ getAddPlayerText }}</button>
       </div>
     </form>
   </div>
@@ -31,7 +31,11 @@ import { defineComponent } from "vue";
 export default defineComponent({
   methods: {
     onAddPlayers(): void {
-      store.dispatch.americanoStore.prepareGames();
+      const isGamePrepared = store.getters.americanoStore.getIsGamePrepared;
+
+      if (!isGamePrepared) {
+        store.dispatch.americanoStore.prepareGames();
+      }
       store.commit.americanoStore.INCREMENT_STEP();
     },
     getPlayerPlaceholder(index: number) {
@@ -42,6 +46,15 @@ export default defineComponent({
   computed: {
     getPlayers() {
       return store.getters.americanoStore.getPlayers;
+    },
+    getAddPlayerText() {
+      const isGamePrepared = store.getters.americanoStore.getIsGamePrepared;
+
+      if (isGamePrepared) {
+        return "Gå till matcher";
+      }
+
+      return "Lägg till spelare";
     },
   },
 });

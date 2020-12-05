@@ -1,18 +1,24 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { getPadelPlayers, prepareGames } from "@/services/americanoService";
-import { sortByScore, updatePlayerScores } from "@/services/scoreService";
+import {
+    sortById,
+    sortByScore,
+    updatePlayerScores,
+} from "@/services/scoreService";
 
 export interface AmericanoStoreState {
     games: PadelGame[];
     players: PadelPlayer[];
     step: number;
+    isGamePrepared: boolean;
 }
 
 export interface AmericanoStoreGetters {
     getGames: PadelGame[];
     getPlayers: PadelPlayer[];
     getStep: number;
+    isGamePrepared: boolean;
 }
 
 export interface AmericanoStoreActions {
@@ -26,6 +32,7 @@ export default {
         games: [],
         players: getPadelPlayers(),
         step: 1,
+        isGamePrepared: false,
     } as AmericanoStoreState,
     mutations: {
         UPDATE_GAMES(state: AmericanoStoreState, games: PadelGame[]) {
@@ -45,11 +52,15 @@ export default {
             state.games = [];
             state.step = 1;
         },
+        GAME_PREPARED(state: AmericanoStoreState) {
+            state.isGamePrepared = true;
+        },
     },
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
             const games = prepareGames(getters.getPlayers);
             commit("UPDATE_GAMES", games);
+            commit("GAME_PREPARED");
         },
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {
             const updatedPlayers = updatePlayerScores(
@@ -58,8 +69,12 @@ export default {
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
         },
-        sortPlayers({ commit, getters }: AmericanoStoreActions) {
+        sortPlayersByScore({ commit, getters }: AmericanoStoreActions) {
             const sortedPlayers = sortByScore(getters.getPlayers);
+            commit("UPDATE_PLAYERS", sortedPlayers);
+        },
+        sortPlayersById({ commit, getters }: AmericanoStoreActions) {
+            const sortedPlayers = sortById(getters.getPlayers);
             commit("UPDATE_PLAYERS", sortedPlayers);
         },
     },
@@ -67,5 +82,6 @@ export default {
         getGames: (state: AmericanoStoreState) => state.games,
         getPlayers: (state: AmericanoStoreState) => state.players,
         getStep: (state: AmericanoStoreState) => state.step,
+        getIsGamePrepared: (state: AmericanoStoreState) => state.isGamePrepared,
     },
 };

@@ -5,6 +5,9 @@ export function updatePlayerScores(
     players: PadelPlayer[],
     games: PadelGame[]
 ): PadelPlayer[] {
+    // reset score
+    players.forEach((player) => (player.score = 0));
+
     players.forEach((player) => {
         games.forEach((game) => {
             const playerScore = game.players.find(
@@ -44,8 +47,22 @@ function compareScore(a: PadelPlayer, b: PadelPlayer) {
     return 0;
 }
 
+function compareId(a: PadelPlayer, b: PadelPlayer) {
+    if (a.id < b.id) {
+        return -1;
+    }
+    if (a.id > b.id) {
+        return 1;
+    }
+    return 0;
+}
+
 export function sortByScore(players: PadelPlayer[]) {
     return players.sort(compareScore);
+}
+
+export function sortById(players: PadelPlayer[]) {
+    return players.sort(compareId);
 }
 
 function getValidScore(score: number | null) {
