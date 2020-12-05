@@ -37,6 +37,9 @@
       </div>
 
       <div class="form-group">
+        <button type="button" @click="reset" class="btn btn-pdl mr-3">
+          <i class="las la-times"></i> Börja om
+        </button>
         <button class="btn btn-pdl">
           {{ getAddPlayerText }} <i class="las la-arrow-right"></i>
         </button>
@@ -62,6 +65,9 @@ export default defineComponent({
     getPlayerPlaceholder(index: number) {
       const playerNumber = Number(index) + 1;
       return "Spelare " + playerNumber;
+    },
+    reset() {
+      store.commit.americanoStore.RESET();
     },
   },
   computed: {

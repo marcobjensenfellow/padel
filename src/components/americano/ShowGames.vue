@@ -43,6 +43,9 @@
             <button type="button" @click="goBack" class="btn btn-pdl mt-3">
               <i class="las la-arrow-left"></i> Ändra lag
             </button>
+            <button type="button" @click="reset" class="btn btn-pdl mt-3 ml-3">
+              <i class="las la-times"></i> Börja om
+            </button>
           </div>
           <div class="float-right">
             <button type="submit" class="btn btn-pdl mt-3">
@@ -81,6 +84,9 @@ export default defineComponent({
     goBack(): void {
       store.dispatch.americanoStore.sortPlayersById();
       store.commit.americanoStore.DECREMENT_STEP();
+    },
+    reset(): void {
+      store.commit.americanoStore.RESET();
     },
     handleFocusChange(game: PadelGame, side: GameSide) {
       removeNotNumbers(game, side, store.getters.americanoStore.getMaxScore);
