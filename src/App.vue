@@ -4,9 +4,13 @@
 </template>
 
 <script>
+import store from "./store/index";
 import Nav from "./views/Nav.vue";
 
 export default {
+  beforeCreate() {
+    store.commit.americanoStore.LOAD_STATE();
+  },
   components: {
     Nav,
   },
@@ -14,9 +18,8 @@ export default {
 </script>
 
 <style>
-
 :root {
-    --main-gray: #2f3640;
+  --main-gray: #2f3640;
 }
 
 #app {

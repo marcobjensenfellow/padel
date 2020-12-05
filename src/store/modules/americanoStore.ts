@@ -6,6 +6,11 @@ import {
     sortByScore,
     updatePlayerScores,
 } from "@/services/scoreService";
+import {
+    loadAmericanoState,
+    removeAmericanoState,
+    saveAmericanoState,
+} from "@/services/storageService";
 
 export interface AmericanoStoreState {
     games: PadelGame[];
@@ -38,31 +43,45 @@ export default {
     mutations: {
         UPDATE_GAMES(state: AmericanoStoreState, games: PadelGame[]) {
             state.games = games;
+            state.isGamePrepared = true;
+            saveAmericanoState(state.players, state.games, state.step);
         },
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
+            saveAmericanoState(state.players, state.games, state.step);
         },
         INCREMENT_STEP(state: AmericanoStoreState) {
             state.step += 1;
+            saveAmericanoState(state.players, state.games, state.step);
         },
         DECREMENT_STEP(state: AmericanoStoreState) {
             state.step -= 1;
+            saveAmericanoState(state.players, state.games, state.step);
         },
         RESET(state: AmericanoStoreState) {
             state.players = getPadelPlayers();
             state.games = [];
             state.step = 1;
             state.isGamePrepared = false;
+            removeAmericanoState();
         },
-        GAME_PREPARED(state: AmericanoStoreState) {
+        LOAD_STATE(state: AmericanoStoreState) {
+            const americanoState = loadAmericanoState();
+
+            if (!americanoState) {
+                return;
+            }
+
+            state.players = americanoState.players;
+            state.games = americanoState.games;
+            state.step = americanoState.step;
             state.isGamePrepared = true;
         },
     },
     actions: {
-        prepareGames({ commit, getters }: AmericanoStoreActions) {
+        prepareGames({ commit, getters, dispatch }: AmericanoStoreActions) {
             const games = prepareGames(getters.getPlayers);
             commit("UPDATE_GAMES", games);
-            commit("GAME_PREPARED");
         },
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {
             const updatedPlayers = updatePlayerScores(
@@ -79,8 +98,7 @@ export default {
             const sortedPlayers = sortById(getters.getPlayers);
             commit("UPDATE_PLAYERS", sortedPlayers);
         },
-        newGame({ commit, dispatch }: AmericanoStoreActions) {
-            dispatch("sortPlayersById");
+        newGame({ commit }: AmericanoStoreActions) {
             commit("RESET");
         },
     },
