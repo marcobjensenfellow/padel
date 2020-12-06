@@ -94,6 +94,7 @@ export default {
             state.step = 1;
             state.isGamePrepared = false;
             state.rules.maxScore = 32;
+            state.rules.randomSchedule = false;
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
