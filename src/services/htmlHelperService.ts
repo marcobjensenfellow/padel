@@ -45,3 +45,24 @@ export function isValidMaxScore(value: number): boolean {
 
     return true;
 }
+
+export function getDuplicateIds(
+    players: PadelPlayer[] | readonly PadelPlayer[]
+): number[] {
+    const duplicateIds: number[] = [];
+    const checker: { name: string; id: number }[] = [];
+
+    players.forEach((player) => {
+        if (!player.name) {
+            return;
+        }
+
+        if (checker.map((c) => c.name).includes(player.name)) {
+            duplicateIds.push(player.id);
+        }
+
+        checker.push({ name: player.name, id: player.id });
+    });
+
+    return duplicateIds;
+}

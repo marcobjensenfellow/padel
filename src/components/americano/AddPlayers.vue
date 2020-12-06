@@ -15,8 +15,17 @@
               class="form-control mx-auto"
               :placeholder="getPlayerPlaceholder(index)"
               v-model="player.name"
+              @keyup="handlePlayerNameChange()"
+              :class="{ 'is-invalid': isDuplicateName(player.id) }"
               required
             />
+            <small
+              id="duplicateNameHelp"
+              class="form-text text-danger"
+              v-if="isDuplicateName(player.id)"
+            >
+              Namnet används redan
+            </small>
           </div>
         </div>
         <div class="col-6">
@@ -79,7 +88,7 @@
 
 <script lang="ts">
 import { PadelRules } from "@/models/padelRules.interface";
-import { isValidMaxScore } from "@/services/htmlHelperService";
+import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 
@@ -88,11 +97,19 @@ export default defineComponent({
     return {
       maxScore: 32,
       maxScoreInvalid: false,
+      duplicateNameIds: [] as number[],
     };
   },
   methods: {
     onAddPlayers(): void {
       if (this.maxScoreInvalid) {
+        return;
+      }
+
+      const duplicateIds = getDuplicateIds(this.getPlayers);
+
+      if (duplicateIds.length > 0) {
+        this.$data.duplicateNameIds = duplicateIds;
         return;
       }
 
@@ -109,6 +126,9 @@ export default defineComponent({
     },
     reset() {
       store.commit.americanoStore.RESET();
+      this.$data.duplicateNameIds = [];
+      this.$data.maxScoreInvalid = false;
+      this.$data.maxScore = 32;
     },
     onMaxScoreChange() {
       const value = this.$data.maxScore;
@@ -126,6 +146,12 @@ export default defineComponent({
         maxScore: numberValue,
       };
       store.commit.americanoStore.SET_RULES(newRules);
+    },
+    handlePlayerNameChange() {
+      this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
+    },
+    isDuplicateName(id: number) {
+      return this.$data.duplicateNameIds.includes(id);
     },
   },
   created() {
