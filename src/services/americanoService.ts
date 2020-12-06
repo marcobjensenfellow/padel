@@ -1,49 +1,13 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "../models/padelPlayer.interface";
 
-export function getPadelPlayers(): PadelPlayer[] {
-    const padelPlayers: PadelPlayer[] = [
-        {
-            name: "",
-            score: 0,
-            id: 1,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 2,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 3,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 4,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 5,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 6,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 7,
-        },
-        {
-            name: "",
-            score: 0,
-            id: 8,
-        },
-    ];
+export function getPadelPlayers(amount = 8): PadelPlayer[] {
+    const padelPlayers: PadelPlayer[] = [];
+
+    for (let i = 0; i < amount; i++) {
+        const padelPlayer: PadelPlayer = { name: "", score: 0, id: i + 1 };
+        padelPlayers.push(padelPlayer);
+    }
 
     return padelPlayers;
 }
