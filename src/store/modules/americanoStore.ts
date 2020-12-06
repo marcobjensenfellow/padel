@@ -1,10 +1,8 @@
-import { GameSide } from "@/models/gameSide.enum";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
 import { getPadelPlayers, prepareGames } from "@/services/americanoService";
 import {
-    evenScore,
     sortById,
     sortByScore,
     updatePlayerScores,

@@ -30,9 +30,18 @@
                 type="text"
                 id="maxScoreInput"
                 class="form-control mx-auto"
-                v-model="maxScoreRule"
+                :class="{ 'is-invalid': maxScoreInvalid }"
+                v-model="maxScore"
+                @focusout="onMaxScoreChange"
                 required
               />
+              <small
+                v-if="maxScoreInvalid"
+                id="maxScoreInvalidHelp"
+                class="text-danger"
+              >
+                Måste vara en eller flera siffror.
+              </small>
             </div>
             <div class="form-group">
               <div class="form-check">
@@ -69,12 +78,23 @@
 
 <script lang="ts">
 import { PadelRules } from "@/models/padelRules.interface";
+import { isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  data: function () {
+    return {
+      maxScore: 32,
+      maxScoreInvalid: false,
+    };
+  },
   methods: {
     onAddPlayers(): void {
+      if (this.maxScoreInvalid) {
+        return;
+      }
+
       const isGamePrepared = store.getters.americanoStore.getIsGamePrepared;
 
       if (!isGamePrepared) {
@@ -89,6 +109,26 @@ export default defineComponent({
     reset() {
       store.commit.americanoStore.RESET();
     },
+    onMaxScoreChange() {
+      const value = this.$data.maxScore;
+
+      if (!isValidMaxScore(value)) {
+        this.maxScoreInvalid = true;
+        return;
+      }
+
+      this.maxScoreInvalid = false;
+
+      const numberValue = Number(value);
+      const newRules: PadelRules = {
+        ...store.getters.americanoStore.getRules,
+        maxScore: numberValue,
+      };
+      store.commit.americanoStore.SET_RULES(newRules);
+    },
+  },
+  created() {
+    this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
   },
   computed: {
     getPlayers() {
@@ -102,20 +142,6 @@ export default defineComponent({
       }
 
       return "Lägg till spelare";
-    },
-    maxScoreRule: {
-      get() {
-        return store.getters.americanoStore.getRules.maxScore;
-      },
-      set(value: number) {
-        // TODO: add check to see if valid number
-        const numberValue = Number(value);
-        const newRules: PadelRules = {
-          ...store.getters.americanoStore.getRules,
-          maxScore: numberValue,
-        };
-        store.commit.americanoStore.SET_RULES(newRules);
-      },
     },
     randomScheduleRule: {
       get() {
