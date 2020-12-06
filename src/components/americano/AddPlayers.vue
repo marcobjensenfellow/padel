@@ -2,8 +2,8 @@
   <div>
     <h1 class="text-center">Förberedelser</h1>
     <form @submit.prevent="onAddPlayers">
-      <div class="d-flex flex-row justify-content-between">
-        <div>
+      <div class="row">
+        <div class="col-6">
           <h4>Lägg till spelare</h4>
           <div
             v-for="(player, index) in getPlayers"
@@ -19,18 +19,37 @@
             />
           </div>
         </div>
-        <div>
+        <div class="col-6">
           <h4>Regler</h4>
           <div>
             <div class="form-group">
-              <label for="maxScoreInput">Maxpoäng per runda</label>
+              <label for="maxScoreInput" class="form-label"
+                >Maxpoäng per runda</label
+              >
               <input
                 type="text"
                 id="maxScoreInput"
                 class="form-control mx-auto"
-                v-model="getMaxScore"
+                v-model="maxScoreRule"
                 required
               />
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="randomScheduleRule"
+                  id="randomScheduleCheck"
+                />
+                <label class="form-check-label" for="randomScheduleCheck">
+                  Slumpa spelschema
+                </label>
+                <small id="randomScheduleHelp" class="form-text text-muted">
+                  Slumpat spelschema innebär att du ej kan återskapa exakt samma
+                  spelschema eftersom att spelordningen slumpas.
+                </small>
+              </div>
             </div>
           </div>
         </div>
@@ -49,6 +68,7 @@
 </template>
 
 <script lang="ts">
+import { PadelRules } from "@/models/padelRules.interface";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 
@@ -83,8 +103,31 @@ export default defineComponent({
 
       return "Lägg till spelare";
     },
-    getMaxScore() {
-      return store.getters.americanoStore.getMaxScore;
+    maxScoreRule: {
+      get() {
+        return store.getters.americanoStore.getRules.maxScore;
+      },
+      set(value: number) {
+        // TODO: add check to see if valid number
+        const numberValue = Number(value);
+        const newRules: PadelRules = {
+          ...store.getters.americanoStore.getRules,
+          maxScore: numberValue,
+        };
+        store.commit.americanoStore.SET_RULES(newRules);
+      },
+    },
+    randomScheduleRule: {
+      get() {
+        return store.getters.americanoStore.getRules.randomSchedule;
+      },
+      set(value: boolean) {
+        const newRules: PadelRules = {
+          ...store.getters.americanoStore.getRules,
+          randomSchedule: value,
+        };
+        store.commit.americanoStore.SET_RULES(newRules);
+      },
     },
   },
 });

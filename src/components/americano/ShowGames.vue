@@ -89,8 +89,12 @@ export default defineComponent({
       store.commit.americanoStore.RESET();
     },
     handleFocusChange(game: PadelGame, side: GameSide) {
-      removeNotNumbers(game, side, store.getters.americanoStore.getMaxScore);
-      evenScore(game, store.getters.americanoStore.getMaxScore, side);
+      removeNotNumbers(
+        game,
+        side,
+        store.getters.americanoStore.getRules.maxScore
+      );
+      evenScore(game, store.getters.americanoStore.getRules.maxScore, side);
       store.dispatch.americanoStore.saveStateManually();
     },
   },

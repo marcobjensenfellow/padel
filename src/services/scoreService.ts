@@ -83,7 +83,7 @@ function getValidScore(score: number | null, maxScore: number) {
         return 0;
     }
 
-    return score;
+    return Number(score);
 }
 
 export function removeNotNumbers(

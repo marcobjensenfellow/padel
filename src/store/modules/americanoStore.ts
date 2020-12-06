@@ -28,7 +28,6 @@ export interface AmericanoStoreGetters {
     getPlayers: PadelPlayer[];
     getStep: number;
     getIsGamePrepared: boolean;
-    getMaxScore: number;
     getRules: PadelRules;
 }
 
@@ -47,6 +46,7 @@ export default {
         isGamePrepared: false,
         rules: {
             maxScore: 32,
+            randomSchedule: false,
         },
     } as AmericanoStoreState,
     mutations: {
@@ -87,8 +87,8 @@ export default {
                 state.rules
             );
         },
-        SET_MAX_SCORE(state: AmericanoStoreState, score: number) {
-            state.rules.maxScore = score;
+        SET_RULES(state: AmericanoStoreState, rules: PadelRules) {
+            state.rules = rules;
         },
         RESET(state: AmericanoStoreState) {
             state.players = getPadelPlayers();
@@ -109,7 +109,7 @@ export default {
             state.games = americanoState.games;
             state.step = americanoState.step;
             state.isGamePrepared = true;
-            state.rules.maxScore = americanoState.rules.maxScore;
+            state.rules = americanoState.rules;
         },
     },
     actions: {
@@ -149,7 +149,6 @@ export default {
         getPlayers: (state: AmericanoStoreState) => state.players,
         getStep: (state: AmericanoStoreState) => state.step,
         getIsGamePrepared: (state: AmericanoStoreState) => state.isGamePrepared,
-        getMaxScore: (state: AmericanoStoreState) => state.rules.maxScore,
         getRules: (state: AmericanoStoreState) => state.rules,
     },
 };
