@@ -50,13 +50,14 @@
                   type="checkbox"
                   v-model="randomScheduleRule"
                   id="randomScheduleCheck"
+                  :disabled="getIsGamePrepared"
                 />
                 <label class="form-check-label" for="randomScheduleCheck">
                   Slumpa spelschema
                 </label>
                 <small id="randomScheduleHelp" class="form-text text-muted">
-                  Slumpat spelschema innebär att du ej kan återskapa exakt samma
-                  spelschema eftersom att spelordningen slumpas.
+                  Slumpa spelschema innebär en ny matchlottning trots att det är
+                  samma deltagare.
                 </small>
               </div>
             </div>
@@ -154,6 +155,9 @@ export default defineComponent({
         };
         store.commit.americanoStore.SET_RULES(newRules);
       },
+    },
+    getIsGamePrepared() {
+      return store.getters.americanoStore.getIsGamePrepared;
     },
   },
 });

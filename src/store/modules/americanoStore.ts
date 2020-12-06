@@ -113,7 +113,7 @@ export default {
     },
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
-            const games = prepareGames(getters.getPlayers);
+            const games = prepareGames(getters.getPlayers, getters.getRules.randomSchedule);
             commit("UPDATE_GAMES", games);
         },
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {

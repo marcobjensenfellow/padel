@@ -48,8 +48,31 @@ export function getPadelPlayers(): PadelPlayer[] {
     return padelPlayers;
 }
 
-export function prepareGames(players: PadelPlayer[]): PadelGame[] {
+function shuffleArray(array: Array<any>) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function resetIds(array: PadelPlayer[]) {
+    let id = 1;
+    array.forEach((player) => {
+        player.id = id;
+        id++;
+    });
+}
+
+export function prepareGames(
+    players: PadelPlayer[],
+    randomSchedule: boolean
+): PadelGame[] {
     const padelGames: PadelGame[] = [];
+
+    if (randomSchedule) {
+        shuffleArray(players);
+        resetIds(players);
+    }
 
     padelGames.push(
         {
