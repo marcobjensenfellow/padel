@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark navbar-pdl">
-    <a class="navbar-brand" href="#">Padel Americano</a>
+    <a class="navbar-brand" href="#">Padel Nu</a>
     <button
       class="navbar-toggler"
       type="button"
