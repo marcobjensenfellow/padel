@@ -32,13 +32,30 @@
           <h4>Regler</h4>
           <div>
             <div class="form-group">
+              <div class="form-check">
+                <label class="form-check-label" for="amountOfPlayers">
+                  Antal spelare
+                </label>
+                <select
+                  class="form-control"
+                  id="amountOfPlayers"
+                  v-model="amountOfPlayers"
+                  @change="handleAmountOfPlayersChange"
+                  :disabled="getIsGamePrepared"
+                >
+                  <option value="8">8</option>
+                  <option value="16">16</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
               <label for="maxScoreInput" class="form-label"
                 >Maxpoäng per runda</label
               >
               <input
                 type="text"
                 id="maxScoreInput"
-                class="form-control mx-auto"
+                class="form-control"
                 :class="{ 'is-invalid': maxScoreInvalid }"
                 v-model="maxScore"
                 @focusout="onMaxScoreChange"
@@ -88,6 +105,7 @@
 
 <script lang="ts">
 import { PadelRules } from "@/models/padelRules.interface";
+import { getPadelPlayers } from "@/services/americanoService";
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
@@ -98,6 +116,7 @@ export default defineComponent({
       maxScore: 32,
       maxScoreInvalid: false,
       duplicateNameIds: [] as number[],
+      amountOfPlayers: 8,
     };
   },
   methods: {
@@ -150,12 +169,18 @@ export default defineComponent({
     handlePlayerNameChange() {
       this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
     },
+    handleAmountOfPlayersChange() {
+      const players = getPadelPlayers(this.$data.amountOfPlayers);
+      store.commit.americanoStore.UPDATE_PLAYERS(players);
+    },
     isDuplicateName(id: number) {
       return this.$data.duplicateNameIds.includes(id);
     },
   },
   created() {
     this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
+    this.$data.amountOfPlayers =
+      store.getters.americanoStore.getRules.amountOfPlayers;
   },
   computed: {
     getPlayers() {

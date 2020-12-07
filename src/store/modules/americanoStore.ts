@@ -45,6 +45,7 @@ export default {
         rules: {
             maxScore: 32,
             randomSchedule: false,
+            amountOfPlayers: 8,
         },
     } as AmericanoStoreState,
     mutations: {
@@ -60,6 +61,7 @@ export default {
         },
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
+            state.rules.amountOfPlayers = players.length;
             saveAmericanoState(
                 state.players,
                 state.games,
@@ -95,6 +97,7 @@ export default {
             state.isGamePrepared = false;
             state.rules.maxScore = 32;
             state.rules.randomSchedule = false;
+            state.rules.amountOfPlayers = 8;
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
@@ -113,7 +116,10 @@ export default {
     },
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
-            const games = prepareGames(getters.getPlayers, getters.getRules.randomSchedule);
+            const games = prepareGames(
+                getters.getPlayers,
+                getters.getRules.randomSchedule
+            );
             commit("UPDATE_GAMES", games);
         },
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {

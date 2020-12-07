@@ -8,4 +8,5 @@ export interface PadelGame {
     players: PlayerScore[];
     homeScore: number | null;
     awayScore: number | null;
+    playGroup: number;
 }

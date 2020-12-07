@@ -27,16 +27,11 @@ function resetIds(array: PadelPlayer[]) {
     });
 }
 
-export function prepareGames(
+function setupGamesWithPlayers(
     players: PadelPlayer[],
-    randomSchedule: boolean
+    playGroup = 1
 ): PadelGame[] {
     const padelGames: PadelGame[] = [];
-
-    if (randomSchedule) {
-        shuffleArray(players);
-        resetIds(players);
-    }
 
     padelGames.push(
         {
@@ -63,6 +58,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 1,
             id: 1,
+            playGroup,
         },
         {
             homeScore: null,
@@ -88,6 +84,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 1,
             id: 2,
+            playGroup,
         },
         {
             homeScore: null,
@@ -113,6 +110,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 2,
             id: 3,
+            playGroup,
         },
         {
             homeScore: null,
@@ -138,6 +136,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 2,
             id: 4,
+            playGroup,
         },
         {
             homeScore: null,
@@ -163,6 +162,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 3,
             id: 5,
+            playGroup,
         },
         {
             homeScore: null,
@@ -188,6 +188,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 3,
             id: 6,
+            playGroup,
         },
         {
             homeScore: null,
@@ -213,6 +214,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 4,
             id: 7,
+            playGroup,
         },
         {
             homeScore: null,
@@ -238,6 +240,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 4,
             id: 8,
+            playGroup,
         },
         {
             homeScore: null,
@@ -263,6 +266,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 5,
             id: 9,
+            playGroup,
         },
         {
             homeScore: null,
@@ -288,6 +292,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 5,
             id: 10,
+            playGroup,
         },
         {
             homeScore: null,
@@ -313,6 +318,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 6,
             id: 11,
+            playGroup,
         },
         {
             homeScore: null,
@@ -338,6 +344,7 @@ export function prepareGames(
             matchNumber: 2,
             round: 6,
             id: 12,
+            playGroup,
         },
         {
             homeScore: null,
@@ -363,6 +370,7 @@ export function prepareGames(
             matchNumber: 1,
             round: 7,
             id: 13,
+            playGroup,
         },
         {
             homeScore: null,
@@ -388,8 +396,57 @@ export function prepareGames(
             matchNumber: 2,
             round: 7,
             id: 14,
+            playGroup,
         }
     );
 
     return padelGames;
+}
+
+function mergeAlternating(array1: Array<any>, array2: Array<any>) {
+    const mergedArray = [];
+
+    for (
+        let i = 0, len = Math.max(array1.length, array2.length);
+        i < len;
+        i++
+    ) {
+        if (i < array1.length) {
+            mergedArray.push(array1[i]);
+        }
+        if (i < array2.length) {
+            mergedArray.push(array2[i]);
+        }
+    }
+    return mergedArray;
+}
+
+function splitArrayInHalf(array: Array<any>): Array<any>[] {
+    const middle = Math.ceil(array.length / 2);
+
+    const leftArray = array.slice(0, middle);
+    const rightArray = array.slice(middle);
+
+    return [leftArray, rightArray];
+}
+
+export function prepareGames(
+    players: PadelPlayer[],
+    randomSchedule: boolean
+): PadelGame[] {
+    if (randomSchedule) {
+        shuffleArray(players);
+        resetIds(players);
+    }
+
+    if (players.length === 16) {
+        const arrays = splitArrayInHalf(players);
+
+        const games1 = setupGamesWithPlayers(arrays[0]);
+        const games2 = setupGamesWithPlayers(arrays[1], 2);
+        const combinedGames = mergeAlternating(games1, games2);
+        return combinedGames;
+    }
+
+    return setupGamesWithPlayers(players);
 }
