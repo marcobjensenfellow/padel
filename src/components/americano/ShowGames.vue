@@ -5,12 +5,12 @@
       <div class="form-group">
         <div class="score-container">
           <div v-for="(game, index) in getGames" :key="game.id">
-            <div v-if="IsNewRound(index)" class="score-round">
+            <div v-if="IsNewRound(index, getGames.length)" class="score-round">
               Omgång: {{ game.round }}
             </div>
             <div
               class="game-container"
-              :class="{ 'second-match': isSecondGame(game) }"
+              :class="{ 'top-border': shouldHaveTopBorder(game) }"
             >
               <div class="d-flex flex-row justify-content-between">
                 <div class="team-element p-2">
@@ -72,14 +72,17 @@ export default defineComponent({
       store.dispatch.americanoStore.updatePlayerScores();
       store.commit.americanoStore.INCREMENT_STEP();
     },
-    IsNewRound(index: number) {
-      return index % 2 === 0;
+    IsNewRound(index: number, amountOfGames: number) {
+      return index % (amountOfGames / 7) === 0;
     },
     getPlayerNames(game: PadelGame, side: GameSide) {
       return getFullPlayerNames(game, side);
     },
-    isSecondGame(game: PadelGame) {
-      return game.matchNumber === 2;
+    shouldHaveTopBorder(game: PadelGame) {
+      console.log(game);
+      const lastTwoGamesOfFour = game.matchNumber == 2;
+      const secondGameOfFour = game.playGroup == 2 && game.matchNumber == 1;
+      return lastTwoGamesOfFour || secondGameOfFour;
     },
     goBack(): void {
       store.dispatch.americanoStore.sortPlayersById();
@@ -143,7 +146,7 @@ export default defineComponent({
   text-align: center;
 }
 
-.second-match {
+.top-border {
   border-top: 0.1rem solid var(--main-gray);
 }
 
