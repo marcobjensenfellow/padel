@@ -16,7 +16,11 @@
               :placeholder="getPlayerPlaceholder(index)"
               v-model="player.name"
               @keyup="handlePlayerNameChange()"
-              :class="{ 'is-invalid': isDuplicateName(player.id) }"
+              :class="{
+                'is-invalid': isDuplicateName(player.id),
+                'is-second': isSecondGroup(player),
+                'is-first': isFirstGroup(player),
+              }"
               required
             />
             <small
@@ -85,6 +89,23 @@
                 </small>
               </div>
             </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  v-model="colorCode"
+                  id="colorCodeCheck"
+                />
+                <label class="form-check-label" for="randomScheduleCheck">
+                  Färgmarkera grupper
+                </label>
+                <small id="randomScheduleHelp" class="form-text text-muted">
+                  Färgmarkera de två grupperna så att det blir tydligt vilka som
+                  hör ihop.
+                </small>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -102,6 +123,8 @@
 </template>
 
 <script lang="ts">
+import { PadelGame } from "@/models/padelGame.interface";
+import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
 import { getPadelPlayers } from "@/services/americanoService";
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
@@ -115,6 +138,7 @@ export default defineComponent({
       maxScoreInvalid: false,
       duplicateNameIds: [] as number[],
       amountOfPlayers: 8,
+      colorCode: false,
     };
   },
   methods: {
@@ -174,6 +198,27 @@ export default defineComponent({
     isDuplicateName(id: number) {
       return this.$data.duplicateNameIds.includes(id);
     },
+    isSecondGroup(player: PadelPlayer) {
+      if (this.amountOfPlayers === 8 || this.$data.colorCode === false) {
+        return false;
+      }
+      const allPlayers = store.getters.americanoStore.getPlayers;
+
+      const index = allPlayers.indexOf(player);
+
+      return index > 7;
+    },
+
+    isFirstGroup(player: PadelPlayer) {
+      if (this.amountOfPlayers === 8 || this.$data.colorCode === false) {
+        return false;
+      }
+      const allPlayers = store.getters.americanoStore.getPlayers;
+
+      const index = allPlayers.indexOf(player);
+
+      return index <= 7;
+    },
   },
   created() {
     this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
@@ -213,4 +258,11 @@ export default defineComponent({
 </script>
 
 <style>
+.is-second {
+  background-color: #f0fbfc;
+}
+
+.is-first {
+  background-color: #fcf0f0;
+}
 </style>
