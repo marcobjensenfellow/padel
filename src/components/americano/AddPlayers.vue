@@ -32,21 +32,19 @@
           <h4>Regler</h4>
           <div>
             <div class="form-group">
-              <div class="form-check">
-                <label class="form-check-label" for="amountOfPlayers">
-                  Antal spelare
-                </label>
-                <select
-                  class="form-control"
-                  id="amountOfPlayers"
-                  v-model="amountOfPlayers"
-                  @change="handleAmountOfPlayersChange"
-                  :disabled="getIsGamePrepared"
-                >
-                  <option value="8">8</option>
-                  <option value="16">16</option>
-                </select>
-              </div>
+              <label class="form-check-label" for="amountOfPlayers">
+                Antal spelare
+              </label>
+              <select
+                class="form-control"
+                id="amountOfPlayers"
+                v-model="amountOfPlayers"
+                @change="handleAmountOfPlayersChange"
+                :disabled="getIsGamePrepared"
+              >
+                <option value="8">8</option>
+                <option value="16">16</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="maxScoreInput" class="form-label"
