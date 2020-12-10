@@ -11,8 +11,8 @@
             <div
               :class="{
                 'top-border': shouldHaveTopBorder(game),
-                'is-second': getIfColorCodedTrue(game) === 2,
-                'is-first': getIfColorCodedTrue(game) === 1,
+                'is-second': getColorCodeGroup(game) === 2,
+                'is-first': getColorCodeGroup(game) === 1,
               }"
               class="game-container"
             >
@@ -103,7 +103,7 @@ export default defineComponent({
       evenScore(game, store.getters.americanoStore.getRules.maxScore, side);
       store.dispatch.americanoStore.saveStateManually();
     },
-    getIfColorCodedTrue(game: PadelGame) {
+    getColorCodeGroup(game: PadelGame) {
       if (store.getters.americanoStore.getRules.colorCode === false) {
         return 0;
       }

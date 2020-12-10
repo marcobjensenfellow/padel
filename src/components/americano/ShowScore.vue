@@ -9,7 +9,14 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(player, index) in getPlayers" :key="player.id">
+      <tr
+        v-for="(player, index) in getPlayers"
+        :key="player.id"
+        :class="{
+          'is-second': getColorCodeGroup(player) === 2,
+          'is-first': getColorCodeGroup(player) === 1,
+        }"
+      >
         <th scope="row">{{ Number(index) + 1 }}</th>
         <td>{{ player.name }}</td>
         <td>{{ player.score }}</td>
@@ -27,6 +34,8 @@
 </template>
 
 <script lang="ts">
+import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { getColorCodeGroupFromPlayer } from "@/services/americanoService";
 import { sortByScore } from "@/services/scoreService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
@@ -38,6 +47,17 @@ export default defineComponent({
     },
     newGame(): void {
       store.dispatch.americanoStore.newGame();
+    },
+    getColorCodeGroup(player: PadelPlayer) {
+      if (store.getters.americanoStore.getRules.colorCode === false) {
+        return 0;
+      }
+
+      return getColorCodeGroupFromPlayer(
+        player,
+        store.getters.americanoStore.getPlayers,
+        store.getters.americanoStore.getGames
+      );
     },
   },
   computed: {

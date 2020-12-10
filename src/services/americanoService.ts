@@ -450,3 +450,29 @@ export function prepareGames(
 
     return setupGamesWithPlayers(players);
 }
+
+export function getColorCodeGroupFromPlayer(
+    player: PadelPlayer,
+    players: PadelPlayer[] | readonly PadelPlayer[],
+    games: PadelGame[] | readonly PadelGame[]
+) {
+    // const index = players.indexOf(player);
+
+    // if (index <= 7) {
+    //     return 1;
+    // }
+
+    // return 2;
+
+    const gameWithPlayer = games.find((game) => {
+        const playerIncluded = game.players.find(
+            (p) => p.playerId === player.id
+        );
+
+        if (playerIncluded) {
+            return game;
+        }
+    });
+
+    return gameWithPlayer?.playGroup;
+}
