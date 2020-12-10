@@ -42,7 +42,7 @@
               <select
                 class="form-control"
                 id="amountOfPlayers"
-                v-model="amountOfPlayers"
+                v-model="amountOfPlayersRule"
                 @change="handleAmountOfPlayersChange"
                 :disabled="getIsGamePrepared"
               >
@@ -89,12 +89,12 @@
                 </small>
               </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" v-if="amountOfPlayersRule === 16">
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
-                  v-model="colorCode"
+                  v-model="colorCodeRule"
                   id="colorCodeCheck"
                 />
                 <label class="form-check-label" for="randomScheduleCheck">
@@ -137,8 +137,6 @@ export default defineComponent({
       maxScore: 32,
       maxScoreInvalid: false,
       duplicateNameIds: [] as number[],
-      amountOfPlayers: 8,
-      colorCode: false,
     };
   },
   methods: {
@@ -192,14 +190,14 @@ export default defineComponent({
       this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
     },
     handleAmountOfPlayersChange() {
-      const players = getPadelPlayers(this.$data.amountOfPlayers);
+      const players = getPadelPlayers(this.amountOfPlayersRule);
       store.commit.americanoStore.UPDATE_PLAYERS(players);
     },
     isDuplicateName(id: number) {
       return this.$data.duplicateNameIds.includes(id);
     },
     isSecondGroup(player: PadelPlayer) {
-      if (this.amountOfPlayers === 8 || this.$data.colorCode === false) {
+      if (this.amountOfPlayersRule === 8 || this.colorCodeRule === false) {
         return false;
       }
       const allPlayers = store.getters.americanoStore.getPlayers;
@@ -210,7 +208,7 @@ export default defineComponent({
     },
 
     isFirstGroup(player: PadelPlayer) {
-      if (this.amountOfPlayers === 8 || this.$data.colorCode === false) {
+      if (this.amountOfPlayersRule === 8 || this.colorCodeRule === false) {
         return false;
       }
       const allPlayers = store.getters.americanoStore.getPlayers;
@@ -222,8 +220,6 @@ export default defineComponent({
   },
   created() {
     this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
-    this.$data.amountOfPlayers =
-      store.getters.americanoStore.getRules.amountOfPlayers;
   },
   computed: {
     getPlayers() {
@@ -246,6 +242,30 @@ export default defineComponent({
         const newRules: PadelRules = {
           ...store.getters.americanoStore.getRules,
           randomSchedule: value,
+        };
+        store.commit.americanoStore.SET_RULES(newRules);
+      },
+    },
+    amountOfPlayersRule: {
+      get() {
+        return store.getters.americanoStore.getRules.amountOfPlayers;
+      },
+      set(amount: number) {
+        const newRules: PadelRules = {
+          ...store.getters.americanoStore.getRules,
+          amountOfPlayers: amount,
+        };
+        store.commit.americanoStore.SET_RULES(newRules);
+      },
+    },
+    colorCodeRule: {
+      get() {
+        return store.getters.americanoStore.getRules.colorCode;
+      },
+      set(value: boolean) {
+        const newRules: PadelRules = {
+          ...store.getters.americanoStore.getRules,
+          colorCode: value,
         };
         store.commit.americanoStore.SET_RULES(newRules);
       },

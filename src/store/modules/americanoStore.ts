@@ -46,6 +46,7 @@ export default {
             maxScore: 32,
             randomSchedule: false,
             amountOfPlayers: 8,
+            colorCode: false,
         },
     } as AmericanoStoreState,
     mutations: {
@@ -98,6 +99,7 @@ export default {
             state.rules.maxScore = 32;
             state.rules.randomSchedule = false;
             state.rules.amountOfPlayers = 8;
+            state.rules.colorCode = false;
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
