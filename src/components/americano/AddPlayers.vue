@@ -81,7 +81,7 @@
                   :disabled="getIsGamePrepared"
                 />
                 <label class="form-check-label" for="randomScheduleCheck">
-                  Slumpa spelschema
+                  Slumpa spelschemap
                 </label>
                 <small id="randomScheduleHelp" class="form-text text-muted">
                   Slumpa spelschema innebär en ny matchlottning trots att det är

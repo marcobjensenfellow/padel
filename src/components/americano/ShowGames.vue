@@ -9,8 +9,12 @@
               Omgång: {{ game.round }}
             </div>
             <div
+              :class="{
+                'top-border': shouldHaveTopBorder(game),
+                'is-second': getIfColorCodedTrue(game) === 2,
+                'is-first': getIfColorCodedTrue(game) === 1,
+              }"
               class="game-container"
-              :class="{ 'top-border': shouldHaveTopBorder(game) }"
             >
               <div class="d-flex flex-row justify-content-between">
                 <div class="team-element p-2">
@@ -79,7 +83,6 @@ export default defineComponent({
       return getFullPlayerNames(game, side);
     },
     shouldHaveTopBorder(game: PadelGame) {
-      console.log(game);
       const lastTwoGamesOfFour = game.matchNumber == 2;
       const secondGameOfFour = game.playGroup == 2 && game.matchNumber == 1;
       return lastTwoGamesOfFour || secondGameOfFour;
@@ -99,6 +102,13 @@ export default defineComponent({
       );
       evenScore(game, store.getters.americanoStore.getRules.maxScore, side);
       store.dispatch.americanoStore.saveStateManually();
+    },
+    getIfColorCodedTrue(game: PadelGame) {
+      if (store.getters.americanoStore.getRules.colorCode === false) {
+        return 0;
+      }
+
+      return game.playGroup;
     },
   },
   computed: {
@@ -124,7 +134,6 @@ export default defineComponent({
 }
 
 .game-container {
-  background-color: white;
   padding: 0.2rem;
 }
 
