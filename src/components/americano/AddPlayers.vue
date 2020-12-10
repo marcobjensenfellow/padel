@@ -18,8 +18,8 @@
               @keyup="handlePlayerNameChange()"
               :class="{
                 'is-invalid': isDuplicateName(player.id),
-                'is-second': isSecondGroup(player),
-                'is-first': isFirstGroup(player),
+                'is-second': getColorCodeGroup(player) === 2,
+                'is-first': getColorCodeGroup(player) === 1,
               }"
               required
             />
@@ -126,7 +126,10 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
-import { getPadelPlayers } from "@/services/americanoService";
+import {
+  getColorCodeGroupFromPlayer,
+  getPadelPlayers,
+} from "@/services/americanoService";
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
@@ -196,26 +199,22 @@ export default defineComponent({
     isDuplicateName(id: number) {
       return this.$data.duplicateNameIds.includes(id);
     },
-    isSecondGroup(player: PadelPlayer) {
-      if (this.amountOfPlayersRule === 8 || this.colorCodeRule === false) {
-        return false;
+    getColorCodeGroup(player: PadelPlayer) {
+      if (store.getters.americanoStore.getRules.colorCode === false) {
+        return 0;
       }
-      const allPlayers = store.getters.americanoStore.getPlayers;
 
-      const index = allPlayers.indexOf(player);
-
-      return index > 7;
-    },
-
-    isFirstGroup(player: PadelPlayer) {
-      if (this.amountOfPlayersRule === 8 || this.colorCodeRule === false) {
-        return false;
+      if (!store.getters.americanoStore.getIsGamePrepared) {
+        return store.getters.americanoStore.getPlayers.indexOf(player) <= 7
+          ? 1
+          : 2;
       }
-      const allPlayers = store.getters.americanoStore.getPlayers;
 
-      const index = allPlayers.indexOf(player);
-
-      return index <= 7;
+      return getColorCodeGroupFromPlayer(
+        player,
+        store.getters.americanoStore.getPlayers,
+        store.getters.americanoStore.getGames
+      );
     },
   },
   created() {
@@ -251,9 +250,12 @@ export default defineComponent({
         return store.getters.americanoStore.getRules.amountOfPlayers;
       },
       set(amount: number) {
+        const colorCode = Number(amount) === 8 ? false : this.colorCodeRule;
+
         const newRules: PadelRules = {
           ...store.getters.americanoStore.getRules,
           amountOfPlayers: amount,
+          colorCode: colorCode,
         };
         store.commit.americanoStore.SET_RULES(newRules);
       },
