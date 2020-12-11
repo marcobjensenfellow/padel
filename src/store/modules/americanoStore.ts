@@ -1,7 +1,11 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
-import { getPadelPlayers, prepareGames } from "@/services/americanoService";
+import {
+    allNamesAreEmpty,
+    getPadelPlayers,
+    prepareGames,
+} from "@/services/americanoService";
 import {
     sortById,
     sortByScore,
@@ -106,6 +110,10 @@ export default {
             const americanoState = loadAmericanoState();
 
             if (!americanoState) {
+                return;
+            }
+
+            if (allNamesAreEmpty(americanoState.players)) {
                 return;
             }
 
