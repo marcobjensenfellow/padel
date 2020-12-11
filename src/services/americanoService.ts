@@ -456,14 +456,6 @@ export function getColorCodeGroupFromPlayer(
     players: PadelPlayer[] | readonly PadelPlayer[],
     games: PadelGame[] | readonly PadelGame[]
 ) {
-    // const index = players.indexOf(player);
-
-    // if (index <= 7) {
-    //     return 1;
-    // }
-
-    // return 2;
-
     const gameWithPlayer = games.find((game) => {
         const playerIncluded = game.players.find(
             (p) => p.playerId === player.id
@@ -475,4 +467,9 @@ export function getColorCodeGroupFromPlayer(
     });
 
     return gameWithPlayer?.playGroup;
+}
+
+export function allNamesAreEmpty(players: PadelPlayer[]) {
+    const namedPlayers = players.filter((player) => player.name !== "");
+    return namedPlayers.length === 0;
 }
