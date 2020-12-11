@@ -67,6 +67,11 @@ export default {
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
             state.rules.amountOfPlayers = players.length;
+
+            if (allNamesAreEmpty(players)) {
+                return;
+            }
+
             saveAmericanoState(
                 state.players,
                 state.games,
