@@ -207,4 +207,22 @@ export default defineComponent({
     background-color: var(--main-gray);
     border-color: var(--main-gray);
 }
+
+@media print {
+    .top-border {
+        border-top: 0.1rem solid transparent;
+    }
+
+    .score-round {
+        border-bottom: 0.1rem solid var(--main-gray);
+    }
+
+    .score-round {
+        color: var(--main-gray);
+    }
+
+    .btn-pdl {
+        display: none;
+    }
+}
 </style>
