@@ -6,14 +6,14 @@ import store from "@/store/index";
 export function getFullPlayerNames(game: PadelGame, side: GameSide) {
     const isHome = side === GameSide.Home;
 
-    const players = game.players.filter((p) => p.home === isHome);
+    const players = game.players.filter(p => p.home === isHome);
 
     const firstPlayer = store.getters.americanoStore.getPlayers.find(
-        (p) => p.id === players[0].playerId
+        p => p.id === players[0].playerId
     );
 
     const secondPlayer = store.getters.americanoStore.getPlayers.find(
-        (p) => p.id === players[1].playerId
+        p => p.id === players[1].playerId
     );
 
     if (!firstPlayer || !secondPlayer) {
@@ -52,12 +52,12 @@ export function getDuplicateIds(
     const duplicateIds: number[] = [];
     const checker: { name: string; id: number }[] = [];
 
-    players.forEach((player) => {
+    players.forEach(player => {
         if (!player.name) {
             return;
         }
 
-        if (checker.map((c) => c.name).includes(player.name)) {
+        if (checker.map(c => c.name).includes(player.name)) {
             duplicateIds.push(player.id);
         }
 

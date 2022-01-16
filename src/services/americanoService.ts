@@ -21,7 +21,7 @@ function shuffleArray(array: Array<any>) {
 
 function resetIds(array: PadelPlayer[]) {
     let id = 1;
-    array.forEach((player) => {
+    array.forEach(player => {
         player.id = id;
         id++;
     });
@@ -456,10 +456,8 @@ export function getColorCodeGroupFromPlayer(
     players: PadelPlayer[] | readonly PadelPlayer[],
     games: PadelGame[] | readonly PadelGame[]
 ) {
-    const gameWithPlayer = games.find((game) => {
-        const playerIncluded = game.players.find(
-            (p) => p.playerId === player.id
-        );
+    const gameWithPlayer = games.find(game => {
+        const playerIncluded = game.players.find(p => p.playerId === player.id);
 
         if (playerIncluded) {
             return game;
@@ -470,6 +468,6 @@ export function getColorCodeGroupFromPlayer(
 }
 
 export function allNamesAreEmpty(players: PadelPlayer[]) {
-    const namedPlayers = players.filter((player) => player.name !== "");
+    const namedPlayers = players.filter(player => player.name !== "");
     return namedPlayers.length === 0;
 }

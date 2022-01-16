@@ -7,12 +7,12 @@ export function updatePlayerScores(
     games: PadelGame[]
 ): PadelPlayer[] {
     // reset score
-    players.forEach((player) => (player.score = 0));
+    players.forEach(player => (player.score = 0));
 
-    players.forEach((player) => {
-        games.forEach((game) => {
+    players.forEach(player => {
+        games.forEach(game => {
             const playerScore = game.players.find(
-                (score) => score.playerId === player.id
+                score => score.playerId === player.id
             );
 
             if (!playerScore) {
