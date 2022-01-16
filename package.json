@@ -1,5 +1,5 @@
 {
-    "name": "Padel Americano",
+    "name": "PadelAmericano",
     "version": "0.1.0",
     "private": true,
     "description": "Skapa spelscheman för en Padel Americano, helt gratis.",
@@ -16,7 +16,11 @@
         "url": "https://github.com/banjo/padel/issues"
     },
     "keywords": [
-        "padel", "americano", "svenska", "sverige", "spelschema"
+        "padel",
+        "americano",
+        "svenska",
+        "sverige",
+        "spelschema"
     ],
     "scripts": {
         "serve": "vue-cli-service serve",

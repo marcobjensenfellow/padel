@@ -51,6 +51,7 @@ export default {
             randomSchedule: false,
             amountOfPlayers: 8,
             colorCode: false,
+            courtNames: ["", ""],
         },
     } as AmericanoStoreState,
     mutations: {
@@ -109,6 +110,7 @@ export default {
             state.rules.randomSchedule = false;
             state.rules.amountOfPlayers = 8;
             state.rules.colorCode = false;
+            state.rules.courtNames = ["", ""];
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {

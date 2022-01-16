@@ -3,4 +3,5 @@ export interface PadelRules {
     randomSchedule: boolean;
     amountOfPlayers: number;
     colorCode: boolean;
+    courtNames: string[];
 }
