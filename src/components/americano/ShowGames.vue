@@ -141,7 +141,8 @@ export default defineComponent({
         },
         getCourt(index: number) {
             const rules = this.getRules;
-            return rules.courtNames[index];
+            if (rules.courtNames) return rules.courtNames[index];
+            return "";
         },
         printCourt(index: number) {
             if (this.getRules.amountOfPlayers === 16) return "";

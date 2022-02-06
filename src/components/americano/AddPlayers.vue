@@ -315,7 +315,9 @@ export default defineComponent({
         },
         court1: {
             get() {
-                return store.getters.americanoStore.getRules.courtNames[0];
+                const rules = store.getters.americanoStore.getRules;
+                if (rules.courtNames) return rules.courtNames[0];
+                return "";
             },
             set(name: string) {
                 const courts = store.getters.americanoStore.getRules.courtNames;
@@ -329,7 +331,9 @@ export default defineComponent({
         },
         court2: {
             get() {
-                return store.getters.americanoStore.getRules.courtNames[1];
+                const rules = store.getters.americanoStore.getRules;
+                if (rules.courtNames) return rules.courtNames[1];
+                return "";
             },
             set(name: string) {
                 const courts = store.getters.americanoStore.getRules.courtNames;
