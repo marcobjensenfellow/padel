@@ -34,7 +34,7 @@
                                 </div>
 
                                 <span class="team-element pt-2">
-                                    {{ printCourt(index) }}</span
+                                    {{ printCourt(game, index) }}</span
                                 >
 
                                 <div class="team-element p-2 align-self-center">
@@ -143,20 +143,25 @@ export default defineComponent({
 
             return game.playGroup;
         },
-        isEven(index: number) {
-            return index % 2 == 0;
-        },
         getCourt(index: number) {
             const rules = this.getRules;
             if (rules.courtNames) return rules.courtNames[index];
             return "";
         },
-        printCourt(index: number) {
-            if (this.getRules.amountOfPlayers === 16) return "";
+        printCourt(game: PadelGame, index: number) {
+            const courts = Math.ceil(this.getRules.amountOfPlayers / 4);
 
-            if (this.isEven(index)) return this.getCourt(0) || "Bana 1";
+            let courtIndex = game.matchNumber - 1;
 
-            return this.getCourt(1) || "Bana 2";
+            if (this.getRules.amountOfPlayers === 16) {
+                courtIndex = (game.playGroup - 1) * 2 + (game.matchNumber - 1);
+            }
+
+            if (courtIndex < 0 || courtIndex >= courts) {
+                courtIndex = index % courts;
+            }
+
+            return this.getCourt(courtIndex) || `Bana ${courtIndex + 1}`;
         },
         getPlayerNameById(id: number) {
             const player = store.getters.americanoStore.getPlayers.find(
