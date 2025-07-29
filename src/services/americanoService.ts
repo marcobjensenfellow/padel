@@ -1,11 +1,16 @@
 import { PadelGame } from "@/models/padelGame.interface";
-import { PadelPlayer } from "../models/padelPlayer.interface";
+import { PadelPlayer, PreferredSide } from "../models/padelPlayer.interface";
 
 export function getPadelPlayers(amount = 8): PadelPlayer[] {
     const padelPlayers: PadelPlayer[] = [];
 
     for (let i = 0; i < amount; i++) {
-        const padelPlayer: PadelPlayer = { name: "", score: 0, id: i + 1 };
+        const padelPlayer: PadelPlayer = {
+            name: "",
+            score: 0,
+            id: i + 1,
+            preferredSide: "Both",
+        };
         padelPlayers.push(padelPlayer);
     }
 
@@ -16,6 +21,51 @@ function shuffleArray(array: Array<any>) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function chooseSides(
+    first: PadelPlayer,
+    second: PadelPlayer
+): [PreferredSide, PreferredSide] {
+    if (first.preferredSide === "Left" && second.preferredSide !== "Left") {
+        return ["Left", "Right"];
+    }
+
+    if (second.preferredSide === "Left" && first.preferredSide !== "Left") {
+        return ["Right", "Left"];
+    }
+
+    if (first.preferredSide === "Right" && second.preferredSide !== "Right") {
+        return ["Right", "Left"];
+    }
+
+    if (second.preferredSide === "Right" && first.preferredSide !== "Right") {
+        return ["Left", "Right"];
+    }
+
+    return ["Left", "Right"];
+}
+
+function setPlayerSides(game: PadelGame, allPlayers: PadelPlayer[]) {
+    const homePlayers = game.players.filter(p => p.home);
+    const awayPlayers = game.players.filter(p => !p.home);
+
+    const h1 = allPlayers.find(p => p.id === homePlayers[0].playerId);
+    const h2 = allPlayers.find(p => p.id === homePlayers[1].playerId);
+    const a1 = allPlayers.find(p => p.id === awayPlayers[0].playerId);
+    const a2 = allPlayers.find(p => p.id === awayPlayers[1].playerId);
+
+    if (h1 && h2) {
+        const [s1, s2] = chooseSides(h1, h2);
+        homePlayers[0].side = s1;
+        homePlayers[1].side = s2;
+    }
+
+    if (a1 && a2) {
+        const [s3, s4] = chooseSides(a1, a2);
+        awayPlayers[0].side = s3;
+        awayPlayers[1].side = s4;
     }
 }
 
@@ -400,6 +450,8 @@ function setupGamesWithPlayers(
         }
     );
 
+    padelGames.forEach(game => setPlayerSides(game, players));
+
     return padelGames;
 }
 
@@ -430,6 +482,54 @@ function splitArrayInHalf(array: Array<any>): Array<any>[] {
     return [leftArray, rightArray];
 }
 
+function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
+    const games: PadelGame[] = [];
+    const rounds = players.length;
+
+    for (let r = 1; r <= rounds; r++) {
+        shuffleArray(players);
+        for (let i = 0; i < players.length; i += 4) {
+            const group = players.slice(i, i + 4);
+            if (group.length < 4) {
+                group.forEach(p => {
+                    games.push({
+                        homeScore: null,
+                        awayScore: null,
+                        players: [
+                            { playerId: p.id, home: true, side: "Left" },
+                        ],
+                        matchNumber: 0,
+                        round: r,
+                        id: games.length + 1,
+                        playGroup: 1,
+                    });
+                });
+                continue;
+            }
+
+            const [s1, s2] = chooseSides(group[0], group[1]);
+            const [s3, s4] = chooseSides(group[2], group[3]);
+
+            games.push({
+                homeScore: null,
+                awayScore: null,
+                players: [
+                    { playerId: group[0].id, home: true, side: s1 },
+                    { playerId: group[1].id, home: true, side: s2 },
+                    { playerId: group[2].id, home: false, side: s3 },
+                    { playerId: group[3].id, home: false, side: s4 },
+                ],
+                matchNumber: Math.floor(i / 4) + 1,
+                round: r,
+                id: games.length + 1,
+                playGroup: 1,
+            });
+        }
+    }
+
+    return games;
+}
+
 export function prepareGames(
     players: PadelPlayer[],
     randomSchedule: boolean
@@ -437,6 +537,10 @@ export function prepareGames(
     if (randomSchedule) {
         shuffleArray(players);
         resetIds(players);
+    }
+
+    if (players.length !== 8 && players.length !== 16) {
+        return generateRandomGames(players);
     }
 
     if (players.length === 16) {

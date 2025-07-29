@@ -8,6 +8,17 @@ export function getFullPlayerNames(game: PadelGame, side: GameSide) {
 
     const players = game.players.filter(p => p.home === isHome);
 
+    if (players.length === 0) {
+        return "";
+    }
+
+    if (players.length === 1) {
+        const single = store.getters.americanoStore.getPlayers.find(
+            p => p.id === players[0].playerId
+        );
+        return single ? single.name : "";
+    }
+
     const firstPlayer = store.getters.americanoStore.getPlayers.find(
         p => p.id === players[0].playerId
     );

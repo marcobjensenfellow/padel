@@ -23,6 +23,14 @@
                             }"
                             required
                         />
+                        <select
+                            class="form-control mt-1"
+                            v-model="player.preferredSide"
+                        >
+                            <option value="Left">Left</option>
+                            <option value="Right">Right</option>
+                            <option value="Both">Both</option>
+                        </select>
                         <small
                             id="duplicateNameHelp"
                             class="form-text text-danger"

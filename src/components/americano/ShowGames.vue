@@ -20,6 +20,7 @@
                             class="game-container"
                         >
                             <div
+                                v-if="game.players.length === 4"
                                 class="d-flex flex-row justify-content-between"
                             >
                                 <div class="team-element p-2">
@@ -51,6 +52,11 @@
                                         @focusout="handleFocusChange(game, 2)"
                                     />
                                 </div>
+                            </div>
+                            <div v-else class="p-2">
+                                Oversidder: {{
+                                    getPlayerNameById(game.players[0].playerId)
+                                }}
                             </div>
                         </div>
                     </div>
@@ -150,6 +156,12 @@ export default defineComponent({
             if (this.isEven(index)) return this.getCourt(0) || "Bana 1";
 
             return this.getCourt(1) || "Bana 2";
+        },
+        getPlayerNameById(id: number) {
+            const player = store.getters.americanoStore.getPlayers.find(
+                (p: any) => p.id === id
+            );
+            return player ? player.name : "";
         },
     },
     computed: {
