@@ -1,6 +1,6 @@
 <template>
     <div v-if="getGames.length > 0">
-        <h3 class="text-center">Matcher</h3>
+        <h3 class="text-center">Matches</h3>
         <form @submit.prevent="onCalculateScore">
             <div class="form-group">
                 <div class="score-container">
@@ -9,7 +9,7 @@
                             v-if="IsNewRound(index, getGames.length)"
                             class="score-round"
                         >
-                            Omgång: {{ game.round }}
+                            Round: {{ game.round }}
                         </div>
                         <div
                             :class="{
@@ -68,19 +68,19 @@
                             @click="goBack"
                             class="btn btn-pdl mt-3"
                         >
-                            <i class="las la-arrow-left"></i> Ändra lag
+                            <i class="las la-arrow-left"></i> Change teams
                         </button>
                         <button
                             type="button"
                             @click="reset"
                             class="btn btn-pdl mt-3 ml-3"
                         >
-                            <i class="las la-times"></i> Börja om
+                            <i class="las la-times"></i> Start over
                         </button>
                     </div>
                     <div class="float-right">
                         <button type="submit" class="btn btn-pdl mt-3">
-                            Beräkna resultat <i class="las la-arrow-right"></i>
+                            Calculate results <i class="las la-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -164,6 +164,7 @@ export default defineComponent({
             return player ? player.name : "";
         },
     },
+
     computed: {
         getGames() {
             return store.getters.americanoStore.getGames;

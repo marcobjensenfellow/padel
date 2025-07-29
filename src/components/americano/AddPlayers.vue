@@ -1,10 +1,10 @@
 <template>
     <div>
-        <h1 class="text-center">Förberedelser</h1>
+        <h1 class="text-center">Setup</h1>
         <form @submit.prevent="onAddPlayers">
             <div class="row">
                 <div class="col-6">
-                    <h4>Lägg till spelare</h4>
+                    <h4>Add players</h4>
                     <div
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
@@ -36,19 +36,19 @@
                             class="form-text text-danger"
                             v-if="isDuplicateName(player.id)"
                         >
-                            Namnet används redan
+                            Name already used
                         </small>
                     </div>
                 </div>
                 <div class="col-6">
-                    <h4>Regler</h4>
+                    <h4>Rules</h4>
                     <div>
                         <div class="form-group">
                             <label
                                 class="form-check-label"
                                 for="amountOfPlayers"
                             >
-                                Antal spelare
+                                Number of players
                             </label>
                             <select
                                 class="form-control"
@@ -63,7 +63,7 @@
                         </div>
                         <div class="form-group">
                             <label for="maxScoreInput" class="form-label"
-                                >Maxpoäng per runda</label
+                                >Max points per round</label
                             >
                             <input
                                 type="text"
@@ -79,7 +79,7 @@
                                 id="maxScoreInvalidHelp"
                                 class="text-danger"
                             >
-                                Måste vara en eller flera siffror.
+                                Must be one or more digits.
                             </small>
                         </div>
 
@@ -88,26 +88,26 @@
                             v-if="amountOfPlayersRule === 8"
                         >
                             <label for="courtNames" class="form-label"
-                                >Namn på banor</label
+                                >Court names</label
                             >
                             <div class="d-flex flex-row" id="courtNames">
                                 <input
                                     type="text"
                                     class="form-control m-2"
                                     v-model="court1"
-                                    placeholder="Bana 1"
+                                    placeholder="Court 1"
                                 />
 
                                 <input
                                     type="text"
                                     class="form-control m-2"
-                                    placeholder="Bana 2"
+                                    placeholder="Court 2"
                                     v-model="court2"
                                 />
                             </div>
 
                             <small id="courtNameInfo" class="text-muted">
-                                Inte obligatoriskt
+                                Optional
                             </small>
                         </div>
 
@@ -124,15 +124,15 @@
                                     class="form-check-label"
                                     for="randomScheduleCheck"
                                 >
-                                    Slumpa spelschema
+                                    Shuffle schedule
                                 </label>
                                 <small
                                     id="randomScheduleHelp"
                                     class="form-text text-muted"
                                 >
-                                    Slumpa spelschema innebär en ny
-                                    matchlottning trots att det är samma
-                                    deltagare.
+                                    Shuffling the schedule means a new
+                                    draw even if the participants are the same
+                                    players.
                                 </small>
                             </div>
                         </div>
@@ -151,14 +151,14 @@
                                     class="form-check-label"
                                     for="randomScheduleCheck"
                                 >
-                                    Färgmarkera grupper
+                                    Color code groups
                                 </label>
                                 <small
                                     id="randomScheduleHelp"
                                     class="form-text text-muted"
                                 >
-                                    Färgmarkera de två grupperna så att det blir
-                                    tydligt vilka som hör ihop.
+                                    Color code the two groups so that it's
+                                    clear who belongs together.
                                 </small>
                             </div>
                         </div>
@@ -168,7 +168,7 @@
 
             <div class="form-group">
                 <button type="button" @click="reset" class="btn btn-pdl mr-3">
-                    <i class="las la-times"></i> Börja om
+                    <i class="las la-times"></i> Start over
                 </button>
                 <button class="btn btn-pdl">
                     {{ getAddPlayerText }} <i class="las la-arrow-right"></i>
@@ -221,7 +221,7 @@ export default defineComponent({
         },
         getPlayerPlaceholder(index: number) {
             const playerNumber = Number(index) + 1;
-            return "Spelare " + playerNumber;
+            return "Player " + playerNumber;
         },
         reset() {
             store.commit.americanoStore.RESET();
@@ -288,10 +288,10 @@ export default defineComponent({
                 store.getters.americanoStore.getIsGamePrepared;
 
             if (isGamePrepared) {
-                return "Gå till matcher";
+                return "Go to matches";
             }
 
-            return "Lägg till spelare";
+            return "Add players";
         },
         randomScheduleRule: {
             get() {
