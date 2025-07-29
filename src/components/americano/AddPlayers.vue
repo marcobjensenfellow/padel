@@ -57,8 +57,13 @@
                                 @change="handleAmountOfPlayersChange"
                                 :disabled="getIsGamePrepared"
                             >
-                                <option value="8">8</option>
-                                <option value="16">16</option>
+                                <option
+                                    v-for="n in playerOptions"
+                                    :key="n"
+                                    :value="n"
+                                >
+                                    {{ n }}
+                                </option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -83,15 +88,13 @@
                             </small>
                         </div>
 
-                        <div
-                            class="form-group"
-                            v-if="amountOfPlayersRule === 8"
-                        >
+                        <div class="form-group">
                             <label for="courtNames" class="form-label"
                                 >Court names</label
                             >
-                            <div class="d-flex flex-row" id="courtNames">
+                            <div class="d-flex flex-row flex-wrap" id="courtNames">
                                 <input
+                                    v-if="numberOfCourts >= 1"
                                     type="text"
                                     class="form-control m-2"
                                     v-model="court1"
@@ -99,10 +102,27 @@
                                 />
 
                                 <input
+                                    v-if="numberOfCourts >= 2"
                                     type="text"
                                     class="form-control m-2"
                                     placeholder="Court 2"
                                     v-model="court2"
+                                />
+
+                                <input
+                                    v-if="numberOfCourts >= 3"
+                                    type="text"
+                                    class="form-control m-2"
+                                    placeholder="Court 3"
+                                    v-model="court3"
+                                />
+
+                                <input
+                                    v-if="numberOfCourts >= 4"
+                                    type="text"
+                                    class="form-control m-2"
+                                    placeholder="Court 4"
+                                    v-model="court4"
                                 />
                             </div>
 
@@ -193,7 +213,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
     data: function() {
         return {
-            maxScore: 32,
+            maxScore: 24,
             maxScoreInvalid: false,
             duplicateNameIds: [] as number[],
         };
@@ -227,7 +247,7 @@ export default defineComponent({
             store.commit.americanoStore.RESET();
             this.$data.duplicateNameIds = [];
             this.$data.maxScoreInvalid = false;
-            this.$data.maxScore = 32;
+            this.$data.maxScore = 24;
         },
         onMaxScoreChange() {
             const value = this.$data.maxScore;
@@ -310,8 +330,7 @@ export default defineComponent({
                 return store.getters.americanoStore.getRules.amountOfPlayers;
             },
             set(amount: number) {
-                const colorCode =
-                    Number(amount) === 8 ? false : this.colorCodeRule;
+                const colorCode = Number(amount) === 16 ? this.colorCodeRule : false;
 
                 const newRules: PadelRules = {
                     ...store.getters.americanoStore.getRules,
@@ -352,6 +371,48 @@ export default defineComponent({
                 };
                 store.commit.americanoStore.SET_RULES(newRules);
             },
+        },
+        court3: {
+            get() {
+                const rules = store.getters.americanoStore.getRules;
+                if (rules.courtNames) return rules.courtNames[2];
+                return "";
+            },
+            set(name: string) {
+                const courts = store.getters.americanoStore.getRules.courtNames;
+                courts[2] = name;
+                const newRules: PadelRules = {
+                    ...store.getters.americanoStore.getRules,
+                    courtNames: courts,
+                };
+                store.commit.americanoStore.SET_RULES(newRules);
+            },
+        },
+        court4: {
+            get() {
+                const rules = store.getters.americanoStore.getRules;
+                if (rules.courtNames) return rules.courtNames[3];
+                return "";
+            },
+            set(name: string) {
+                const courts = store.getters.americanoStore.getRules.courtNames;
+                courts[3] = name;
+                const newRules: PadelRules = {
+                    ...store.getters.americanoStore.getRules,
+                    courtNames: courts,
+                };
+                store.commit.americanoStore.SET_RULES(newRules);
+            },
+        },
+        numberOfCourts() {
+            return Math.ceil(this.amountOfPlayersRule / 4);
+        },
+        playerOptions() {
+            const opts = [] as number[];
+            for (let i = 4; i <= 16; i++) {
+                opts.push(i);
+            }
+            return opts;
         },
         colorCodeRule: {
             get() {

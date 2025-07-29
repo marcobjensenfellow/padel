@@ -48,11 +48,11 @@ export default {
         step: 1,
         isGamePrepared: false,
         rules: {
-            maxScore: 32,
+            maxScore: 24,
             randomSchedule: false,
             amountOfPlayers: 8,
             colorCode: false,
-            courtNames: ["", ""],
+            courtNames: ["", "", "", ""],
         },
     } as AmericanoStoreState,
     mutations: {
@@ -107,11 +107,11 @@ export default {
             state.games = [];
             state.step = 1;
             state.isGamePrepared = false;
-            state.rules.maxScore = 32;
+            state.rules.maxScore = 24;
             state.rules.randomSchedule = false;
             state.rules.amountOfPlayers = 8;
             state.rules.colorCode = false;
-            state.rules.courtNames = ["", ""];
+            state.rules.courtNames = ["", "", "", ""];
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
@@ -143,7 +143,8 @@ export default {
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {
             const updatedPlayers = updatePlayerScores(
                 getters.getPlayers,
-                getters.getGames
+                getters.getGames,
+                getters.getRules.maxScore
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
         },

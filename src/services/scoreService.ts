@@ -4,7 +4,8 @@ import { PadelPlayer } from "@/models/padelPlayer.interface";
 
 export function updatePlayerScores(
     players: PadelPlayer[],
-    games: PadelGame[]
+    games: PadelGame[],
+    maxScore: number
 ): PadelPlayer[] {
     // reset score
     players.forEach(player => (player.score = 0));
@@ -16,6 +17,11 @@ export function updatePlayerScores(
             );
 
             if (!playerScore) {
+                return;
+            }
+
+            if (game.players.length === 1) {
+                player.score += Math.floor(maxScore / 2);
                 return;
             }
 
