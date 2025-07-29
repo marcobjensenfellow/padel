@@ -9,6 +9,10 @@
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
                         class="form-group"
+                        draggable="true"
+                        @dragstart="onDragStart(index)"
+                        @dragover.prevent
+                        @drop="onDrop(index)"
                     >
                         <input
                             type="text"
@@ -237,6 +241,7 @@ export default defineComponent({
             maxScore: 24,
             maxScoreInvalid: false,
             duplicateNameIds: [] as number[],
+            dragIndex: null as number | null,
         };
     },
     methods: {
@@ -296,6 +301,20 @@ export default defineComponent({
         },
         isDuplicateName(id: number) {
             return this.$data.duplicateNameIds.includes(id);
+        },
+        onDragStart(index: number) {
+            this.$data.dragIndex = index;
+        },
+        onDrop(index: number) {
+            if (this.$data.dragIndex === null) {
+                return;
+            }
+            const players = [...this.getPlayers];
+            const moved = players.splice(this.$data.dragIndex, 1)[0];
+            players.splice(index, 0, moved);
+            players.forEach((p, i) => (p.seed = i + 1));
+            store.commit.americanoStore.UPDATE_PLAYERS(players);
+            this.$data.dragIndex = null;
         },
         getColorCodeGroup(player: PadelPlayer) {
             if (store.getters.americanoStore.getRules.colorCode === false) {
@@ -419,6 +438,16 @@ export default defineComponent({
         },
         getIsGamePrepared() {
             return store.getters.americanoStore.getIsGamePrepared;
+        },
+        playerOptions() {
+            const options: number[] = [];
+            for (let i = 4; i <= 16; i++) {
+                options.push(i);
+            }
+            return options;
+        },
+        numberOfCourts() {
+            return Math.ceil(this.amountOfPlayersRule / 4);
         },
     },
 });
