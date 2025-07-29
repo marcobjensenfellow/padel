@@ -1,12 +1,12 @@
 <template>
-    <h3 class="text-center md-3">Resultat</h3>
+    <h3 class="text-center md-3">Results</h3>
     <div v-if="!showTwoTables">
         <table class="table table-hover">
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Namn</th>
-                    <th scope="col">Poäng</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Points</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,8 +32,8 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Namn</th>
-                            <th scope="col">Poäng</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Points</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -56,8 +56,8 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Namn</th>
-                            <th scope="col">Poäng</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Points</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,11 +79,11 @@
     </div>
     <div class="clearfix">
         <button @click="goBack" class="btn btn-pdl mt-3 float-left">
-            <i class="las la-arrow-left"></i> Resultat
+            <i class="las la-arrow-left"></i> Results
         </button>
 
         <button @click="newGame" class="btn btn-pdl mt-3 float-right">
-            Ny match <i class="las la-undo-alt"></i>
+            New match <i class="las la-undo-alt"></i>
         </button>
 
         <button
@@ -91,7 +91,7 @@
             @click="changeGrouping"
             class="btn btn-pdl mt-3 mr-3 float-right"
         >
-            <i class="las la-exchange-alt"></i> Ändra gruppering
+            <i class="las la-exchange-alt"></i> Change grouping
         </button>
     </div>
 </template>
