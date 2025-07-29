@@ -45,7 +45,6 @@ The website is available [here](https://www.padelamericano.nu).
 -   **Typescript**
 -   **Vue**
 -   **Vuex**
--   **Firebase**
 
 # :cloud: Develop
 

@@ -1,6 +1,7 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
+import type { Commit, Dispatch } from "vuex";
 import {
     allNamesAreEmpty,
     getPadelPlayers,
@@ -34,13 +35,13 @@ export interface AmericanoStoreGetters {
 }
 
 export interface AmericanoStoreActions {
-    commit: Function;
+    commit: Commit;
     getters: AmericanoStoreGetters;
-    dispatch: Function;
+    dispatch: Dispatch;
 }
 
 export default {
-    namespaced: true as true,
+    namespaced: true as const,
     state: {
         games: [],
         players: getPadelPlayers(),
