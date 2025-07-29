@@ -156,6 +156,19 @@
                                 </small>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-check-label" for="modeSelect">
+                                Game type
+                            </label>
+                            <select
+                                class="form-control"
+                                id="modeSelect"
+                                v-model="modeRule"
+                            >
+                                <option value="Americano">Americano</option>
+                                <option value="Mexicano">Mexicano</option>
+                            </select>
+                        </div>
                         <div
                             class="form-group"
                             v-if="amountOfPlayersRule === 16"
@@ -372,48 +385,6 @@ export default defineComponent({
                 store.commit.americanoStore.SET_RULES(newRules);
             },
         },
-        court3: {
-            get() {
-                const rules = store.getters.americanoStore.getRules;
-                if (rules.courtNames) return rules.courtNames[2];
-                return "";
-            },
-            set(name: string) {
-                const courts = store.getters.americanoStore.getRules.courtNames;
-                courts[2] = name;
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    courtNames: courts,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        court4: {
-            get() {
-                const rules = store.getters.americanoStore.getRules;
-                if (rules.courtNames) return rules.courtNames[3];
-                return "";
-            },
-            set(name: string) {
-                const courts = store.getters.americanoStore.getRules.courtNames;
-                courts[3] = name;
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    courtNames: courts,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        numberOfCourts() {
-            return Math.ceil(this.amountOfPlayersRule / 4);
-        },
-        playerOptions() {
-            const opts = [] as number[];
-            for (let i = 4; i <= 16; i++) {
-                opts.push(i);
-            }
-            return opts;
-        },
         colorCodeRule: {
             get() {
                 return store.getters.americanoStore.getRules.colorCode;
@@ -426,6 +397,19 @@ export default defineComponent({
                 store.commit.americanoStore.SET_RULES(newRules);
             },
         },
+        modeRule: {
+            get() {
+                return store.getters.americanoStore.getRules.mode;
+            },
+            set(value: string) {
+                const newRules: PadelRules = {
+                    ...store.getters.americanoStore.getRules,
+                    mode: value as any,
+                };
+                store.commit.americanoStore.SET_RULES(newRules);
+            },
+        },
+
         getIsGamePrepared() {
             return store.getters.americanoStore.getIsGamePrepared;
         },
