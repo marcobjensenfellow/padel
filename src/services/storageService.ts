@@ -9,9 +9,10 @@ export function saveAmericanoState(
     players: PadelPlayer[],
     games: PadelGame[],
     step: number,
-    rules: PadelRules
+    rules: PadelRules,
+    round: number
 ): void {
-    const saveObject: FullAmericanoState = { players, games, step, rules };
+    const saveObject: FullAmericanoState = { players, games, step, rules, round };
 
     localStorage.setItem(_fullAmericanoState, JSON.stringify(saveObject));
 }

@@ -10,6 +10,7 @@ export function getPadelPlayers(amount = 8): PadelPlayer[] {
             score: 0,
             id: i + 1,
             preferredSide: "Both",
+            seed: i + 1,
         };
         padelPlayers.push(padelPlayer);
     }

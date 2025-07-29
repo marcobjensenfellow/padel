@@ -26,7 +26,6 @@
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
         "lint": "vue-cli-service lint",
-        
         "format": "npx prettier --write ."
     },
     "dependencies": {
@@ -37,6 +36,7 @@
         "vuex": "^4.0.0-0"
     },
     "devDependencies": {
+        "@types/webpack-env": "^1.18.8",
         "@typescript-eslint/eslint-plugin": "^5.62.0",
         "@typescript-eslint/parser": "^5.62.0",
         "@vue/cli-plugin-babel": "^5.0.8",

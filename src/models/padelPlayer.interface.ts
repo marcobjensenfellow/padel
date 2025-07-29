@@ -5,4 +5,5 @@ export interface PadelPlayer {
     score: number;
     id: number;
     preferredSide: PreferredSide;
+    seed: number;
 }

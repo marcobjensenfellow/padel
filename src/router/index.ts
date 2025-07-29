@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Americano from "../views/Americano.vue";
+import TestSimulation from "../views/TestSimulation.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
         path: "/",
         name: "Americano",
         component: Americano,
+    },
+    {
+        path: "/test",
+        name: "TestSimulation",
+        component: TestSimulation,
     },
     // {
     //     path: "/about",

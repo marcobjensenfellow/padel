@@ -33,8 +33,8 @@ The website is available [here](https://www.padelamericano.nu).
 # :heavy_check_mark: Features
 
 -   Create a schedule for Padel Americano
--   Choose between 8 and 16 players
--   Choose maximum points per round
+-   Choose between 4 and 16 players
+-   Choose maximum points per round (default is 24)
 -   Shuffle the schedule
 -   Color code the group split when using 16 players
 -   Automatically calculate the opponent's points
