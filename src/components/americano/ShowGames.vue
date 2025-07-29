@@ -6,7 +6,7 @@
                 <div class="score-container">
                     <div v-for="(game, index) in getGames" :key="game.id">
                         <div
-                            v-if="IsNewRound(index, getGames.length)"
+                            v-if="IsNewRound(index)"
                             class="score-round"
                         >
                             Round: {{ game.round }}
@@ -101,10 +101,11 @@ export default defineComponent({
     methods: {
         onCalculateScore(): void {
             store.dispatch.americanoStore.updatePlayerScores();
-            store.commit.americanoStore.INCREMENT_STEP();
         },
-        IsNewRound(index: number, amountOfGames: number) {
-            return index % (amountOfGames / 7) === 0;
+        IsNewRound(index: number) {
+            if (index === 0) return true;
+            const games = this.getGames;
+            return games[index].round !== games[index - 1].round;
         },
         getPlayerNames(game: PadelGame, side: GameSide) {
             return getFullPlayerNames(game, side);

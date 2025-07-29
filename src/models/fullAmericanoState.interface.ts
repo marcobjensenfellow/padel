@@ -7,4 +7,5 @@ export interface FullAmericanoState {
     games: PadelGame[];
     step: number;
     rules: PadelRules;
+    round: number;
 }

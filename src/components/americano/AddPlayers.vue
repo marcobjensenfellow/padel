@@ -136,6 +136,19 @@
                                 </small>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-check-label" for="modeSelect">
+                                Game type
+                            </label>
+                            <select
+                                class="form-control"
+                                id="modeSelect"
+                                v-model="modeRule"
+                            >
+                                <option value="Americano">Americano</option>
+                                <option value="Mexicano">Mexicano</option>
+                            </select>
+                        </div>
                         <div
                             class="form-group"
                             v-if="amountOfPlayersRule === 16"
@@ -361,6 +374,18 @@ export default defineComponent({
                 const newRules: PadelRules = {
                     ...store.getters.americanoStore.getRules,
                     colorCode: value,
+                };
+                store.commit.americanoStore.SET_RULES(newRules);
+            },
+        },
+        modeRule: {
+            get() {
+                return store.getters.americanoStore.getRules.mode;
+            },
+            set(value: string) {
+                const newRules: PadelRules = {
+                    ...store.getters.americanoStore.getRules,
+                    mode: value as any,
                 };
                 store.commit.americanoStore.SET_RULES(newRules);
             },
