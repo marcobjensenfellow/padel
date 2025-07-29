@@ -29,7 +29,7 @@ export function prepareMexicanoRound(
     round: number
 ): PadelGame[] {
     const sorted = [...players].sort((a, b) => {
-        if (a.score === b.score) return a.id - b.id;
+        if (a.score === b.score) return a.seed - b.seed;
         return b.score - a.score;
     });
 

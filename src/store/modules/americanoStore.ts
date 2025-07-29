@@ -17,6 +17,10 @@ import {
     totalRounds,
 } from "@/services/mexicanoService";
 import {
+    prepareMexicanoRound,
+    totalRounds,
+} from "@/services/mexicanoService";
+import {
     loadAmericanoState,
     removeAmericanoState,
     saveAmericanoState,
@@ -48,6 +52,7 @@ export interface AmericanoStoreActions {
 
 export default {
     namespaced: true as const,
+
     state: {
         games: [],
         players: getPadelPlayers(),
@@ -78,6 +83,7 @@ export default {
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
             state.rules.amountOfPlayers = players.length;
+
 
             if (allNamesAreEmpty(players)) {
                 return;
@@ -139,6 +145,7 @@ export default {
             removeAmericanoState();
         },
         LOAD_STATE(state: AmericanoStoreState) {
+
             const americanoState = loadAmericanoState();
 
             if (!americanoState) {
@@ -150,6 +157,11 @@ export default {
             }
 
             state.players = americanoState.players;
+            state.players.forEach((p, index) => {
+                if (p.seed === undefined) {
+                    p.seed = index + 1;
+                }
+            });
             state.games = americanoState.games;
             state.step = americanoState.step;
             state.round = americanoState.round || 1;

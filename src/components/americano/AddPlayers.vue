@@ -31,6 +31,15 @@
                             <option value="Right">Right</option>
                             <option value="Both">Both</option>
                         </select>
+                        <input
+                            v-if="modeRule === 'Mexicano'"
+                            type="number"
+                            class="form-control mt-1"
+                            v-model.number="player.seed"
+                            min="1"
+                            :max="getPlayers.length"
+                            placeholder="Seed"
+                        />
                         <small
                             id="duplicateNameHelp"
                             class="form-text text-danger"
@@ -130,7 +139,6 @@
                                 Optional
                             </small>
                         </div>
-
                         <div class="form-group">
                             <div class="form-check">
                                 <input
@@ -409,7 +417,6 @@ export default defineComponent({
                 store.commit.americanoStore.SET_RULES(newRules);
             },
         },
-
         getIsGamePrepared() {
             return store.getters.americanoStore.getIsGamePrepared;
         },
