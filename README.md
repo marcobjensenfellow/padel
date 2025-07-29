@@ -5,7 +5,7 @@
   </a>
 
   <p align="center">
-    Skapa gratis spelscheman för en Padel Americano-turnering.
+    Create free match schedules for a Padel Americano tournament.
     <br />
   </p>
 </p>
@@ -14,58 +14,58 @@
 
 ![Feber Enhancer Demo](public/padel-demo.png)
 
-Skapa spelscheman för en Padel Americano helt gratis. Välj 8 eller 16 spelare och fyll enkelt i matchresultaten för att räkna ut vem som är vinnaren.
+Create match schedules for a Padel Americano completely free of charge. Choose either 8 or 16 players and fill in the scores to calculate the winner.
 
-# Innehållsförteckning
+# Table of Contents
 
--   [Installera](#dart-installera)
--   [Funktioner](#heavy_check_mark-funktioner)
--   [Teknologier](#clipboard-teknologier)
--   [Utveckla](#cloud-utveckla)
--   [Bidra](#wrench-bidra)
+-   [Install](#dart-install)
+-   [Features](#heavy_check_mark-features)
+-   [Technologies](#clipboard-technologies)
+-   [Develop](#cloud-develop)
+-   [Contribute](#wrench-contribute)
 
 ---
 
 # :dart: Demo
 
-Hemsidan finns tillgänglig [här](https://www.padelamericano.nu).
+The website is available [here](https://www.padelamericano.nu).
 
-# :heavy_check_mark: Funktioner
+# :heavy_check_mark: Features
 
--   Skapa spelschema för Padel Americano
--   Välj mellan 8 och 16 spelare
--   Välj maxpoäng per runda
--   Slumpa spelschemat
--   Färgkoda uppdelningen av grupper vid 16 spelare
--   Räkna automatiskt ut motståndarens poäng
--   Fyll i matchresultat för att räkna ut vinnaren
+-   Create a schedule for Padel Americano
+-   Choose between 8 and 16 players
+-   Choose maximum points per round
+-   Shuffle the schedule
+-   Color code the group split when using 16 players
+-   Automatically calculate the opponent's points
+-   Enter match results to determine the winner
 
-# :clipboard: Teknologier
+# :clipboard: Technologies
 
 -   **Typescript**
 -   **Vue**
 -   **Vuex**
 -   **Firebase**
 
-# :cloud: Utveckla
+# :cloud: Develop
 
 ```bash
-# klona repo
+# clone repo
 $ git clone https://github.com/banjo/padel.git
 
-# byt till rätt map
+# move into folder
 $ cd "padel"
 
-# installera node-moduler
+# install node modules
 $ npm install
 
-# starta lokalt
+# start locally
 $ npm run serve
 
-# bygg appen
+# build app
 $ npm run build
 ```
 
-# :wrench: Bidra
+# :wrench: Contribute
 
-Det är fritt fram att bidra, all hjälp uppskattas.
+Feel free to contribute, all help is appreciated.

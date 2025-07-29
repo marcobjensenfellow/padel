@@ -2,7 +2,7 @@
     "name": "PadelAmericano",
     "version": "0.1.0",
     "private": true,
-    "description": "Skapa spelscheman för en Padel Americano, helt gratis.",
+    "description": "Create match schedules for a Padel Americano, completely free.",
     "author": {
         "email": "anton.odman@gmail.com",
         "name": "Anton Ödman",
