@@ -294,6 +294,7 @@ export default defineComponent({
         },
         handlePlayerNameChange() {
             this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
+            store.dispatch.americanoStore.saveStateManually();
         },
         handleAmountOfPlayersChange() {
             const players = getPadelPlayers(this.amountOfPlayersRule);
@@ -338,6 +339,20 @@ export default defineComponent({
     },
     created() {
         this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
+    },
+    watch: {
+        getPlayers: {
+            handler() {
+                store.dispatch.americanoStore.saveStateManually();
+            },
+            deep: true,
+        },
+        getRules: {
+            handler() {
+                store.dispatch.americanoStore.saveStateManually();
+            },
+            deep: true,
+        },
     },
     computed: {
         getPlayers() {

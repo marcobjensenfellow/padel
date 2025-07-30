@@ -129,6 +129,13 @@ export default {
         },
         SET_RULES(state: AmericanoStoreState, rules: PadelRules) {
             state.rules = rules;
+            saveAmericanoState(
+                state.players,
+                state.games,
+                state.step,
+                state.rules,
+                state.round
+            );
         },
         RESET(state: AmericanoStoreState) {
             state.players = getPadelPlayers();
