@@ -4,19 +4,19 @@
             <div class="half left">
                 <div class="player-name">{{ homeName }}</div>
                 <div class="score-circle" @click="openOverlay('home')">
-                    {{ homeScore === null ? "?" : homeScore }}
+                    {{ game.homeScore === null ? "?" : game.homeScore }}
                 </div>
             </div>
             <div class="net"></div>
             <div class="half right">
                 <div class="player-name">{{ awayName }}</div>
                 <div class="score-circle" @click="openOverlay('away')">
-                    {{ awayScore === null ? "?" : awayScore }}
+                    {{ game.awayScore === null ? "?" : game.awayScore }}
                 </div>
             </div>
         </div>
     </div>
-    <div class="overlay" v-if="overlayOpen">
+    <div class="overlay" v-if="overlayOpen" @click.self="overlayOpen = false">
         <div class="grid">
             <button
                 v-for="n in maxPoints + 1"
@@ -31,35 +31,63 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
+import { PadelGame } from "@/models/padelGame.interface";
+import store from "@/store/index";
 
 export default defineComponent({
+    emits: ["set-score"],
+    props: {
+        game: {
+            type: Object as PropType<PadelGame>,
+            required: true,
+        },
+        homeName: {
+            type: String,
+            required: true,
+        },
+        awayName: {
+            type: String,
+            required: true,
+        },
+        maxPoints: {
+            type: Number,
+            required: true,
+        },
+    },
     data() {
         return {
-            homeName: "Hold A",
-            awayName: "Hold B",
-            maxPoints: 21,
-            homeScore: null as number | null,
-            awayScore: null as number | null,
-            activeTeam: "" as "home" | "away" | "",
             overlayOpen: false,
+            activeTeam: "" as "home" | "away" | "",
         };
     },
     methods: {
         openOverlay(team: "home" | "away") {
-            if (this.homeScore !== null || this.awayScore !== null) return;
+            if (this.game.homeScore !== null || this.game.awayScore !== null)
+                return;
             this.activeTeam = team;
             this.overlayOpen = true;
         },
         selectScore(score: number) {
             if (this.activeTeam === "home") {
-                this.homeScore = score;
-                this.awayScore = this.maxPoints - score;
+                const homeScore = score;
+                const awayScore = this.maxPoints - score;
+                this.$emit("set-score", {
+                    game: this.game,
+                    homeScore,
+                    awayScore,
+                });
             } else if (this.activeTeam === "away") {
-                this.awayScore = score;
-                this.homeScore = this.maxPoints - score;
+                const awayScore = score;
+                const homeScore = this.maxPoints - score;
+                this.$emit("set-score", {
+                    game: this.game,
+                    homeScore,
+                    awayScore,
+                });
             }
             this.overlayOpen = false;
+            store.dispatch.americanoStore.saveStateManually();
         },
     },
 });
@@ -69,12 +97,12 @@ export default defineComponent({
 .match-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 2rem;
+    margin: 1rem 0;
 }
 .court {
     position: relative;
     width: 320px;
-    height: 500px;
+    height: 160px;
     background: #d2b48c;
     border: 4px solid #ffffff;
 }
@@ -112,14 +140,14 @@ export default defineComponent({
     color: var(--dark-color);
 }
 .score-circle {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--secondary-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #fff;
     cursor: pointer;
 }

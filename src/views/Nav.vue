@@ -20,9 +20,6 @@
                 <router-link class="nav-item nav-link" to="/test"
                     >Test</router-link
                 >
-                <router-link class="nav-item nav-link" to="/match"
-                    >Match</router-link
-                >
             </div>
         </div>
     </nav>
