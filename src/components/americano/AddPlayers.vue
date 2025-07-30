@@ -4,6 +4,27 @@
         <form @submit.prevent="onAddPlayers">
             <div class="row">
                 <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="tournamentName" class="form-label"
+                            >Tournament name</label
+                        >
+                        <input
+                            id="tournamentName"
+                            type="text"
+                            class="form-control"
+                            list="tournamentNames"
+                            v-model="tournamentNameRule"
+                            @change="onTournamentChange"
+                            required
+                        />
+                        <datalist id="tournamentNames">
+                            <option
+                                v-for="name in tournamentNames"
+                                :key="name"
+                                :value="name"
+                            />
+                        </datalist>
+                    </div>
                     <h4>Add players</h4>
                     <button
                         type="button"
@@ -152,13 +173,21 @@
                                 class="d-flex flex-row flex-wrap"
                                 id="courtNames"
                             >
-                                <template v-for="index in numberOfCourts" :key="index">
+                                <template
+                                    v-for="index in numberOfCourts"
+                                    :key="index"
+                                >
                                     <input
                                         type="text"
                                         class="form-control m-2"
                                         :placeholder="`Court ${index}`"
                                         :value="courtNamesRule[index - 1]"
-                                        @input="updateCourtName(index - 1, $event.target.value)"
+                                        @input="
+                                            updateCourtName(
+                                                index - 1,
+                                                $event.target.value
+                                            )
+                                        "
                                     />
                                 </template>
                             </div>
@@ -263,11 +292,12 @@ import {
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
+import { getTournamentNames } from "@/services/storageService";
 import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
     components: { SeedPlayers },
-    data: function() {
+    data: function () {
         return {
             maxScore: 24,
             maxScoreInvalid: false,
@@ -413,6 +443,16 @@ export default defineComponent({
 
             store.commit.americanoStore.SET_RULES(newRules);
         },
+        onTournamentChange() {
+            const name = this.tournamentNameRule as string;
+            const names = getTournamentNames();
+            if (names.includes(name)) {
+                store.commit.americanoStore.LOAD_STATE(name);
+            } else {
+                store.commit.americanoStore.SET_TOURNAMENT_NAME(name);
+                store.commit.americanoStore.RESET();
+            }
+        },
         isDuplicateName(id: number) {
             return this.$data.duplicateNameIds.includes(id);
         },
@@ -543,6 +583,17 @@ export default defineComponent({
         },
         numberOfCourts() {
             return Math.floor(this.amountOfPlayersRule / 4);
+        },
+        tournamentNames() {
+            return getTournamentNames();
+        },
+        tournamentNameRule: {
+            get() {
+                return store.getters.americanoStore.getTournamentName;
+            },
+            set(value: string) {
+                store.commit.americanoStore.SET_TOURNAMENT_NAME(value);
+            },
         },
     },
 });
