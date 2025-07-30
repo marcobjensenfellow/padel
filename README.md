@@ -29,8 +29,6 @@ Create match schedules for a Padel Americano completely free of charge. Choose e
 
 # :dart: Demo
 
-The website is available [here](https://www.padelamericano.nu).
-
 # :heavy_check_mark: Features
 
 -   Create a schedule for Padel Americano
