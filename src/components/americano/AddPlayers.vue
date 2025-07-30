@@ -293,7 +293,6 @@ import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 import { getTournamentNames } from "@/services/storageService";
-
 import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
@@ -450,8 +449,8 @@ export default defineComponent({
             if (names.includes(name)) {
                 store.commit.americanoStore.LOAD_STATE(name);
             } else {
-                store.commit.americanoStore.SET_TOURNAMENT_NAME(name);
                 store.commit.americanoStore.RESET();
+                store.commit.americanoStore.SET_TOURNAMENT_NAME(name);
             }
         },
         isDuplicateName(id: number) {
@@ -591,7 +590,6 @@ export default defineComponent({
         tournamentNames() {
             return getTournamentNames();
         },
-
         tournamentNameRule: {
             get() {
                 return store.getters.americanoStore.getTournamentName;

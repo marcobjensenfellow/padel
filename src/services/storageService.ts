@@ -23,7 +23,6 @@ export function setCurrentTournamentName(name: string): void {
     localStorage.setItem(_currentTournament, name);
 }
 
-
 export function saveAmericanoState(
     players: PadelPlayer[],
     games: PadelGame[],

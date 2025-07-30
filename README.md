@@ -38,6 +38,7 @@ Create match schedules for a Padel Americano completely free of charge. Choose a
 -   Color code the group split when using 16 players
 -   Automatically calculate the opponent's points
 -   Enter match results to determine the winner
+-   Save and load multiple tournaments by name
 -   Separate seeding list with drag and drop for Mexicano mode
 -   Show which side each player should play and balance "Both" players
 
