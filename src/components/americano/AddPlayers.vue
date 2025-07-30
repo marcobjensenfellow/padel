@@ -297,7 +297,7 @@ import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
     components: { SeedPlayers },
-    data: function() {
+    data: function () {
         return {
             maxScore: 24,
             maxScoreInvalid: false,
