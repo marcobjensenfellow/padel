@@ -14,7 +14,7 @@
 
 ![Feber Enhancer Demo](public/padel-demo.png)
 
-Create match schedules for a Padel Americano completely free of charge. Choose either 8 or 16 players and fill in the scores to calculate the winner.
+Create match schedules for a Padel Americano completely free of charge. Choose any number of players up to 64 and fill in the scores to calculate the winner.
 
 # Table of Contents
 
@@ -32,7 +32,7 @@ Create match schedules for a Padel Americano completely free of charge. Choose e
 # :heavy_check_mark: Features
 
 -   Create a schedule for Padel Americano
--   Choose between 4 and 16 players
+-   Choose between 4 and 64 players
 -   Choose maximum points per round (default is 24)
 -   Shuffle the schedule
 -   Color code the group split when using 16 players
