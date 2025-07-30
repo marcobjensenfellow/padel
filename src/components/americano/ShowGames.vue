@@ -190,9 +190,9 @@ export default defineComponent({
 }
 
 .score-round {
-    background-color: var(--main-gray);
+    background-color: var(--primary-color);
     text-align: left;
-    color: white;
+    color: #fff;
     padding: 0.4rem;
 }
 
@@ -202,7 +202,7 @@ export default defineComponent({
 
 .team {
     font-weight: bold;
-    color: var(--main-gray);
+    color: var(--dark-color);
 }
 
 .vs {
@@ -219,13 +219,13 @@ export default defineComponent({
 }
 
 .top-border {
-    border-top: 0.1rem solid var(--main-gray);
+    border-top: 0.1rem solid var(--primary-color);
 }
 
 .btn-pdl {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
     color: #fff;
-    background-color: var(--main-gray);
-    border-color: var(--main-gray);
 }
 
 @media print {
@@ -234,11 +234,11 @@ export default defineComponent({
     }
 
     .score-round {
-        border-bottom: 0.1rem solid var(--main-gray);
+        border-bottom: 0.1rem solid var(--primary-color);
     }
 
     .score-round {
-        color: var(--main-gray);
+        color: var(--primary-color);
     }
 
     .btn-pdl {
