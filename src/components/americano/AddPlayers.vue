@@ -527,7 +527,7 @@ export default defineComponent({
         },
         playerOptions() {
             const options: number[] = [];
-            for (let i = 4; i <= 16; i++) {
+            for (let i = 4; i <= 64; i++) {
                 options.push(i);
             }
             return options;
