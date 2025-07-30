@@ -710,7 +710,7 @@ export function allNamesAreEmpty(players: PadelPlayer[]) {
     return namedPlayers.length === 0;
 }
 
-export function getMaxRound(games: PadelGame[]): number {
+export function getMaxRound(games: readonly PadelGame[]): number {
     if (games.length === 0) {
         return 0;
     }
