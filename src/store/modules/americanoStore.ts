@@ -60,7 +60,7 @@ export default {
             randomSchedule: false,
             amountOfPlayers: 8,
             colorCode: false,
-            courtNames: ["", ""],
+            courtNames: Array(16).fill(""),
             mode: "Americano",
         },
     } as AmericanoStoreState,
@@ -143,7 +143,7 @@ export default {
             state.rules.randomSchedule = false;
             state.rules.amountOfPlayers = 8;
             state.rules.colorCode = false;
-            state.rules.courtNames = ["", ""];
+            state.rules.courtNames = Array(16).fill("");
             state.rules.mode = "Americano";
             removeAmericanoState();
         },
