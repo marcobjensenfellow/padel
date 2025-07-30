@@ -80,18 +80,10 @@ function chooseBalancedSides(
     second: PadelPlayer,
     counts: Record<number, SideCount>
 ): [PreferredSide, PreferredSide] {
-    const determineSide = (
+    const determineBothSide = (
         player: PadelPlayer,
         avoid?: PreferredSide
     ): PreferredSide => {
-        if (player.preferredSide !== "Both") {
-            return player.preferredSide === avoid
-                ? avoid === "Left"
-                    ? "Right"
-                    : "Left"
-                : player.preferredSide;
-        }
-
         const { left, right } = counts[player.id];
         let side: PreferredSide = left <= right ? "Left" : "Right";
         if (side === avoid) {
@@ -100,8 +92,27 @@ function chooseBalancedSides(
         return side;
     };
 
-    const side1 = determineSide(first);
-    const side2 = determineSide(second, side1);
+    let side1: PreferredSide;
+    let side2: PreferredSide;
+
+    if (first.preferredSide !== "Both" && second.preferredSide !== "Both") {
+        if (first.preferredSide === second.preferredSide) {
+            side1 = first.preferredSide;
+            side2 = side1 === "Left" ? "Right" : "Left";
+        } else {
+            side1 = first.preferredSide;
+            side2 = second.preferredSide;
+        }
+    } else if (first.preferredSide !== "Both") {
+        side1 = first.preferredSide;
+        side2 = determineBothSide(second, side1);
+    } else if (second.preferredSide !== "Both") {
+        side2 = second.preferredSide;
+        side1 = determineBothSide(first, side2);
+    } else {
+        side1 = determineBothSide(first);
+        side2 = determineBothSide(second, side1);
+    }
 
     counts[first.id][side1 === "Left" ? "left" : "right"] += 1;
     counts[second.id][side2 === "Left" ? "left" : "right"] += 1;
