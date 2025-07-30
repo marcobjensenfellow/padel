@@ -70,6 +70,83 @@ function setPlayerSides(game: PadelGame, allPlayers: PadelPlayer[]) {
     }
 }
 
+interface SideCount {
+    left: number;
+    right: number;
+}
+
+function chooseBalancedSides(
+    first: PadelPlayer,
+    second: PadelPlayer,
+    counts: Record<number, SideCount>
+): [PreferredSide, PreferredSide] {
+    const determineSide = (
+        player: PadelPlayer,
+        avoid?: PreferredSide
+    ): PreferredSide => {
+        if (player.preferredSide !== "Both") {
+            return player.preferredSide === avoid
+                ? avoid === "Left"
+                    ? "Right"
+                    : "Left"
+                : player.preferredSide;
+        }
+
+        const { left, right } = counts[player.id];
+        let side: PreferredSide = left <= right ? "Left" : "Right";
+        if (side === avoid) {
+            side = side === "Left" ? "Right" : "Left";
+        }
+        return side;
+    };
+
+    const side1 = determineSide(first);
+    const side2 = determineSide(second, side1);
+
+    counts[first.id][side1 === "Left" ? "left" : "right"] += 1;
+    counts[second.id][side2 === "Left" ? "left" : "right"] += 1;
+
+    return [side1, side2];
+}
+
+export function balancePlayerSides(games: PadelGame[], players: PadelPlayer[]) {
+    const counts: Record<number, SideCount> = {};
+    players.forEach(p => {
+        counts[p.id] = { left: 0, right: 0 };
+    });
+
+    const sortedGames = [...games].sort((a, b) => {
+        if (a.round === b.round) return a.matchNumber - b.matchNumber;
+        return a.round - b.round;
+    });
+
+    sortedGames.forEach(game => {
+        if (game.players.length < 4) {
+            return;
+        }
+
+        const homePlayers = game.players.filter(p => p.home);
+        const awayPlayers = game.players.filter(p => !p.home);
+
+        const h1 = players.find(p => p.id === homePlayers[0].playerId);
+        const h2 = players.find(p => p.id === homePlayers[1].playerId);
+        const a1 = players.find(p => p.id === awayPlayers[0].playerId);
+        const a2 = players.find(p => p.id === awayPlayers[1].playerId);
+
+        if (h1 && h2) {
+            const [s1, s2] = chooseBalancedSides(h1, h2, counts);
+            homePlayers[0].side = s1;
+            homePlayers[1].side = s2;
+        }
+
+        if (a1 && a2) {
+            const [s3, s4] = chooseBalancedSides(a1, a2, counts);
+            awayPlayers[0].side = s3;
+            awayPlayers[1].side = s4;
+        }
+    });
+}
+
 function resetIds(array: PadelPlayer[]) {
     let id = 1;
     array.forEach(player => {
@@ -451,7 +528,7 @@ function setupGamesWithPlayers(
         }
     );
 
-    padelGames.forEach(game => setPlayerSides(game, players));
+    balancePlayerSides(padelGames, players);
 
     return padelGames;
 }
@@ -525,9 +602,7 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
                     games.push({
                         homeScore: null,
                         awayScore: null,
-                        players: [
-                            { playerId: p.id, home: true, side: "Left" },
-                        ],
+                        players: [{ playerId: p.id, home: true, side: "Left" }],
                         matchNumber: 0,
                         round: r,
                         id: games.length + 1,
@@ -583,7 +658,9 @@ export function prepareGames(
     }
 
     if (players.length !== 8 && players.length !== 16) {
-        return generateRandomGames(players);
+        const randomGames = generateRandomGames(players);
+        balancePlayerSides(randomGames, players);
+        return randomGames;
     }
 
     if (players.length === 16) {
@@ -592,10 +669,13 @@ export function prepareGames(
         const games1 = setupGamesWithPlayers(arrays[0]);
         const games2 = setupGamesWithPlayers(arrays[1], 2);
         const combinedGames = mergeAlternating(games1, games2);
+        balancePlayerSides(combinedGames, players);
         return combinedGames;
     }
 
-    return setupGamesWithPlayers(players);
+    const games = setupGamesWithPlayers(players);
+    balancePlayerSides(games, players);
+    return games;
 }
 
 export function getColorCodeGroupFromPlayer(

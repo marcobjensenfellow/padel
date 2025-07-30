@@ -1,5 +1,6 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer, PreferredSide } from "@/models/padelPlayer.interface";
+import { balancePlayerSides } from "./americanoService";
 
 function chooseSides(
     first: PadelPlayer,
@@ -70,6 +71,8 @@ export function prepareMexicanoRound(
             playGroup: 1,
         });
     }
+
+    balancePlayerSides(games, players);
 
     return games;
 }

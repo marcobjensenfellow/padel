@@ -5,10 +5,7 @@
             <div class="form-group">
                 <div class="score-container">
                     <div v-for="(game, index) in getGames" :key="game.id">
-                        <div
-                            v-if="IsNewRound(index)"
-                            class="score-round"
-                        >
+                        <div v-if="IsNewRound(index)" class="score-round">
                             Round: {{ game.round }}
                         </div>
                         <div
@@ -54,7 +51,8 @@
                                 </div>
                             </div>
                             <div v-else class="p-2">
-                                Rest round: {{
+                                Rest round:
+                                {{
                                     getPlayerNameById(game.players[0].playerId)
                                 }}
                             </div>
@@ -93,7 +91,7 @@
 import { defineComponent } from "vue";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
-import { getFullPlayerNames } from "@/services/htmlHelperService";
+import { getFullPlayerNamesWithSide } from "@/services/htmlHelperService";
 import { evenScore, removeNotNumbers } from "@/services/scoreService";
 import { GameSide } from "@/models/gameSide.enum";
 
@@ -108,7 +106,7 @@ export default defineComponent({
             return games[index].round !== games[index - 1].round;
         },
         getPlayerNames(game: PadelGame, side: GameSide) {
-            return getFullPlayerNames(game, side);
+            return getFullPlayerNamesWithSide(game, side);
         },
         shouldHaveTopBorder(game: PadelGame) {
             const lastTwoGamesOfFour = game.matchNumber == 2;

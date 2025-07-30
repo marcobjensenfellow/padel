@@ -39,6 +39,7 @@ Create match schedules for a Padel Americano completely free of charge. Choose a
 -   Automatically calculate the opponent's points
 -   Enter match results to determine the winner
 -   Separate seeding list with drag and drop for Mexicano mode
+-   Show which side each player should play and balance "Both" players
 
 # :clipboard: Technologies
 
