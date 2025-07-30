@@ -18,6 +18,8 @@ import {
     removeAmericanoState,
     saveAmericanoState,
     getCurrentTournamentName,
+    setCurrentTournamentName,
+
 } from "@/services/storageService";
 
 export interface AmericanoStoreState {
@@ -165,10 +167,14 @@ export default {
             removeAmericanoState(state.tournamentName);
             state.tournamentName = new Date().toISOString().slice(0, 10);
         },
-        LOAD_STATE(state: AmericanoStoreState) {
-            const americanoState = loadAmericanoState();
+        LOAD_STATE(state: AmericanoStoreState, name?: string) {
+            const americanoState = loadAmericanoState(name);
+            if (name) {
+                setCurrentTournamentName(name);
+            }
 
-            const currentName = getCurrentTournamentName();
+            const currentName = name || getCurrentTournamentName();
+
             if (currentName) {
                 state.tournamentName = currentName;
             }

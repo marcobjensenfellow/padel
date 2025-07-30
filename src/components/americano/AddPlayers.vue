@@ -12,9 +12,18 @@
                             id="tournamentName"
                             type="text"
                             class="form-control"
+                            list="tournamentNames"
                             v-model="tournamentNameRule"
+                            @change="onTournamentChange"
                             required
                         />
+                        <datalist id="tournamentNames">
+                            <option
+                                v-for="name in tournamentNames"
+                                :key="name"
+                                :value="name"
+                            />
+                        </datalist>
                     </div>
                     <h4>Add players</h4>
                     <button
@@ -283,6 +292,8 @@ import {
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
+import { getTournamentNames } from "@/services/storageService";
+
 import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
@@ -433,6 +444,16 @@ export default defineComponent({
 
             store.commit.americanoStore.SET_RULES(newRules);
         },
+        onTournamentChange() {
+            const name = this.tournamentNameRule as string;
+            const names = getTournamentNames();
+            if (names.includes(name)) {
+                store.commit.americanoStore.LOAD_STATE(name);
+            } else {
+                store.commit.americanoStore.SET_TOURNAMENT_NAME(name);
+                store.commit.americanoStore.RESET();
+            }
+        },
         isDuplicateName(id: number) {
             return this.$data.duplicateNameIds.includes(id);
         },
@@ -567,6 +588,10 @@ export default defineComponent({
         numberOfCourts() {
             return Math.floor(this.amountOfPlayersRule / 4);
         },
+        tournamentNames() {
+            return getTournamentNames();
+        },
+
         tournamentNameRule: {
             get() {
                 return store.getters.americanoStore.getTournamentName;
