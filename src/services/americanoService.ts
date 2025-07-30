@@ -483,14 +483,43 @@ function splitArrayInHalf(array: Array<any>): Array<any>[] {
     return [leftArray, rightArray];
 }
 
+function playersCanTeam(p1: PadelPlayer, p2: PadelPlayer): boolean {
+    if (p1.preferredSide === "Both" || p2.preferredSide === "Both") return true;
+    return p1.preferredSide !== p2.preferredSide;
+}
+
+function pairTeams(group: PadelPlayer[]): [PadelPlayer[], PadelPlayer[]] {
+    const arr = [...group];
+    for (let i = 0; i < 10; i++) {
+        shuffleArray(arr);
+        if (playersCanTeam(arr[0], arr[1]) && playersCanTeam(arr[2], arr[3])) {
+            return [arr.slice(0, 2), arr.slice(2, 4)];
+        }
+    }
+    return [arr.slice(0, 2), arr.slice(2, 4)];
+}
+
 function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
     const games: PadelGame[] = [];
     const rounds = players.length;
+    const oversidderCount = players.length % 4;
+    const oversidderQueue = [...players];
 
     for (let r = 1; r <= rounds; r++) {
-        shuffleArray(players);
-        for (let i = 0; i < players.length; i += 4) {
-            const group = players.slice(i, i + 4);
+        const oversidders: PadelPlayer[] = [];
+        for (let o = 0; o < oversidderCount; o++) {
+            const player = oversidderQueue.shift();
+            if (player) {
+                oversidders.push(player);
+                oversidderQueue.push(player);
+            }
+        }
+
+        const activePlayers = players.filter(p => !oversidders.includes(p));
+        shuffleArray(activePlayers);
+
+        for (let i = 0; i < activePlayers.length; i += 4) {
+            const group = activePlayers.slice(i, i + 4);
             if (group.length < 4) {
                 group.forEach(p => {
                     games.push({
@@ -508,17 +537,18 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
                 continue;
             }
 
-            const [s1, s2] = chooseSides(group[0], group[1]);
-            const [s3, s4] = chooseSides(group[2], group[3]);
+            const [team1, team2] = pairTeams(group);
+            const [s1, s2] = chooseSides(team1[0], team1[1]);
+            const [s3, s4] = chooseSides(team2[0], team2[1]);
 
             games.push({
                 homeScore: null,
                 awayScore: null,
                 players: [
-                    { playerId: group[0].id, home: true, side: s1 },
-                    { playerId: group[1].id, home: true, side: s2 },
-                    { playerId: group[2].id, home: false, side: s3 },
-                    { playerId: group[3].id, home: false, side: s4 },
+                    { playerId: team1[0].id, home: true, side: s1 },
+                    { playerId: team1[1].id, home: true, side: s2 },
+                    { playerId: team2[0].id, home: false, side: s3 },
+                    { playerId: team2[1].id, home: false, side: s4 },
                 ],
                 matchNumber: Math.floor(i / 4) + 1,
                 round: r,
@@ -526,6 +556,18 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
                 playGroup: 1,
             });
         }
+
+        oversidders.forEach(p => {
+            games.push({
+                homeScore: null,
+                awayScore: null,
+                players: [{ playerId: p.id, home: true, side: "Left" }],
+                matchNumber: 0,
+                round: r,
+                id: games.length + 1,
+                playGroup: 1,
+            });
+        });
     }
 
     return games;
