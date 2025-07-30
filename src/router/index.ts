@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Americano from "../views/Americano.vue";
 import TestSimulation from "../views/TestSimulation.vue";
-import MatchView from "../views/MatchView.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -13,11 +12,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "/test",
         name: "TestSimulation",
         component: TestSimulation,
-    },
-    {
-        path: "/match",
-        name: "MatchView",
-        component: MatchView,
     },
     // {
     //     path: "/about",
