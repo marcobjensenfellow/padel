@@ -17,10 +17,6 @@ import {
     totalRounds,
 } from "@/services/mexicanoService";
 import {
-    prepareMexicanoRound,
-    totalRounds,
-} from "@/services/mexicanoService";
-import {
     loadAmericanoState,
     removeAmericanoState,
     saveAmericanoState,
@@ -192,7 +188,8 @@ export default {
         updatePlayerScores({ commit, getters }: AmericanoStoreActions) {
             const updatedPlayers = updatePlayerScores(
                 getters.getPlayers,
-                getters.getGames
+                getters.getGames,
+                getters.getRules.maxScore
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
 

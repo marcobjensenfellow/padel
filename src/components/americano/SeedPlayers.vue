@@ -27,7 +27,7 @@ export default defineComponent({
         };
     },
     computed: {
-        players(): PadelPlayer[] {
+        players(): readonly PadelPlayer[] {
             return store.getters.americanoStore.getPlayers;
         },
     },
