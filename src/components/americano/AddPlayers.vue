@@ -492,6 +492,9 @@ export default defineComponent({
             },
             deep: true,
         },
+        tournamentNameRule() {
+            store.dispatch.americanoStore.saveStateManually();
+        },
     },
     computed: {
         getPlayers() {
