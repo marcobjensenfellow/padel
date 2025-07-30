@@ -12,14 +12,12 @@ import {
     sortByScore,
     updatePlayerScores,
 } from "@/services/scoreService";
-import {
-    prepareMexicanoRound,
-    totalRounds,
-} from "@/services/mexicanoService";
+import { prepareMexicanoRound, totalRounds } from "@/services/mexicanoService";
 import {
     loadAmericanoState,
     removeAmericanoState,
     saveAmericanoState,
+    getCurrentTournamentName,
 } from "@/services/storageService";
 
 export interface AmericanoStoreState {
@@ -29,6 +27,7 @@ export interface AmericanoStoreState {
     isGamePrepared: boolean;
     rules: PadelRules;
     round: number;
+    tournamentName: string;
 }
 
 export interface AmericanoStoreGetters {
@@ -38,6 +37,7 @@ export interface AmericanoStoreGetters {
     getIsGamePrepared: boolean;
     getRules: PadelRules;
     getRound: number;
+    getTournamentName: string;
 }
 
 export interface AmericanoStoreActions {
@@ -55,6 +55,7 @@ export default {
         step: 1,
         isGamePrepared: false,
         round: 1,
+        tournamentName: new Date().toISOString().slice(0, 10),
         rules: {
             maxScore: 32,
             randomSchedule: false,
@@ -73,13 +74,13 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
             );
         },
         UPDATE_PLAYERS(state: AmericanoStoreState, players: PadelPlayer[]) {
             state.players = players;
             state.rules.amountOfPlayers = players.length;
-
 
             if (allNamesAreEmpty(players)) {
                 return;
@@ -90,7 +91,8 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
             );
         },
         INCREMENT_STEP(state: AmericanoStoreState) {
@@ -100,7 +102,8 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
             );
         },
         INCREMENT_ROUND(state: AmericanoStoreState) {
@@ -110,7 +113,8 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
             );
         },
         DECREMENT_STEP(state: AmericanoStoreState) {
@@ -120,7 +124,8 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
             );
         },
         SET_RULES(state: AmericanoStoreState, rules: PadelRules) {
@@ -130,7 +135,19 @@ export default {
                 state.games,
                 state.step,
                 state.rules,
-                state.round
+                state.round,
+                state.tournamentName
+            );
+        },
+        SET_TOURNAMENT_NAME(state: AmericanoStoreState, name: string) {
+            state.tournamentName = name;
+            saveAmericanoState(
+                state.players,
+                state.games,
+                state.step,
+                state.rules,
+                state.round,
+                state.tournamentName
             );
         },
         RESET(state: AmericanoStoreState) {
@@ -145,11 +162,16 @@ export default {
             state.rules.colorCode = false;
             state.rules.courtNames = Array(16).fill("");
             state.rules.mode = "Americano";
-            removeAmericanoState();
+            removeAmericanoState(state.tournamentName);
+            state.tournamentName = new Date().toISOString().slice(0, 10);
         },
         LOAD_STATE(state: AmericanoStoreState) {
-
             const americanoState = loadAmericanoState();
+
+            const currentName = getCurrentTournamentName();
+            if (currentName) {
+                state.tournamentName = currentName;
+            }
 
             if (!americanoState) {
                 return;
@@ -175,7 +197,10 @@ export default {
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
             if (getters.getRules.mode === "Mexicano") {
-                const games = prepareMexicanoRound(getters.getPlayers, getters.getRound);
+                const games = prepareMexicanoRound(
+                    getters.getPlayers,
+                    getters.getRound
+                );
                 commit("UPDATE_GAMES", games);
             } else {
                 const games = prepareGames(
@@ -212,7 +237,8 @@ export default {
                 getters.getGames,
                 getters.getStep,
                 getters.getRules,
-                getters.getRound
+                getters.getRound,
+                getters.getTournamentName
             );
         },
         nextRound({ commit, getters }: AmericanoStoreActions) {
@@ -237,5 +263,6 @@ export default {
         getIsGamePrepared: (state: AmericanoStoreState) => state.isGamePrepared,
         getRules: (state: AmericanoStoreState) => state.rules,
         getRound: (state: AmericanoStoreState) => state.round,
+        getTournamentName: (state: AmericanoStoreState) => state.tournamentName,
     },
 };
