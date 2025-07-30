@@ -4,6 +4,18 @@
         <form @submit.prevent="onAddPlayers">
             <div class="row">
                 <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="tournamentName" class="form-label"
+                            >Tournament name</label
+                        >
+                        <input
+                            id="tournamentName"
+                            type="text"
+                            class="form-control"
+                            v-model="tournamentNameRule"
+                            required
+                        />
+                    </div>
                     <h4>Add players</h4>
                     <button
                         type="button"
@@ -152,13 +164,21 @@
                                 class="d-flex flex-row flex-wrap"
                                 id="courtNames"
                             >
-                                <template v-for="index in numberOfCourts" :key="index">
+                                <template
+                                    v-for="index in numberOfCourts"
+                                    :key="index"
+                                >
                                     <input
                                         type="text"
                                         class="form-control m-2"
                                         :placeholder="`Court ${index}`"
                                         :value="courtNamesRule[index - 1]"
-                                        @input="updateCourtName(index - 1, $event.target.value)"
+                                        @input="
+                                            updateCourtName(
+                                                index - 1,
+                                                $event.target.value
+                                            )
+                                        "
                                     />
                                 </template>
                             </div>
@@ -267,7 +287,7 @@ import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
     components: { SeedPlayers },
-    data: function() {
+    data: function () {
         return {
             maxScore: 24,
             maxScoreInvalid: false,
@@ -452,6 +472,9 @@ export default defineComponent({
             },
             deep: true,
         },
+        tournamentNameRule() {
+            store.dispatch.americanoStore.saveStateManually();
+        },
     },
     computed: {
         getPlayers() {
@@ -543,6 +566,14 @@ export default defineComponent({
         },
         numberOfCourts() {
             return Math.floor(this.amountOfPlayersRule / 4);
+        },
+        tournamentNameRule: {
+            get() {
+                return store.getters.americanoStore.getTournamentName;
+            },
+            set(value: string) {
+                store.commit.americanoStore.SET_TOURNAMENT_NAME(value);
+            },
         },
     },
 });
