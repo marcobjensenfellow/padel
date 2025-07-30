@@ -5,10 +5,7 @@
             <div class="form-group">
                 <div class="score-container">
                     <div v-for="(game, index) in getGames" :key="game.id">
-                        <div
-                            v-if="IsNewRound(index)"
-                            class="score-round"
-                        >
+                        <div v-if="IsNewRound(index)" class="score-round">
                             Round: {{ game.round }}
                         </div>
                         <div
@@ -19,42 +16,15 @@
                             }"
                             class="game-container"
                         >
-                            <div
-                                v-if="game.players.length === 4"
-                                class="d-flex flex-column flex-md-row justify-content-between"
-                            >
-                                <div class="team-element p-2">
-                                    <span class="team">{{
-                                        getPlayerNames(game, 1)
-                                    }}</span>
-                                    <span class="vs"> vs </span>
-                                    <span class="team">{{
-                                        getPlayerNames(game, 2)
-                                    }}</span>
-                                </div>
-
-                                <span class="team-element pt-2">
-                                    {{ printCourt(game, index) }}</span
-                                >
-
-                                <div class="team-element p-2 align-self-center">
-                                    <input
-                                        v-model="game.homeScore"
-                                        class="input-element"
-                                        required
-                                        @focusout="handleFocusChange(game, 1)"
-                                    />
-                                    -
-                                    <input
-                                        v-model="game.awayScore"
-                                        class="input-element"
-                                        required
-                                        @focusout="handleFocusChange(game, 2)"
-                                    />
+                            <div v-if="game.players.length === 4">
+                                <CourtGame :game="game" />
+                                <div class="text-center court-name">
+                                    {{ printCourt(game, index) }}
                                 </div>
                             </div>
                             <div v-else class="p-2">
-                                Rest round: {{
+                                Rest round:
+                                {{
                                     getPlayerNameById(game.players[0].playerId)
                                 }}
                             </div>
@@ -94,10 +64,11 @@ import { defineComponent } from "vue";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
 import { getFullPlayerNames } from "@/services/htmlHelperService";
-import { evenScore, removeNotNumbers } from "@/services/scoreService";
 import { GameSide } from "@/models/gameSide.enum";
+import CourtGame from "./CourtGame.vue";
 
 export default defineComponent({
+    components: { CourtGame },
     methods: {
         onCalculateScore(): void {
             store.dispatch.americanoStore.updatePlayerScores();
@@ -122,19 +93,6 @@ export default defineComponent({
         },
         reset(): void {
             store.commit.americanoStore.RESET();
-        },
-        handleFocusChange(game: PadelGame, side: GameSide) {
-            removeNotNumbers(
-                game,
-                side,
-                store.getters.americanoStore.getRules.maxScore
-            );
-            evenScore(
-                game,
-                store.getters.americanoStore.getRules.maxScore,
-                side
-            );
-            store.dispatch.americanoStore.saveStateManually();
         },
         getColorCodeGroup(game: PadelGame) {
             if (store.getters.americanoStore.getRules.colorCode === false) {
@@ -205,19 +163,6 @@ export default defineComponent({
     color: var(--dark-color);
 }
 
-.vs {
-    color: #e74c3c;
-}
-
-.vs-element {
-    width: 150px;
-}
-
-.input-element {
-    width: 35px;
-    text-align: center;
-}
-
 .top-border {
     border-top: 0.1rem solid var(--primary-color);
 }
@@ -226,16 +171,6 @@ export default defineComponent({
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
     color: #fff;
-}
-
-@media (max-width: 767.98px) {
-    .team-element {
-        width: 100%;
-        text-align: center;
-    }
-    .input-element {
-        width: 45px;
-    }
 }
 
 @media print {
