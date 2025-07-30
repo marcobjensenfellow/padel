@@ -12,6 +12,13 @@
                     >
                         Autofill names
                     </button>
+                    <button
+                        type="button"
+                        class="btn btn-pdl btn-sm ml-2"
+                        @click="fillDemoNinePlayers"
+                    >
+                        Load 9-player demo
+                    </button>
                     <div
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
@@ -227,7 +234,7 @@
 
 <script lang="ts">
 import { PadelGame } from "@/models/padelGame.interface";
-import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { PadelPlayer, PreferredSide } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
 import {
     getColorCodeGroupFromPlayer,
@@ -345,6 +352,37 @@ export default defineComponent({
                 p.name = names[i % names.length];
             });
             store.commit.americanoStore.UPDATE_PLAYERS(players);
+        },
+        fillDemoNinePlayers() {
+            const demo = [
+                { name: "Mathias", side: "Both" },
+                { name: "Carl Emil", side: "Both" },
+                { name: "Christian Frantsen", side: "Both" },
+                { name: "Thomas Smidth", side: "Both" },
+                { name: "Daniel", side: "Both" },
+                { name: "Marco", side: "Right" },
+                { name: "Jakob", side: "Right" },
+                { name: "Brian", side: "Left" },
+                { name: "Mads", side: "Left" },
+            ];
+
+            const players: PadelPlayer[] = demo.map((p, i) => ({
+                name: p.name,
+                score: 0,
+                id: i + 1,
+                preferredSide: p.side as PreferredSide,
+                seed: i + 1,
+            }));
+
+            store.commit.americanoStore.UPDATE_PLAYERS(players);
+
+            const newRules: PadelRules = {
+                ...store.getters.americanoStore.getRules,
+                amountOfPlayers: players.length,
+                mode: "Americano",
+            };
+
+            store.commit.americanoStore.SET_RULES(newRules);
         },
         isDuplicateName(id: number) {
             return this.$data.duplicateNameIds.includes(id);
