@@ -110,37 +110,15 @@
                                 class="d-flex flex-row flex-wrap"
                                 id="courtNames"
                             >
-                                <input
-                                    v-if="numberOfCourts >= 1"
-                                    type="text"
-                                    class="form-control m-2"
-                                    v-model="court1"
-                                    placeholder="Court 1"
-                                />
-
-                                <input
-                                    v-if="numberOfCourts >= 2"
-                                    type="text"
-                                    class="form-control m-2"
-                                    placeholder="Court 2"
-                                    v-model="court2"
-                                />
-
-                                <input
-                                    v-if="numberOfCourts >= 3"
-                                    type="text"
-                                    class="form-control m-2"
-                                    placeholder="Court 3"
-                                    v-model="court3"
-                                />
-
-                                <input
-                                    v-if="numberOfCourts >= 4"
-                                    type="text"
-                                    class="form-control m-2"
-                                    placeholder="Court 4"
-                                    v-model="court4"
-                                />
+                                <template v-for="index in numberOfCourts" :key="index">
+                                    <input
+                                        type="text"
+                                        class="form-control m-2"
+                                        :placeholder="`Court ${index}`"
+                                        :value="courtNamesRule[index - 1]"
+                                        @input="updateCourtName(index - 1, $event.target.value)"
+                                    />
+                                </template>
                             </div>
 
                             <small id="courtNameInfo" class="text-muted">
@@ -327,6 +305,15 @@ export default defineComponent({
 
             store.commit.americanoStore.UPDATE_PLAYERS(players);
         },
+        updateCourtName(index: number, name: string) {
+            const courts = [...this.courtNamesRule];
+            courts[index] = name;
+            const newRules: PadelRules = {
+                ...store.getters.americanoStore.getRules,
+                courtNames: courts,
+            };
+            store.commit.americanoStore.SET_RULES(newRules);
+        },
         fillFunnyNames() {
             const names = [
                 "Rocket Racquet",
@@ -466,34 +453,14 @@ export default defineComponent({
                 store.commit.americanoStore.SET_RULES(newRules);
             },
         },
-        court1: {
+        courtNamesRule: {
             get() {
-                const rules = store.getters.americanoStore.getRules;
-                if (rules.courtNames) return rules.courtNames[0];
-                return "";
+                return store.getters.americanoStore.getRules.courtNames;
             },
-            set(name: string) {
-                const courts = store.getters.americanoStore.getRules.courtNames;
-                courts[0] = name;
+            set(value: string[]) {
                 const newRules: PadelRules = {
                     ...store.getters.americanoStore.getRules,
-                    courtNames: courts,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        court2: {
-            get() {
-                const rules = store.getters.americanoStore.getRules;
-                if (rules.courtNames) return rules.courtNames[1];
-                return "";
-            },
-            set(name: string) {
-                const courts = store.getters.americanoStore.getRules.courtNames;
-                courts[1] = name;
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    courtNames: courts,
+                    courtNames: value,
                 };
                 store.commit.americanoStore.SET_RULES(newRules);
             },
