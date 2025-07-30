@@ -193,20 +193,6 @@ export default {
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
 
-            if (getters.getRules.mode === "Mexicano") {
-                if (getters.getRound >= totalRounds(getters.getPlayers.length)) {
-                    commit("INCREMENT_STEP");
-                } else {
-                    commit("INCREMENT_ROUND");
-                    const nextGames = prepareMexicanoRound(
-                        getters.getPlayers,
-                        getters.getRound
-                    );
-                    commit("UPDATE_GAMES", nextGames);
-                }
-                return;
-            }
-
             commit("INCREMENT_STEP");
         },
         sortPlayersByScore({ commit, getters }: AmericanoStoreActions) {
@@ -228,6 +214,20 @@ export default {
                 getters.getRules,
                 getters.getRound
             );
+        },
+        nextRound({ commit, getters }: AmericanoStoreActions) {
+            if (getters.getRules.mode === "Mexicano") {
+                if (getters.getRound < totalRounds(getters.getPlayers.length)) {
+                    commit("INCREMENT_ROUND");
+                    const nextGames = prepareMexicanoRound(
+                        getters.getPlayers,
+                        getters.getRound
+                    );
+                    commit("UPDATE_GAMES", nextGames);
+                }
+            }
+
+            commit("DECREMENT_STEP");
         },
     },
     getters: {

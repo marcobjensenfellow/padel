@@ -83,7 +83,15 @@
     </div>
     <div class="clearfix">
         <button @click="goBack" class="btn btn-pdl mt-3 float-left">
-            <i class="las la-arrow-left"></i> Results
+            <i class="las la-arrow-left"></i> Back to games
+        </button>
+
+        <button
+            v-if="hasMoreRounds"
+            @click="nextRound"
+            class="btn btn-pdl mt-3 ml-3 float-left"
+        >
+            Next round <i class="las la-arrow-right"></i>
         </button>
 
         <button @click="newGame" class="btn btn-pdl mt-3 float-right">
@@ -102,10 +110,14 @@
 
 <script lang="ts">
 import { PadelPlayer } from "@/models/padelPlayer.interface";
-import { getColorCodeGroupFromPlayer } from "@/services/americanoService";
+import {
+    getColorCodeGroupFromPlayer,
+    getMaxRound,
+} from "@/services/americanoService";
 import { sortByScore } from "@/services/scoreService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
+import { totalRounds } from "@/services/mexicanoService";
 
 export default defineComponent({
     data: function() {
@@ -187,11 +199,35 @@ export default defineComponent({
         shouldShowTwoTables() {
             return this.$data.twoGroupOfPlayers && this.$data.showTwoTables;
         },
+        nextRound(): void {
+            store.dispatch.americanoStore.nextRound();
+        },
     },
     computed: {
         getPlayers() {
             store.dispatch.americanoStore.sortPlayersByScore();
             return store.getters.americanoStore.getPlayers;
+        },
+        hasMoreRounds() {
+            const rules = store.getters.americanoStore.getRules;
+            if (rules.mode === "Mexicano") {
+                const total = totalRounds(
+                    store.getters.americanoStore.getPlayers.length
+                );
+                return store.getters.americanoStore.getRound < total;
+            }
+
+            const games = store.getters.americanoStore.getGames;
+            const maxRound = getMaxRound(games);
+            const played = Math.max(
+                0,
+                ...games
+                    .filter(
+                        g => g.homeScore !== null || g.awayScore !== null
+                    )
+                    .map(g => g.round)
+            );
+            return played < maxRound;
         },
     },
 });
