@@ -462,7 +462,7 @@ export default defineComponent({
             return options;
         },
         numberOfCourts() {
-            return Math.ceil(this.amountOfPlayersRule / 4);
+            return Math.floor(this.amountOfPlayersRule / 4);
         },
     },
 });

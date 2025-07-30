@@ -149,7 +149,7 @@ export default defineComponent({
             return "";
         },
         printCourt(game: PadelGame, index: number) {
-            const courts = Math.ceil(this.getRules.amountOfPlayers / 4);
+            const courts = Math.floor(this.getRules.amountOfPlayers / 4);
 
             let courtIndex = game.matchNumber - 1;
 
