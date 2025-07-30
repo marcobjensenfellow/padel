@@ -40,7 +40,7 @@ export default {
 
 @media (max-width: 623px) {
     html {
-        font-size: 10px;
+        font-size: 14px;
     }
 }
 </style>

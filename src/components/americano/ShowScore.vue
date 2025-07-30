@@ -1,6 +1,6 @@
 <template>
     <h3 class="text-center md-3">Results</h3>
-    <div v-if="!showTwoTables">
+    <div v-if="!showTwoTables" class="table-responsive">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -27,7 +27,8 @@
     </div>
     <div v-if="showTwoTables">
         <div class="row">
-            <div class="col-6">
+            <div class="col-12 col-md-6">
+                <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -50,8 +51,10 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
-            <div class="col-6">
+            <div class="col-12 col-md-6">
+                <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -74,6 +77,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
