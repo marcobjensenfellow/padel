@@ -23,6 +23,7 @@ Create match schedules for a Padel Americano completely free of charge. Choose e
 -   [Technologies](#clipboard-technologies)
 -   [Develop](#cloud-develop)
 -   [Contribute](#wrench-contribute)
+-   [Deploy](#rocket-deploy)
 
 ---
 
@@ -69,3 +70,10 @@ $ npm run build
 # :wrench: Contribute
 
 Feel free to contribute, all help is appreciated.
+
+# :rocket: Deploy
+
+Every push to `master` runs a GitHub Actions workflow that builds the project
+and publishes the `dist` folder to **GitHub Pages**. Enable Pages under
+**Settings → Pages** in the repository and choose GitHub Actions as the source
+to make the site available.
