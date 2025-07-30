@@ -541,10 +541,10 @@ export default defineComponent({
 
 <style>
 .is-second {
-    background-color: #f0fbfc;
+    background-color: rgba(15, 185, 177, 0.15);
 }
 
 .is-first {
-    background-color: #fcf0f0;
+    background-color: rgba(243, 156, 18, 0.15);
 }
 </style>

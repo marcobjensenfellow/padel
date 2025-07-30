@@ -31,6 +31,6 @@ export default {};
 
 <style>
 .navbar-pdl {
-    background-color: var(--main-gray);
+    background-color: var(--primary-color);
 }
 </style>
