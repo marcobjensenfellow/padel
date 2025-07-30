@@ -37,14 +37,56 @@
                             }"
                             required
                         />
-                        <select
-                            class="form-control mt-1"
-                            v-model="player.preferredSide"
-                        >
-                            <option value="Left">Left</option>
-                            <option value="Right">Right</option>
-                            <option value="Both">Both</option>
-                        </select>
+                        <div class="mt-1">
+                            <div class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    :id="`left-${player.id}`"
+                                    :name="`side-${player.id}`"
+                                    value="Left"
+                                    v-model="player.preferredSide"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    :for="`left-${player.id}`"
+                                >
+                                    Left
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    :id="`right-${player.id}`"
+                                    :name="`side-${player.id}`"
+                                    value="Right"
+                                    v-model="player.preferredSide"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    :for="`right-${player.id}`"
+                                >
+                                    Right
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    :id="`both-${player.id}`"
+                                    :name="`side-${player.id}`"
+                                    value="Both"
+                                    v-model="player.preferredSide"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    :for="`both-${player.id}`"
+                                >
+                                    Both
+                                </label>
+                            </div>
+                        </div>
                         <small
                             id="duplicateNameHelp"
                             class="form-text text-danger"
