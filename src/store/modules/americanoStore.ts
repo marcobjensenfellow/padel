@@ -19,6 +19,7 @@ import {
     saveAmericanoState,
     getCurrentTournamentName,
     setCurrentTournamentName,
+
 } from "@/services/storageService";
 
 export interface AmericanoStoreState {
@@ -173,6 +174,7 @@ export default {
             }
 
             const currentName = name || getCurrentTournamentName();
+
             if (currentName) {
                 state.tournamentName = currentName;
             }

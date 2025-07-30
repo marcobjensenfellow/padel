@@ -293,6 +293,7 @@ import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 import { getTournamentNames } from "@/services/storageService";
+
 import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
@@ -492,6 +493,9 @@ export default defineComponent({
             },
             deep: true,
         },
+        tournamentNameRule() {
+            store.dispatch.americanoStore.saveStateManually();
+        },
     },
     computed: {
         getPlayers() {
@@ -587,6 +591,7 @@ export default defineComponent({
         tournamentNames() {
             return getTournamentNames();
         },
+
         tournamentNameRule: {
             get() {
                 return store.getters.americanoStore.getTournamentName;
