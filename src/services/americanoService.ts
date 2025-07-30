@@ -709,3 +709,11 @@ export function allNamesAreEmpty(players: PadelPlayer[]) {
     const namedPlayers = players.filter(player => player.name !== "");
     return namedPlayers.length === 0;
 }
+
+export function getMaxRound(games: PadelGame[]): number {
+    if (games.length === 0) {
+        return 0;
+    }
+
+    return Math.max(...games.map(g => g.round));
+}
