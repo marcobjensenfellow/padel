@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                             <div v-else class="p-2">
-                                Oversidder: {{
+                                Rest round: {{
                                     getPlayerNameById(game.players[0].playerId)
                                 }}
                             </div>
@@ -161,7 +161,7 @@ export default defineComponent({
                 courtIndex = index % courts;
             }
 
-            return this.getCourt(courtIndex) || `Bana ${courtIndex + 1}`;
+            return this.getCourt(courtIndex) || `Court ${courtIndex + 1}`;
         },
         getPlayerNameById(id: number) {
             const player = store.getters.americanoStore.getPlayers.find(
