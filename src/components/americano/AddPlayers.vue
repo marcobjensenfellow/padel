@@ -5,6 +5,13 @@
             <div class="row">
                 <div class="col-6">
                     <h4>Add players</h4>
+                    <button
+                        type="button"
+                        class="btn btn-pdl btn-sm ml-2"
+                        @click="fillFunnyNames"
+                    >
+                        Autofill names
+                    </button>
                     <div
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
@@ -92,7 +99,10 @@
                             <label for="courtNames" class="form-label"
                                 >Court names</label
                             >
-                            <div class="d-flex flex-row flex-wrap" id="courtNames">
+                            <div
+                                class="d-flex flex-row flex-wrap"
+                                id="courtNames"
+                            >
                                 <input
                                     v-if="numberOfCourts >= 1"
                                     type="text"
@@ -149,9 +159,8 @@
                                     id="randomScheduleHelp"
                                     class="form-text text-muted"
                                 >
-                                    Shuffling the schedule means a new
-                                    draw even if the participants are the same
-                                    players.
+                                    Shuffling the schedule means a new draw even
+                                    if the participants are the same players.
                                 </small>
                             </div>
                         </div>
@@ -189,8 +198,8 @@
                                     id="randomScheduleHelp"
                                     class="form-text text-muted"
                                 >
-                                    Color code the two groups so that it's
-                                    clear who belongs together.
+                                    Color code the two groups so that it's clear
+                                    who belongs together.
                                 </small>
                             </div>
                         </div>
@@ -206,7 +215,7 @@
 
             <div class="form-group">
                 <button type="button" @click="reset" class="btn btn-pdl mr-3">
-                    <i class="las la-times"></i> Start over
+                    <i class="las la-times"></i> Reset
                 </button>
                 <button class="btn btn-pdl">
                     {{ getAddPlayerText }} <i class="las la-arrow-right"></i>
@@ -291,7 +300,50 @@ export default defineComponent({
             store.dispatch.americanoStore.saveStateManually();
         },
         handleAmountOfPlayersChange() {
-            const players = getPadelPlayers(this.amountOfPlayersRule);
+            const current = [...this.getPlayers];
+            const target = this.amountOfPlayersRule;
+            let players = [...current];
+
+            if (target > current.length) {
+                for (let i = current.length; i < target; i++) {
+                    players.push({
+                        name: "",
+                        score: 0,
+                        id: i + 1,
+                        preferredSide: "Both",
+                        seed: i + 1,
+                    });
+                }
+            } else if (target < current.length) {
+                players = players.slice(0, target);
+            }
+
+            store.commit.americanoStore.UPDATE_PLAYERS(players);
+        },
+        fillFunnyNames() {
+            const names = [
+                "Rocket Racquet",
+                "Paddle Pop",
+                "Lobster",
+                "Serve-ius Snape",
+                "Smash Potato",
+                "Slice Slice Baby",
+                "Rally Belly",
+                "Ace Ventura",
+                "Court Jester",
+                "Spin Doctor",
+                "Net Ninja",
+                "Paddle Pusher",
+                "Faulty Tower",
+                "Drop Shot",
+                "Lob Machine",
+                "Game of Throws",
+            ];
+
+            const players = [...this.getPlayers];
+            players.forEach((p, i) => {
+                p.name = names[i % names.length];
+            });
             store.commit.americanoStore.UPDATE_PLAYERS(players);
         },
         isDuplicateName(id: number) {
@@ -346,7 +398,7 @@ export default defineComponent({
                 return "Go to matches";
             }
 
-            return "Add players";
+            return "Start turnament";
         },
         randomScheduleRule: {
             get() {
@@ -365,7 +417,8 @@ export default defineComponent({
                 return store.getters.americanoStore.getRules.amountOfPlayers;
             },
             set(amount: number) {
-                const colorCode = Number(amount) === 16 ? this.colorCodeRule : false;
+                const colorCode =
+                    Number(amount) === 16 ? this.colorCodeRule : false;
 
                 const newRules: PadelRules = {
                     ...store.getters.americanoStore.getRules,
