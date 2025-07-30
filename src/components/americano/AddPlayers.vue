@@ -3,7 +3,7 @@
         <h1 class="text-center">Setup</h1>
         <form @submit.prevent="onAddPlayers">
             <div class="row">
-                <div class="col-6">
+                <div class="col-12 col-md-6">
                     <h4>Add players</h4>
                     <button
                         type="button"
@@ -54,7 +54,7 @@
                         </small>
                     </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-md-6">
                     <h4>Rules</h4>
                     <div>
                         <div class="form-group">

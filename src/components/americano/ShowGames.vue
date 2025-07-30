@@ -21,7 +21,7 @@
                         >
                             <div
                                 v-if="game.players.length === 4"
-                                class="d-flex flex-row justify-content-between"
+                                class="d-flex flex-column flex-md-row justify-content-between"
                             >
                                 <div class="team-element p-2">
                                     <span class="team">{{
@@ -226,6 +226,16 @@ export default defineComponent({
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
     color: #fff;
+}
+
+@media (max-width: 767.98px) {
+    .team-element {
+        width: 100%;
+        text-align: center;
+    }
+    .input-element {
+        width: 45px;
+    }
 }
 
 @media print {
