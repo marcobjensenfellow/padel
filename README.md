@@ -39,7 +39,7 @@ The website is available [here](https://www.padelamericano.nu).
 -   Color code the group split when using 16 players
 -   Automatically calculate the opponent's points
 -   Enter match results to determine the winner
--   Reorder players with drag and drop to set seeds in Mexicano mode
+-   Separate seeding list with drag and drop for Mexicano mode
 
 # :clipboard: Technologies
 

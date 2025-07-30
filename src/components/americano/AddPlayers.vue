@@ -9,10 +9,6 @@
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
                         class="form-group"
-                        draggable="true"
-                        @dragstart="onDragStart(index)"
-                        @dragover.prevent
-                        @drop="onDrop(index)"
                     >
                         <input
                             type="text"
@@ -35,15 +31,6 @@
                             <option value="Right">Right</option>
                             <option value="Both">Both</option>
                         </select>
-                        <input
-                            v-if="modeRule === 'Mexicano'"
-                            type="number"
-                            class="form-control mt-1"
-                            v-model.number="player.seed"
-                            min="1"
-                            :max="getPlayers.length"
-                            placeholder="Seed"
-                        />
                         <small
                             id="duplicateNameHelp"
                             class="form-text text-danger"
@@ -211,6 +198,12 @@
                 </div>
             </div>
 
+            <div class="row mt-3" v-if="modeRule === 'Mexicano'">
+                <div class="col-12">
+                    <SeedPlayers />
+                </div>
+            </div>
+
             <div class="form-group">
                 <button type="button" @click="reset" class="btn btn-pdl mr-3">
                     <i class="las la-times"></i> Start over
@@ -234,14 +227,15 @@ import {
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
+import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
+    components: { SeedPlayers },
     data: function() {
         return {
             maxScore: 24,
             maxScoreInvalid: false,
             duplicateNameIds: [] as number[],
-            dragIndex: null as number | null,
         };
     },
     methods: {
@@ -302,20 +296,6 @@ export default defineComponent({
         },
         isDuplicateName(id: number) {
             return this.$data.duplicateNameIds.includes(id);
-        },
-        onDragStart(index: number) {
-            this.$data.dragIndex = index;
-        },
-        onDrop(index: number) {
-            if (this.$data.dragIndex === null) {
-                return;
-            }
-            const players = [...this.getPlayers];
-            const moved = players.splice(this.$data.dragIndex, 1)[0];
-            players.splice(index, 0, moved);
-            players.forEach((p, i) => (p.seed = i + 1));
-            store.commit.americanoStore.UPDATE_PLAYERS(players);
-            this.$data.dragIndex = null;
         },
         getColorCodeGroup(player: PadelPlayer) {
             if (store.getters.americanoStore.getRules.colorCode === false) {
