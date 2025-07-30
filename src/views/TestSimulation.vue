@@ -72,7 +72,7 @@ export default defineComponent({
                 g.homeScore = Math.floor(Math.random() * 33);
                 g.awayScore = Math.floor(Math.random() * 33);
             });
-            this.players = updatePlayerScores(this.players, this.games);
+            this.players = updatePlayerScores(this.players, this.games, 32);
         },
         getPlayerName(id: number) {
             const p = this.players.find((pl) => pl.id === id);
