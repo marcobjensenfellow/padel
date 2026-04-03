@@ -1,307 +1,294 @@
 <template>
-    <div>
-        <h1 class="text-center">Setup</h1>
+    <div class="setup-page">
+        <div class="setup-header">
+            <h1>New tournament</h1>
+            <p class="setup-subtitle">Set up your game</p>
+        </div>
+
         <form @submit.prevent="onAddPlayers">
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <div class="form-group">
-                        <label for="tournamentName" class="form-label"
-                            >Tournament name</label
-                        >
-                        <input
-                            id="tournamentName"
-                            type="text"
-                            class="form-control"
-                            list="tournamentNames"
-                            v-model="tournamentNameRule"
-                            @change="onTournamentChange"
-                            required
-                        />
-                        <datalist id="tournamentNames">
-                            <option
-                                v-for="name in tournamentNames"
-                                :key="name"
-                                :value="name"
-                            />
-                        </datalist>
+
+            <!-- ── Tournament name ──────────────────── -->
+            <p class="ios-section-header">Tournament</p>
+            <div class="ios-section">
+                <div class="ios-row">
+                    <span class="row-label">Name</span>
+                    <input
+                        class="ios-input row-value-input"
+                        type="text"
+                        list="tournamentNames"
+                        v-model="tournamentNameRule"
+                        @change="onTournamentChange"
+                        placeholder="e.g. Friday session"
+                        required
+                    />
+                    <datalist id="tournamentNames">
+                        <option v-for="name in tournamentNames" :key="name" :value="name" />
+                    </datalist>
+                </div>
+            </div>
+
+            <!-- ── Game mode ───────────────────────── -->
+            <p class="ios-section-header">Game format</p>
+            <div class="ios-section">
+                <div class="ios-row justify-center">
+                    <div class="seg-control mode-seg">
+                        <button
+                            type="button"
+                            :class="{ 'seg-active': modeRule === 'Americano' }"
+                            @click="modeRule = 'Americano'"
+                        >Americano</button>
+                        <button
+                            type="button"
+                            :class="{ 'seg-active': modeRule === 'Mexicano' }"
+                            @click="modeRule = 'Mexicano'"
+                        >Mexicano</button>
                     </div>
-                    <h4>Add players</h4>
-                    <button
-                        type="button"
-                        class="btn btn-pdl btn-sm ml-2"
-                        @click="fillFunnyNames"
+                </div>
+                <div class="ios-row" v-if="modeRule === 'Americano'">
+                    <span class="row-label">Shuffle draw</span>
+                    <div class="row-value">
+                        <label class="ios-toggle">
+                            <input type="checkbox" v-model="randomScheduleRule" :disabled="getIsGamePrepared" />
+                            <span class="ios-toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Rules ──────────────────────────── -->
+            <p class="ios-section-header">Rules</p>
+            <div class="ios-section">
+                <div class="ios-row">
+                    <span class="row-label">Max points / round</span>
+                    <input
+                        type="number"
+                        class="ios-input row-value-input text-right"
+                        v-model.number="maxScore"
+                        @change="onMaxScoreChange"
+                        min="1"
+                        required
+                    />
+                </div>
+                <div class="ios-row">
+                    <span class="row-label">Number of players</span>
+                    <select
+                        class="ios-select"
+                        v-model.number="amountOfPlayersRule"
+                        @change="handleAmountOfPlayersChange"
+                        :disabled="getIsGamePrepared"
                     >
-                        Autofill names
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-pdl btn-sm ml-2"
-                        @click="fillDemoNinePlayers"
-                    >
-                        Load 9-player demo
-                    </button>
-                    <div
-                        v-for="(player, index) in getPlayers"
-                        :key="player.id"
-                        class="player-row form-group"
-                    >
-                        <div class="d-flex align-items-center gap-2">
+                        <option v-for="n in playerOptions" :key="n" :value="n">{{ n }}</option>
+                    </select>
+                </div>
+                <!-- Court names -->
+                <div class="ios-row court-names-row" v-if="numberOfCourts > 0">
+                    <div class="court-names-grid">
+                        <div v-for="index in numberOfCourts" :key="index" class="court-name-item">
+                            <span class="court-name-label">Court {{ index }}</span>
                             <input
                                 type="text"
-                                class="form-control player-name-input"
-                                :placeholder="getPlayerPlaceholder(index)"
-                                v-model="player.name"
-                                @keyup="handlePlayerNameChange()"
-                                :class="{
-                                    'is-invalid': isDuplicateName(player.id),
-                                    'is-second': getColorCodeGroup(player) === 2,
-                                    'is-first': getColorCodeGroup(player) === 1,
-                                }"
-                                required
+                                class="ios-input court-name-input"
+                                :placeholder="`Court ${index}`"
+                                :value="courtNamesRule[index - 1]"
+                                @input="updateCourtName(index - 1, $event.target.value)"
                             />
-                            <div class="side-toggle btn-group btn-group-sm" role="group" :aria-label="`Side preference for player ${index + 1}`">
-                                <button
-                                    type="button"
-                                    class="btn"
-                                    :class="player.preferredSide === 'Left' ? 'btn-side-active' : 'btn-side'"
-                                    @click="player.preferredSide = 'Left'"
-                                    title="Prefers left side"
-                                >L</button>
-                                <button
-                                    type="button"
-                                    class="btn"
-                                    :class="player.preferredSide === 'Both' ? 'btn-side-active' : 'btn-side'"
-                                    @click="player.preferredSide = 'Both'"
-                                    title="No preference"
-                                >–</button>
-                                <button
-                                    type="button"
-                                    class="btn"
-                                    :class="player.preferredSide === 'Right' ? 'btn-side-active' : 'btn-side'"
-                                    @click="player.preferredSide = 'Right'"
-                                    title="Prefers right side"
-                                >R</button>
-                            </div>
                         </div>
-                        <small
-                            class="form-text text-danger"
-                            v-if="isDuplicateName(player.id)"
-                        >
-                            Name already used
-                        </small>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <h4>Rules</h4>
-                    <div>
-                        <div class="form-group">
-                            <label
-                                class="form-check-label"
-                                for="amountOfPlayers"
-                            >
-                                Number of players
-                            </label>
-                            <select
-                                class="form-control"
-                                id="amountOfPlayers"
-                                v-model="amountOfPlayersRule"
-                                @change="handleAmountOfPlayersChange"
-                                :disabled="getIsGamePrepared"
-                            >
-                                <option
-                                    v-for="n in playerOptions"
-                                    :key="n"
-                                    :value="n"
-                                >
-                                    {{ n }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="maxScoreInput" class="form-label"
-                                >Max points per round</label
-                            >
-                            <input
-                                type="text"
-                                id="maxScoreInput"
-                                class="form-control"
-                                :class="{ 'is-invalid': maxScoreInvalid }"
-                                v-model="maxScore"
-                                @focusout="onMaxScoreChange"
-                                required
-                            />
-                            <small
-                                v-if="maxScoreInvalid"
-                                id="maxScoreInvalidHelp"
-                                class="text-danger"
-                            >
-                                Must be one or more digits.
-                            </small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="courtNames" class="form-label"
-                                >Court names</label
-                            >
-                            <div
-                                class="d-flex flex-row flex-wrap"
-                                id="courtNames"
-                            >
-                                <template
-                                    v-for="index in numberOfCourts"
-                                    :key="index"
-                                >
-                                    <input
-                                        type="text"
-                                        class="form-control m-2"
-                                        :placeholder="`Court ${index}`"
-                                        :value="courtNamesRule[index - 1]"
-                                        @input="
-                                            updateCourtName(
-                                                index - 1,
-                                                $event.target.value
-                                            )
-                                        "
-                                    />
-                                </template>
-                            </div>
-
-                            <small id="courtNameInfo" class="text-muted">
-                                Optional
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    v-model="randomScheduleRule"
-                                    id="randomScheduleCheck"
-                                    :disabled="getIsGamePrepared"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    for="randomScheduleCheck"
-                                >
-                                    Shuffle schedule
-                                </label>
-                                <small
-                                    id="randomScheduleHelp"
-                                    class="form-text text-muted"
-                                >
-                                    Shuffling the schedule means a new draw even
-                                    if the participants are the same players.
-                                </small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-check-label" for="modeSelect">
-                                Game type
-                            </label>
-                            <select
-                                class="form-control"
-                                id="modeSelect"
-                                v-model="modeRule"
-                            >
-                                <option value="Americano">Americano</option>
-                                <option value="Mexicano">Mexicano</option>
-                            </select>
-                        </div>
-                        <div
-                            class="form-group"
-                            v-if="amountOfPlayersRule === 16"
-                        >
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    v-model="colorCodeRule"
-                                    id="colorCodeCheck"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    for="randomScheduleCheck"
-                                >
-                                    Color code groups
-                                </label>
-                                <small
-                                    id="randomScheduleHelp"
-                                    class="form-text text-muted"
-                                >
-                                    Color code the two groups so that it's clear
-                                    who belongs together.
-                                </small>
-                            </div>
-                        </div>
+                <div class="ios-row" v-if="amountOfPlayersRule === 16">
+                    <span class="row-label">Colour code groups</span>
+                    <div class="row-value">
+                        <label class="ios-toggle">
+                            <input type="checkbox" v-model="colorCodeRule" />
+                            <span class="ios-toggle-track"></span>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-3" v-if="modeRule === 'Mexicano'">
-                <div class="col-12">
-                    <SeedPlayers />
+            <!-- ── Players ─────────────────────────── -->
+            <div class="players-header-row">
+                <p class="ios-section-header" style="margin:0">Players</p>
+                <div class="player-quick-btns">
+                    <button type="button" class="btn-pdl-ghost" @click="fillFunnyNames">Autofill</button>
+                    <button type="button" class="btn-pdl-ghost" @click="fillDemoNinePlayers">Demo</button>
                 </div>
             </div>
+            <div
+                class="ios-section player-list"
+                ref="playerList"
+            >
+                <div
+                    v-for="(player, index) in getPlayers"
+                    :key="player.id"
+                    class="ios-row player-row"
+                    :class="{
+                        'is-first': getColorCodeGroup(player) === 1,
+                        'is-second': getColorCodeGroup(player) === 2,
+                        'drag-over': dragOverIndex === index,
+                    }"
+                    :draggable="isMexicano"
+                    @dragstart="onDragStart(index)"
+                    @dragover.prevent="onDragOver(index)"
+                    @drop="onDrop(index)"
+                    @dragend="onDragEnd"
+                >
+                    <!-- Seed number (Mexicano only) -->
+                    <span v-if="isMexicano" class="seed-badge">{{ index + 1 }}</span>
 
-            <div class="form-group">
-                <button type="button" @click="reset" class="btn btn-pdl mr-3">
-                    <i class="las la-times"></i> Reset
-                </button>
-                <button class="btn btn-pdl">
-                    {{ getAddPlayerText }} <i class="las la-arrow-right"></i>
+                    <!-- Name input -->
+                    <input
+                        type="text"
+                        class="ios-input player-name"
+                        :placeholder="'Player ' + (index + 1)"
+                        v-model="player.name"
+                        @keyup="handlePlayerNameChange"
+                        :class="{ 'name-invalid': isDuplicateName(player.id) }"
+                        required
+                    />
+
+                    <!-- Side segmented control -->
+                    <div class="seg-control side-seg">
+                        <button type="button"
+                            :class="{ 'seg-active': player.preferredSide === 'Left' }"
+                            @click="player.preferredSide = 'Left'"
+                            title="Prefers left side">L</button>
+                        <button type="button"
+                            :class="{ 'seg-active': player.preferredSide === 'Both' }"
+                            @click="player.preferredSide = 'Both'"
+                            title="No preference">–</button>
+                        <button type="button"
+                            :class="{ 'seg-active': player.preferredSide === 'Right' }"
+                            @click="player.preferredSide = 'Right'"
+                            title="Prefers right side">R</button>
+                    </div>
+
+                    <!-- Drag handle (Mexicano only) -->
+                    <span v-if="isMexicano" class="drag-handle">⠿</span>
+                </div>
+            </div>
+            <p v-if="duplicateNameIds.length > 0" class="error-text">Some names are duplicated</p>
+            <p v-if="maxScoreInvalid" class="error-text">Max points must be a number greater than 0</p>
+
+            <!-- ── Actions ──────────────────────────── -->
+            <div class="action-row">
+                <button type="button" @click="reset" class="btn-pdl-secondary">Reset</button>
+                <button type="submit" class="btn-pdl">
+                    {{ getAddPlayerText }} →
                 </button>
             </div>
+
         </form>
     </div>
 </template>
 
 <script lang="ts">
-import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer, PreferredSide } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
-import {
-    getColorCodeGroupFromPlayer,
-    getPadelPlayers,
-} from "@/services/americanoService";
+import { getColorCodeGroupFromPlayer } from "@/services/americanoService";
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
 import { getTournamentNames } from "@/services/storageService";
-import SeedPlayers from "@/components/americano/SeedPlayers.vue";
 
 export default defineComponent({
-    components: { SeedPlayers },
-    data: function () {
+    data() {
         return {
-            maxScore: 24,
+            maxScore: 24 as number,
             maxScoreInvalid: false,
             duplicateNameIds: [] as number[],
+            dragIndex: null as number | null,
+            dragOverIndex: null as number | null,
         };
     },
+    created() {
+        this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
+    },
+    computed: {
+        isMexicano(): boolean {
+            return store.getters.americanoStore.getRules.mode === "Mexicano";
+        },
+        getPlayers() {
+            return store.getters.americanoStore.getPlayers;
+        },
+        getIsGamePrepared() {
+            return store.getters.americanoStore.getIsGamePrepared;
+        },
+        getAddPlayerText() {
+            return store.getters.americanoStore.getIsGamePrepared
+                ? "Go to matches"
+                : "Start tournament";
+        },
+        modeRule: {
+            get() { return store.getters.americanoStore.getRules.mode; },
+            set(value: string) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    mode: value as any,
+                });
+            },
+        },
+        randomScheduleRule: {
+            get() { return store.getters.americanoStore.getRules.randomSchedule; },
+            set(value: boolean) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    randomSchedule: value,
+                });
+            },
+        },
+        amountOfPlayersRule: {
+            get() { return store.getters.americanoStore.getRules.amountOfPlayers; },
+            set(amount: number) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    amountOfPlayers: amount,
+                    colorCode: amount === 16 ? this.colorCodeRule : false,
+                });
+            },
+        },
+        colorCodeRule: {
+            get() { return store.getters.americanoStore.getRules.colorCode; },
+            set(value: boolean) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    colorCode: value,
+                });
+            },
+        },
+        courtNamesRule: {
+            get() { return store.getters.americanoStore.getRules.courtNames; },
+            set(value: string[]) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    courtNames: value,
+                });
+            },
+        },
+        tournamentNameRule: {
+            get() { return store.getters.americanoStore.getTournamentName; },
+            set(value: string) { store.commit.americanoStore.SET_TOURNAMENT_NAME(value); },
+        },
+        tournamentNames() { return getTournamentNames(); },
+        playerOptions() {
+            return Array.from({ length: 61 }, (_, i) => i + 4);
+        },
+        numberOfCourts() {
+            return Math.floor(this.amountOfPlayersRule / 4);
+        },
+    },
     methods: {
-        onAddPlayers(): void {
-            if (this.maxScoreInvalid) {
-                return;
-            }
-
+        onAddPlayers() {
+            if (this.maxScoreInvalid) return;
             const duplicateIds = getDuplicateIds(this.getPlayers);
-
             if (duplicateIds.length > 0) {
                 this.$data.duplicateNameIds = duplicateIds;
                 return;
             }
-
-            const isGamePrepared =
-                store.getters.americanoStore.getIsGamePrepared;
-
-            if (!isGamePrepared) {
+            if (!store.getters.americanoStore.getIsGamePrepared) {
                 store.dispatch.americanoStore.prepareGames();
             }
             store.commit.americanoStore.INCREMENT_STEP();
-        },
-        getPlayerPlaceholder(index: number) {
-            const playerNumber = Number(index) + 1;
-            return "Player " + playerNumber;
         },
         reset() {
             store.commit.americanoStore.RESET();
@@ -310,21 +297,15 @@ export default defineComponent({
             this.$data.maxScore = 24;
         },
         onMaxScoreChange() {
-            const value = this.$data.maxScore;
-
-            if (!isValidMaxScore(value)) {
+            if (!isValidMaxScore(this.$data.maxScore)) {
                 this.maxScoreInvalid = true;
                 return;
             }
-
             this.maxScoreInvalid = false;
-
-            const numberValue = Number(value);
-            const newRules: PadelRules = {
+            store.commit.americanoStore.SET_RULES({
                 ...store.getters.americanoStore.getRules,
-                maxScore: numberValue,
-            };
-            store.commit.americanoStore.SET_RULES(newRules);
+                maxScore: Number(this.$data.maxScore),
+            });
         },
         handlePlayerNameChange() {
             this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
@@ -334,93 +315,26 @@ export default defineComponent({
             const current = [...this.getPlayers];
             const target = this.amountOfPlayersRule;
             let players = [...current];
-
             if (target > current.length) {
                 for (let i = current.length; i < target; i++) {
-                    players.push({
-                        name: "",
-                        score: 0,
-                        id: i + 1,
-                        preferredSide: "Both",
-                        seed: i + 1,
-                    });
+                    players.push({ name: "", score: 0, id: i + 1, preferredSide: "Both", seed: i + 1 });
                 }
-            } else if (target < current.length) {
+            } else {
                 players = players.slice(0, target);
             }
-
             store.commit.americanoStore.UPDATE_PLAYERS(players);
         },
         updateCourtName(index: number, name: string) {
             const courts = [...this.courtNamesRule];
             courts[index] = name;
-            const newRules: PadelRules = {
+            store.commit.americanoStore.SET_RULES({
                 ...store.getters.americanoStore.getRules,
                 courtNames: courts,
-            };
-            store.commit.americanoStore.SET_RULES(newRules);
-        },
-        fillFunnyNames() {
-            const names = [
-                "Rocket Racquet",
-                "Paddle Pop",
-                "Lobster",
-                "Serve-ius Snape",
-                "Smash Potato",
-                "Slice Slice Baby",
-                "Rally Belly",
-                "Ace Ventura",
-                "Court Jester",
-                "Spin Doctor",
-                "Net Ninja",
-                "Paddle Pusher",
-                "Faulty Tower",
-                "Drop Shot",
-                "Lob Machine",
-                "Game of Throws",
-            ];
-
-            const players = [...this.getPlayers];
-            players.forEach((p, i) => {
-                p.name = names[i % names.length];
             });
-            store.commit.americanoStore.UPDATE_PLAYERS(players);
-        },
-        fillDemoNinePlayers() {
-            const demo = [
-                { name: "Mathias", side: "Both" },
-                { name: "Carl Emil", side: "Both" },
-                { name: "Christian Frantsen", side: "Both" },
-                { name: "Thomas Smidth", side: "Both" },
-                { name: "Daniel", side: "Both" },
-                { name: "Marco", side: "Right" },
-                { name: "Jakob", side: "Right" },
-                { name: "Brian", side: "Left" },
-                { name: "Mads", side: "Left" },
-            ];
-
-            const players: PadelPlayer[] = demo.map((p, i) => ({
-                name: p.name,
-                score: 0,
-                id: i + 1,
-                preferredSide: p.side as PreferredSide,
-                seed: i + 1,
-            }));
-
-            store.commit.americanoStore.UPDATE_PLAYERS(players);
-
-            const newRules: PadelRules = {
-                ...store.getters.americanoStore.getRules,
-                amountOfPlayers: players.length,
-                mode: "Americano",
-            };
-
-            store.commit.americanoStore.SET_RULES(newRules);
         },
         onTournamentChange() {
             const name = this.tournamentNameRule as string;
-            const names = getTournamentNames();
-            if (names.includes(name)) {
+            if (getTournamentNames().includes(name)) {
                 store.commit.americanoStore.LOAD_STATE(name);
             } else {
                 store.commit.americanoStore.RESET();
@@ -431,200 +345,239 @@ export default defineComponent({
             return this.$data.duplicateNameIds.includes(id);
         },
         getColorCodeGroup(player: PadelPlayer) {
-            if (store.getters.americanoStore.getRules.colorCode === false) {
-                return 0;
-            }
-
+            if (!store.getters.americanoStore.getRules.colorCode) return 0;
             if (!store.getters.americanoStore.getIsGamePrepared) {
-                return store.getters.americanoStore.getPlayers.indexOf(
-                    player
-                ) <= 7
-                    ? 1
-                    : 2;
+                return store.getters.americanoStore.getPlayers.indexOf(player) <= 7 ? 1 : 2;
             }
-
             return getColorCodeGroupFromPlayer(
                 player,
                 store.getters.americanoStore.getPlayers,
                 store.getters.americanoStore.getGames
             );
         },
-    },
-    created() {
-        this.$data.maxScore = store.getters.americanoStore.getRules.maxScore;
+        /* ── Drag to reorder (Mexicano seeding) ── */
+        onDragStart(index: number) {
+            this.$data.dragIndex = index;
+        },
+        onDragOver(index: number) {
+            this.$data.dragOverIndex = index;
+        },
+        onDrop(index: number) {
+            if (this.$data.dragIndex === null) return;
+            const updated = [...this.getPlayers];
+            const [moved] = updated.splice(this.$data.dragIndex, 1);
+            updated.splice(index, 0, moved);
+            updated.forEach((p, i) => (p.seed = i + 1));
+            store.commit.americanoStore.UPDATE_PLAYERS(updated);
+            this.$data.dragIndex = null;
+            this.$data.dragOverIndex = null;
+        },
+        onDragEnd() {
+            this.$data.dragIndex = null;
+            this.$data.dragOverIndex = null;
+        },
+        /* ── Demo data ─────────────────────────── */
+        fillFunnyNames() {
+            const names = ["Rocket Racquet","Paddle Pop","Lobster","Serve-ius Snape",
+                "Smash Potato","Slice Slice Baby","Rally Belly","Ace Ventura",
+                "Court Jester","Spin Doctor","Net Ninja","Paddle Pusher",
+                "Faulty Tower","Drop Shot","Lob Machine","Game of Throws"];
+            const players = [...this.getPlayers];
+            players.forEach((p, i) => { p.name = names[i % names.length]; });
+            store.commit.americanoStore.UPDATE_PLAYERS(players);
+        },
+        fillDemoNinePlayers() {
+            const demo = [
+                { name: "Mathias",          side: "Both"  },
+                { name: "Carl Emil",        side: "Both"  },
+                { name: "Christian",        side: "Both"  },
+                { name: "Thomas",           side: "Both"  },
+                { name: "Daniel",           side: "Both"  },
+                { name: "Marco",            side: "Right" },
+                { name: "Jakob",            side: "Right" },
+                { name: "Brian",            side: "Left"  },
+                { name: "Mads",             side: "Left"  },
+            ];
+            const players: PadelPlayer[] = demo.map((p, i) => ({
+                name: p.name, score: 0, id: i + 1,
+                preferredSide: p.side as PreferredSide, seed: i + 1,
+            }));
+            store.commit.americanoStore.UPDATE_PLAYERS(players);
+            store.commit.americanoStore.SET_RULES({
+                ...store.getters.americanoStore.getRules,
+                amountOfPlayers: players.length,
+            });
+        },
     },
     watch: {
-        getPlayers: {
-            handler() {
-                store.dispatch.americanoStore.saveStateManually();
-            },
-            deep: true,
-        },
-        getRules: {
-            handler() {
-                store.dispatch.americanoStore.saveStateManually();
-            },
-            deep: true,
-        },
-        tournamentNameRule() {
-            store.dispatch.americanoStore.saveStateManually();
-        },
-    },
-    computed: {
-        getPlayers() {
-            return store.getters.americanoStore.getPlayers;
-        },
-        getAddPlayerText() {
-            const isGamePrepared =
-                store.getters.americanoStore.getIsGamePrepared;
-
-            if (isGamePrepared) {
-                return "Go to matches";
-            }
-
-            return "Start tournament";
-        },
-        randomScheduleRule: {
-            get() {
-                return store.getters.americanoStore.getRules.randomSchedule;
-            },
-            set(value: boolean) {
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    randomSchedule: value,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        amountOfPlayersRule: {
-            get() {
-                return store.getters.americanoStore.getRules.amountOfPlayers;
-            },
-            set(amount: number) {
-                const colorCode =
-                    Number(amount) === 16 ? this.colorCodeRule : false;
-
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    amountOfPlayers: amount,
-                    colorCode: colorCode,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        courtNamesRule: {
-            get() {
-                return store.getters.americanoStore.getRules.courtNames;
-            },
-            set(value: string[]) {
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    courtNames: value,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        colorCodeRule: {
-            get() {
-                return store.getters.americanoStore.getRules.colorCode;
-            },
-            set(value: boolean) {
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    colorCode: value,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        modeRule: {
-            get() {
-                return store.getters.americanoStore.getRules.mode;
-            },
-            set(value: string) {
-                const newRules: PadelRules = {
-                    ...store.getters.americanoStore.getRules,
-                    mode: value as any,
-                };
-                store.commit.americanoStore.SET_RULES(newRules);
-            },
-        },
-        getIsGamePrepared() {
-            return store.getters.americanoStore.getIsGamePrepared;
-        },
-        playerOptions() {
-            const options: number[] = [];
-            for (let i = 4; i <= 64; i++) {
-                options.push(i);
-            }
-            return options;
-        },
-        numberOfCourts() {
-            return Math.floor(this.amountOfPlayersRule / 4);
-        },
-        tournamentNames() {
-            return getTournamentNames();
-        },
-        tournamentNameRule: {
-            get() {
-                return store.getters.americanoStore.getTournamentName;
-            },
-            set(value: string) {
-                store.commit.americanoStore.SET_TOURNAMENT_NAME(value);
-            },
-        },
+        getPlayers: { handler() { store.dispatch.americanoStore.saveStateManually(); }, deep: true },
+        getRules:   { handler() { store.dispatch.americanoStore.saveStateManually(); }, deep: true },
+        tournamentNameRule() { store.dispatch.americanoStore.saveStateManually(); },
     },
 });
 </script>
 
-<style>
-.is-second {
-    background-color: rgba(15, 185, 177, 0.15);
+<style scoped>
+.setup-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.2rem 1rem 3rem;
 }
 
-.is-first {
-    background-color: rgba(243, 156, 18, 0.15);
+.setup-header {
+    padding: 0.8rem 0 0.4rem;
 }
 
-.player-row {
-    margin-bottom: 0.4rem;
+.setup-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
 }
 
-.player-name-input {
+.setup-subtitle {
+    color: var(--label-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Row layout */
+.ios-row { min-height: 48px; }
+
+.row-label {
+    flex: 1;
+    font-size: 0.97rem;
+}
+
+.row-value {
+    display: flex;
+    align-items: center;
+}
+
+.row-value-input {
+    text-align: right;
+    color: var(--label-secondary);
+    max-width: 180px;
+}
+
+.text-right { text-align: right; }
+
+.justify-center { justify-content: center; padding: 0.6rem 1rem; }
+
+/* Mode segmented control */
+.mode-seg { width: 100%; }
+.mode-seg button { flex: 1; padding: 5px 0; font-size: 0.9rem; }
+
+/* Side segmented control */
+.side-seg { flex-shrink: 0; }
+.side-seg button { padding: 4px 8px; font-size: 0.78rem; font-weight: 700; min-width: 26px; }
+
+/* iOS Toggle switch */
+.ios-toggle { position: relative; display: inline-block; cursor: pointer; }
+.ios-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ios-toggle-track {
+    display: block;
+    width: 51px; height: 31px;
+    background: #E5E5EA;
+    border-radius: 31px;
+    transition: background 0.2s;
+    position: relative;
+}
+.ios-toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 27px; height: 27px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.ios-toggle input:checked + .ios-toggle-track { background: var(--primary-color); }
+.ios-toggle input:checked + .ios-toggle-track::after { transform: translateX(20px); }
+
+/* Players section */
+.players-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.4rem 0 0.35rem;
+}
+
+.player-quick-btns {
+    display: flex;
+    gap: 0;
+}
+
+.player-list { user-select: none; }
+
+.player-row { gap: 0.5rem; cursor: default; }
+.player-row[draggable="true"] { cursor: grab; }
+.player-row.drag-over { background: rgba(0,122,255,0.06); }
+
+.seed-badge {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-name {
     flex: 1;
     min-width: 0;
+    font-size: 0.97rem;
 }
 
-.gap-2 {
-    gap: 0.5rem;
-}
+.name-invalid { color: var(--destructive-color) !important; }
 
-.side-toggle {
+.drag-handle {
+    color: var(--label-tertiary);
+    font-size: 1.1rem;
+    cursor: grab;
     flex-shrink: 0;
+    padding: 0 2px;
 }
 
-.btn-side {
-    background-color: #f0f0f0;
-    border-color: #ccc;
-    color: #555;
-    font-weight: 600;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    min-width: 28px;
+/* Court names */
+.court-names-row { flex-direction: column; align-items: flex-start; }
+.court-names-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+}
+.court-name-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.7rem;
+    flex: 1;
+    min-width: 120px;
+}
+.court-name-label { font-size: 0.78rem; color: var(--label-secondary); white-space: nowrap; }
+.court-name-input { font-size: 0.9rem; }
+
+/* Error */
+.error-text {
+    font-size: 0.82rem;
+    color: var(--destructive-color);
+    padding: 0.3rem 0.2rem;
+    margin: 0;
 }
 
-.btn-side:hover {
-    background-color: #ddd;
-    border-color: #bbb;
-    color: #333;
-}
-
-.btn-side-active {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    min-width: 28px;
+/* Actions */
+.action-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
 }
 </style>

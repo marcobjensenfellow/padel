@@ -1,23 +1,22 @@
 <template>
-    <div class="score-picker-overlay" @click.self="$emit('close')">
-        <div class="score-picker-sheet">
-            <button class="score-picker-close" @click="$emit('close')" aria-label="Close">✕</button>
-            <p class="score-picker-title">
-                Points for <strong>{{ activeTeamName }}</strong>
-            </p>
-            <p class="score-picker-subtitle">
-                ({{ otherTeamName }} gets the rest)
-            </p>
-            <div class="score-picker-grid">
+    <div class="picker-overlay" @click.self="$emit('close')">
+        <div class="picker-sheet">
+            <div class="picker-handle"></div>
+            <button class="picker-close" @click="$emit('close')" aria-label="Close">✕</button>
+
+            <p class="picker-for">Points for</p>
+            <p class="picker-team">{{ activeTeamName }}</p>
+            <p class="picker-other">{{ otherTeamName }} gets the rest</p>
+
+            <div class="picker-grid">
                 <button
                     v-for="n in scoreOptions"
                     :key="n"
-                    class="score-circle"
-                    :class="{ 'score-circle--selected': n === currentScore }"
+                    class="picker-circle"
+                    :class="{ 'picker-circle--selected': n === currentScore }"
                     @click="pickScore(n)"
-                >
-                    {{ n }}
-                </button>
+                    type="button"
+                >{{ n }}</button>
             </div>
         </div>
     </div>
@@ -31,50 +30,33 @@ import { PadelPlayer } from "@/models/padelPlayer.interface";
 export default defineComponent({
     name: "ScorePicker",
     props: {
-        game: {
-            type: Object as PropType<PadelGame>,
-            required: true,
-        },
-        /** true = we are scoring the HOME team, false = AWAY team */
-        scoringHome: {
-            type: Boolean,
-            required: true,
-        },
-        maxScore: {
-            type: Number,
-            required: true,
-        },
-        players: {
-            type: Array as PropType<PadelPlayer[]>,
-            required: true,
-        },
+        game:        { type: Object as PropType<PadelGame>,    required: true },
+        scoringHome: { type: Boolean,                          required: true },
+        maxScore:    { type: Number,                           required: true },
+        players:     { type: Array as PropType<PadelPlayer[]>, required: true },
     },
     emits: ["score-set", "close"],
     computed: {
         scoreOptions(): number[] {
-            const opts: number[] = [];
-            for (let i = 0; i <= this.maxScore; i++) opts.push(i);
-            return opts;
+            return Array.from({ length: this.maxScore + 1 }, (_, i) => i);
         },
         homePlayers(): PadelPlayer[] {
-            return this.game.players
-                .filter(p => p.home)
+            return this.game.players.filter(p => p.home)
                 .map(p => this.players.find(pl => pl.id === p.playerId))
                 .filter(Boolean) as PadelPlayer[];
         },
         awayPlayers(): PadelPlayer[] {
-            return this.game.players
-                .filter(p => !p.home)
+            return this.game.players.filter(p => !p.home)
                 .map(p => this.players.find(pl => pl.id === p.playerId))
                 .filter(Boolean) as PadelPlayer[];
         },
         activeTeamName(): string {
-            const team = this.scoringHome ? this.homePlayers : this.awayPlayers;
-            return team.map(p => p.name).join(" & ");
+            return (this.scoringHome ? this.homePlayers : this.awayPlayers)
+                .map(p => p.name).join(" & ");
         },
         otherTeamName(): string {
-            const team = this.scoringHome ? this.awayPlayers : this.homePlayers;
-            return team.map(p => p.name).join(" & ");
+            return (this.scoringHome ? this.awayPlayers : this.homePlayers)
+                .map(p => p.name).join(" & ");
         },
         currentScore(): number | null {
             return this.scoringHome ? this.game.homeScore : this.game.awayScore;
@@ -93,25 +75,24 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.score-picker-overlay {
+.picker-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.4);
     display: flex;
     align-items: flex-end;
     justify-content: center;
     z-index: 1000;
 }
 
-.score-picker-sheet {
-    background: #fff;
-    border-radius: 20px 20px 0 0;
-    padding: 1.5rem 1.5rem 2.5rem;
+.picker-sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 0.5rem 1.5rem 3rem;
     width: 100%;
     max-width: 600px;
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.2);
     position: relative;
-    animation: slide-up 0.22s ease-out;
+    animation: slide-up 0.25s cubic-bezier(0.32,0.72,0,1);
 }
 
 @keyframes slide-up {
@@ -119,79 +100,93 @@ export default defineComponent({
     to   { transform: translateY(0); }
 }
 
-.score-picker-close {
+.picker-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--separator-opaque);
+    margin: 0.6rem auto 1rem;
+}
+
+.picker-close {
     position: absolute;
     top: 1rem;
     right: 1.2rem;
-    background: none;
+    background: rgba(118,118,128,0.12);
     border: none;
-    font-size: 1.3rem;
-    cursor: pointer;
-    color: #888;
-    line-height: 1;
-    padding: 0;
-}
-
-.score-picker-title {
-    text-align: center;
-    font-size: 1.1rem;
-    margin-bottom: 0.1rem;
-    color: #2f3640;
-}
-
-.score-picker-subtitle {
-    text-align: center;
-    font-size: 0.8rem;
-    color: #888;
-    margin-bottom: 1rem;
-}
-
-.score-picker-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    justify-content: center;
-}
-
-.score-circle {
-    width: 52px;
-    height: 52px;
     border-radius: 50%;
-    border: 2px solid #ddd;
-    background: #f5f5f5;
-    font-size: 1.1rem;
-    font-weight: 600;
+    width: 28px;
+    height: 28px;
     cursor: pointer;
+    color: var(--label-secondary);
+    font-size: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.12s, border-color 0.12s, transform 0.1s;
-    color: #2f3640;
 }
 
-.score-circle:hover {
-    background: #e0e0e0;
-    border-color: #bbb;
+.picker-for {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--label-secondary);
+    margin: 0 0 0.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.score-circle:active {
-    transform: scale(0.93);
+.picker-team {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.2rem;
+    color: var(--label);
 }
 
-.score-circle--selected {
-    background: var(--primary-color, #3b82f6);
-    border-color: var(--primary-color, #3b82f6);
+.picker-other {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--label-secondary);
+    margin: 0 0 1.2rem;
+}
+
+.picker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.picker-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1.5px solid var(--separator-opaque);
+    background: var(--bg);
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--label);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, background 0.12s;
+    font-family: inherit;
+}
+
+.picker-circle:hover  { background: var(--surface-secondary); }
+.picker-circle:active { transform: scale(0.90); }
+
+.picker-circle--selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     color: #fff;
+    box-shadow: 0 2px 12px rgba(0,122,255,0.35);
 }
 
 @media (min-width: 600px) {
-    .score-picker-overlay {
-        align-items: center;
-    }
-    .score-picker-sheet {
-        border-radius: 20px;
-        max-width: 520px;
-        padding-bottom: 2rem;
-    }
+    .picker-overlay { align-items: center; }
+    .picker-sheet   { border-radius: 24px; padding-bottom: 2rem; max-width: 480px; }
 }
 </style>

@@ -1,52 +1,201 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
 :root {
-    --primary-color: #3b82f6;
-    --secondary-color: #0fb9b1;
-    --accent-color: #f39c12;
-    --dark-color: #2f3640;
-    --light-color: #f5f6fa;
+    /* Apple iOS colour palette */
+    --primary-color:      #007AFF;
+    --primary-dark:       #0055B3;
+    --secondary-color:    #34C759;
+    --accent-color:       #FF9F0A;
+    --destructive-color:  #FF3B30;
+
+    /* Surfaces */
+    --bg:                 #F2F2F7;   /* systemGroupedBackground */
+    --surface:            #FFFFFF;   /* secondarySystemGroupedBackground */
+    --surface-secondary:  #F2F2F7;
+
+    /* Text */
+    --label:              #000000;
+    --label-secondary:    rgba(60,60,67,0.60);
+    --label-tertiary:     rgba(60,60,67,0.30);
+
+    /* Separator */
+    --separator:          rgba(60,60,67,0.12);
+    --separator-opaque:   #C6C6C8;
+
+    /* Radius */
+    --radius-sm:          8px;
+    --radius:             12px;
+    --radius-lg:          18px;
+    --radius-xl:          24px;
+
+    /* Shadows */
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow:     0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg:  0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+
+    /* Legacy aliases so old components keep working */
+    --primary-color:    #007AFF;
+    --secondary-color:  #34C759;
+    --accent-color:     #FF9F0A;
+    --dark-color:       #1C1C1E;
+    --light-color:      #F2F2F7;
 }
+
+/* ── Base ────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, var(--light-color), #ffffff);
-    color: var(--dark-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--bg);
+    color: var(--label);
+    font-size: 17px;
+    line-height: 1.47;
     min-height: 100vh;
-    font-size: 14px;
+    margin: 0;
 }
 
-@media (min-width: 768px) {
-    body {
-        font-size: 16px;
-    }
+/* ── Typography ──────────────────────────── */
+h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 0.15em; }
+h2 { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 0.15em; }
+h3 { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.15em; }
+h4 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.15em; }
+
+/* ── iOS grouped section ─────────────────── */
+.ios-section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
-.navbar-pdl {
-    background-color: var(--primary-color);
+.ios-section-header {
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--label-secondary);
+    padding: 0 4px;
+    margin: 1.4rem 0 0.35rem;
 }
 
+.ios-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.ios-row + .ios-row::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1rem; right: 0;
+    height: 1px;
+    background: var(--separator);
+}
+
+/* ── Segmented control ───────────────────── */
+.seg-control {
+    display: inline-flex;
+    background: rgba(118,118,128,0.12);
+    border-radius: 9px;
+    padding: 2px;
+    gap: 2px;
+}
+
+.seg-control button {
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    padding: 4px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--label);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.seg-control button.seg-active {
+    background: var(--surface);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15), 0 0 0 0.5px rgba(0,0,0,0.04);
+    color: var(--label);
+}
+
+/* ── Buttons ─────────────────────────────── */
 .btn-pdl {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
+    background: var(--primary-color);
     color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: -0.01em;
+    font-family: inherit;
 }
 
-.btn-pdl:hover {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    color: #fff;
+.btn-pdl:hover  { opacity: 0.88; }
+.btn-pdl:active { opacity: 0.75; transform: scale(0.98); }
+.btn-pdl:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.btn-pdl-secondary {
+    background: rgba(0,122,255,0.1);
+    color: var(--primary-color);
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    font-family: inherit;
 }
 
-.score-round {
-    background-color: var(--primary-color);
-    color: #fff;
+.btn-pdl-secondary:hover { opacity: 0.80; }
+
+.btn-pdl-ghost {
+    background: transparent;
+    color: var(--primary-color);
+    border: none;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
 }
 
-.is-first {
-    background-color: rgba(243, 156, 18, 0.15);
+/* ── Form controls ───────────────────────── */
+.ios-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--label);
+    width: 100%;
 }
 
-.is-second {
-    background-color: rgba(15, 185, 177, 0.15);
+.ios-input::placeholder { color: var(--label-tertiary); }
+
+.ios-select {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--primary-color);
+    font-weight: 500;
+    appearance: none;
+    cursor: pointer;
 }
+
+/* ── Legacy Bootstrap shims ──────────────── */
+.is-first  { background: rgba(255,159,10,0.12) !important; }
+.is-second { background: rgba(52,199,89,0.12) !important; }
+.score-round { background: var(--primary-color); color: #fff; }
+.navbar-pdl  { background: var(--surface); }

@@ -1,110 +1,136 @@
 <template>
-    <h3 class="text-center md-3">Results</h3>
-    <div v-if="!showTwoTables" class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Points</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="(player, index) in getAllPlayers()"
-                    :key="player.id"
-                    :class="{
-                        'is-second': getColorCodeGroup(player) === 2,
-                        'is-first': getColorCodeGroup(player) === 1,
-                    }"
-                >
-                    <th scope="row">{{ Number(index) + 1 }}</th>
-                    <td>{{ player.name }}</td>
-                    <td>{{ player.score }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div v-if="showTwoTables">
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(player, index) in getFirstGroup()"
-                            :key="player.id"
-                            :class="{
-                                'is-first': getColorCodeGroup(player) === 1,
-                            }"
-                        >
-                            <th scope="row">{{ Number(index) + 1 }}</th>
-                            <td>{{ player.name }}</td>
-                            <td>{{ player.score }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="score-page">
+
+        <!-- Header -->
+        <div class="score-header">
+            <h1>Standings</h1>
+            <p class="score-subtitle" v-if="isMexicano">
+                Round {{ currentRound }} of {{ totalRoundsCount }}
+            </p>
+            <p class="score-subtitle" v-else>
+                {{ isFullyComplete ? 'Final standings' : 'Current standings' }}
+            </p>
+        </div>
+
+        <!-- Single table -->
+        <div v-if="!showTwoTables" class="ios-section standings-table">
+            <div
+                v-for="(player, index) in getAllPlayers()"
+                :key="player.id"
+                class="standing-row"
+                :class="{
+                    'standing-row--gold':   index === 0,
+                    'standing-row--silver': index === 1,
+                    'standing-row--bronze': index === 2,
+                    'is-first':  getColorCodeGroup(player) === 1,
+                    'is-second': getColorCodeGroup(player) === 2,
+                }"
+            >
+                <span class="standing-rank">
+                    <span v-if="index === 0">🥇</span>
+                    <span v-else-if="index === 1">🥈</span>
+                    <span v-else-if="index === 2">🥉</span>
+                    <span v-else class="rank-num">{{ index + 1 }}</span>
+                </span>
+                <span class="standing-name">{{ player.name }}</span>
+                <span class="standing-score">{{ player.score }}</span>
+            </div>
+        </div>
+
+        <!-- Two-group tables (16 players) -->
+        <div v-if="showTwoTables" class="two-tables">
+            <div>
+                <p class="ios-section-header">Group A</p>
+                <div class="ios-section standings-table">
+                    <div
+                        v-for="(player, index) in getFirstGroup()"
+                        :key="player.id"
+                        class="standing-row"
+                        :class="{ 'standing-row--gold': index === 0, 'is-first': true }"
+                    >
+                        <span class="standing-rank">
+                            <span v-if="index === 0">🥇</span>
+                            <span v-else class="rank-num">{{ index + 1 }}</span>
+                        </span>
+                        <span class="standing-name">{{ player.name }}</span>
+                        <span class="standing-score">{{ player.score }}</span>
+                    </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6">
-                <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="(player, index) in getSecondGroup()"
-                            :key="player.id"
-                            :class="{
-                                'is-second': getColorCodeGroup(player) === 2,
-                            }"
-                        >
-                            <th scope="row">{{ Number(index) + 1 }}</th>
-                            <td>{{ player.name }}</td>
-                            <td>{{ player.score }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div>
+                <p class="ios-section-header">Group B</p>
+                <div class="ios-section standings-table">
+                    <div
+                        v-for="(player, index) in getSecondGroup()"
+                        :key="player.id"
+                        class="standing-row"
+                        :class="{ 'standing-row--gold': index === 0, 'is-second': true }"
+                    >
+                        <span class="standing-rank">
+                            <span v-if="index === 0">🥇</span>
+                            <span v-else class="rank-num">{{ index + 1 }}</span>
+                        </span>
+                        <span class="standing-name">{{ player.name }}</span>
+                        <span class="standing-score">{{ player.score }}</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="clearfix">
-        <button @click="goBack" class="btn btn-pdl mt-3 float-left">
-            <i class="las la-arrow-left"></i> Back to games
-        </button>
 
-        <button
-            v-if="hasMoreRounds"
-            @click="nextRound"
-            class="btn btn-pdl mt-3 ml-3 float-left"
-        >
-            Next round <i class="las la-arrow-right"></i>
-        </button>
+        <!-- Change grouping toggle -->
+        <div class="grouping-toggle" v-if="hasTwoGroups">
+            <button class="btn-pdl-ghost" @click="showTwoTables = !showTwoTables">
+                {{ showTwoTables ? 'Show combined' : 'Show by group' }}
+            </button>
+        </div>
 
-        <button @click="newGame" class="btn btn-pdl mt-3 float-right">
-            New match <i class="las la-undo-alt"></i>
-        </button>
+        <!-- Actions — clear hierarchy -->
+        <div class="score-actions">
+            <!-- Primary: next round OR new tournament -->
+            <button
+                v-if="hasMoreRounds"
+                @click="nextRound"
+                class="btn-pdl btn-primary-full"
+            >
+                Next round →
+            </button>
+            <button
+                v-else
+                @click="newGame"
+                class="btn-pdl btn-primary-full"
+            >
+                New tournament
+            </button>
 
-        <button
-            v-if="twoGroupOfPlayers"
-            @click="changeGrouping"
-            class="btn btn-pdl mt-3 mr-3 float-right"
-        >
-            <i class="las la-exchange-alt"></i> Change grouping
-        </button>
+            <!-- Secondary: back to matches / mid-tournament end -->
+            <div class="score-actions-secondary">
+                <button @click="goBack" class="btn-pdl-ghost">
+                    ← Back to matches
+                </button>
+                <button
+                    v-if="hasMoreRounds"
+                    @click="confirmEnd = true"
+                    class="btn-pdl-ghost btn-danger-ghost"
+                >
+                    End tournament
+                </button>
+            </div>
+        </div>
+
+        <!-- End early confirm -->
+        <div v-if="confirmEnd" class="confirm-overlay" @click.self="confirmEnd = false">
+            <div class="confirm-sheet">
+                <p class="confirm-icon">⚠️</p>
+                <h3>End tournament early?</h3>
+                <p class="confirm-body">
+                    {{ roundsRemaining }} round{{ roundsRemaining > 1 ? 's' : '' }} remaining.
+                    Current standings will be the final result.
+                </p>
+                <button class="btn-pdl btn-destructive" @click="endEarly">Yes, end here</button>
+                <button class="btn-pdl-ghost" @click="confirmEnd = false">Keep playing</button>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -120,31 +146,66 @@ import { defineComponent } from "vue";
 import { totalRounds } from "@/services/mexicanoService";
 
 export default defineComponent({
-    data: function() {
+    data() {
         return {
-            twoGroupOfPlayers: false,
+            hasTwoGroups: false,
             showTwoTables: false,
+            confirmEnd: false,
         };
     },
+    computed: {
+        isMexicano(): boolean {
+            return store.getters.americanoStore.getRules.mode === "Mexicano";
+        },
+        currentRound(): number {
+            return store.getters.americanoStore.getRound;
+        },
+        totalRoundsCount(): number {
+            return totalRounds(store.getters.americanoStore.getPlayers.length);
+        },
+        isFullyComplete(): boolean {
+            return !this.hasMoreRounds;
+        },
+        hasMoreRounds(): boolean {
+            const rules = store.getters.americanoStore.getRules;
+            if (rules.mode === "Mexicano") {
+                return store.getters.americanoStore.getRound <
+                    totalRounds(store.getters.americanoStore.getPlayers.length);
+            }
+            const games = store.getters.americanoStore.getGames;
+            const maxRound = getMaxRound(games);
+            const played = Math.max(0, ...games
+                .filter((g: any) => g.homeScore !== null || g.awayScore !== null)
+                .map((g: any) => g.round));
+            return played < maxRound;
+        },
+        roundsRemaining(): number {
+            if (this.isMexicano) {
+                return this.totalRoundsCount - this.currentRound;
+            }
+            const games = store.getters.americanoStore.getGames;
+            const maxRound = getMaxRound(games);
+            const played = Math.max(0, ...games
+                .filter((g: any) => g.homeScore !== null || g.awayScore !== null)
+                .map((g: any) => g.round));
+            return maxRound - played;
+        },
+    },
     methods: {
-        goBack(): void {
+        goBack() {
             store.commit.americanoStore.DECREMENT_STEP();
         },
-        newGame(): void {
+        newGame() {
             store.dispatch.americanoStore.newGame();
         },
-        changeGrouping() {
-            if (!this.$data.twoGroupOfPlayers) {
-                this.$data.showTwoTables = false;
-                return;
-            }
-            this.$data.showTwoTables = !this.$data.showTwoTables;
+        nextRound() {
+            store.dispatch.americanoStore.nextRound();
+        },
+        endEarly() {
+            store.dispatch.americanoStore.newGame();
         },
         getColorCodeGroup(player: PadelPlayer) {
-            if (store.getters.americanoStore.getRules.colorCode === false) {
-                return 0;
-            }
-
+            if (!store.getters.americanoStore.getRules.colorCode) return 0;
             return getColorCodeGroupFromPlayer(
                 player,
                 store.getters.americanoStore.getPlayers,
@@ -152,85 +213,149 @@ export default defineComponent({
             );
         },
         getAllPlayers() {
-            const players = this.getPlayers;
-
-            if (players.length === 16) {
-                this.$data.twoGroupOfPlayers = true;
-            }
-
-            return players;
+            const players = store.getters.americanoStore.getPlayers;
+            if (players.length === 16) this.$data.hasTwoGroups = true;
+            return sortByScore([...players]);
         },
         getFirstGroup() {
-            const players = store.getters.americanoStore.getPlayers;
-
-            const firstGroupPlayers = [] as PadelPlayer[];
-
-            players.forEach(player => {
-                const group = getColorCodeGroupFromPlayer(
-                    player,
-                    players,
+            return store.getters.americanoStore.getPlayers
+                .filter((p: PadelPlayer) => getColorCodeGroupFromPlayer(
+                    p,
+                    store.getters.americanoStore.getPlayers,
                     store.getters.americanoStore.getGames
-                );
-                if (group === 1) {
-                    firstGroupPlayers.push(player);
-                }
-            });
-
-            return firstGroupPlayers;
+                ) === 1);
         },
         getSecondGroup() {
-            const players = store.getters.americanoStore.getPlayers;
-
-            const secondGroupPlayers = [] as PadelPlayer[];
-
-            players.forEach(player => {
-                const group = getColorCodeGroupFromPlayer(
-                    player,
-                    players,
+            return store.getters.americanoStore.getPlayers
+                .filter((p: PadelPlayer) => getColorCodeGroupFromPlayer(
+                    p,
+                    store.getters.americanoStore.getPlayers,
                     store.getters.americanoStore.getGames
-                );
-                if (group === 2) {
-                    secondGroupPlayers.push(player);
-                }
-            });
-
-            return secondGroupPlayers;
-        },
-        shouldShowTwoTables() {
-            return this.$data.twoGroupOfPlayers && this.$data.showTwoTables;
-        },
-        nextRound(): void {
-            store.dispatch.americanoStore.nextRound();
-        },
-    },
-    computed: {
-        getPlayers() {
-            store.dispatch.americanoStore.sortPlayersByScore();
-            return store.getters.americanoStore.getPlayers;
-        },
-        hasMoreRounds() {
-            const rules = store.getters.americanoStore.getRules;
-            if (rules.mode === "Mexicano") {
-                const total = totalRounds(
-                    store.getters.americanoStore.getPlayers.length
-                );
-                return store.getters.americanoStore.getRound < total;
-            }
-
-            const games = store.getters.americanoStore.getGames;
-            const maxRound = getMaxRound(games);
-            const played = Math.max(
-                0,
-                ...games
-                    .filter(
-                        g => g.homeScore !== null || g.awayScore !== null
-                    )
-                    .map(g => g.round)
-            );
-            return played < maxRound;
+                ) === 2);
         },
     },
 });
 </script>
 
-<style></style>
+<style scoped>
+.score-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.2rem 1rem 4rem;
+}
+
+.score-header { margin-bottom: 1.2rem; }
+.score-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+.score-subtitle { margin: 0.1rem 0 0; color: var(--label-secondary); font-size: 0.9rem; }
+
+/* Standings table */
+.standings-table { margin-bottom: 0.5rem; }
+
+.standing-row {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.standing-row + .standing-row::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1rem; right: 0;
+    height: 1px;
+    background: var(--separator);
+}
+
+.standing-rank {
+    width: 32px;
+    text-align: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.rank-num {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--label-secondary);
+}
+
+.standing-name {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.standing-score {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--primary-color);
+}
+
+.standing-row--gold   .standing-name { font-weight: 700; }
+.standing-row--silver .standing-name { font-weight: 600; }
+
+.two-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+@media (max-width: 500px) { .two-tables { grid-template-columns: 1fr; } }
+
+.grouping-toggle { text-align: center; margin: 0.5rem 0; }
+
+/* Actions */
+.score-actions { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+.btn-primary-full {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+    border-radius: var(--radius-lg);
+}
+
+.score-actions-secondary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-danger-ghost { color: var(--destructive-color) !important; }
+
+/* Confirm overlay */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 200;
+}
+
+.confirm-sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem 1.5rem 3rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slide-up 0.22s ease-out;
+}
+
+.confirm-icon { font-size: 2.5rem; margin: 0; }
+.confirm-body { color: var(--label-secondary); font-size: 0.9rem; max-width: 280px; margin: 0 0 0.5rem; }
+
+.btn-destructive { background: var(--destructive-color) !important; width: 100%; padding: 0.9rem; border-radius: var(--radius-lg); }
+
+@keyframes slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+@media (min-width: 600px) {
+    .confirm-overlay { align-items: center; }
+    .confirm-sheet   { border-radius: 24px; max-width: 400px; padding-bottom: 2rem; }
+}
+</style>

@@ -1,114 +1,120 @@
 <template>
-    <div v-if="getGames.length > 0">
-        <!-- Round tabs -->
-        <div class="round-tabs">
+    <div v-if="getGames.length > 0" class="games-page">
+
+        <!-- Header -->
+        <div class="games-header">
+            <h1>Round {{ activeRound }}</h1>
+            <p class="games-subtitle">{{ completedCount }}/{{ totalMatchCount }} matches scored</p>
+        </div>
+
+        <!-- Round pills -->
+        <div class="round-pills">
             <button
                 v-for="round in rounds"
                 :key="round"
-                class="round-tab"
-                :class="{ 'round-tab--active': activeRound === round }"
+                class="round-pill"
+                :class="{
+                    'round-pill--active': activeRound === round,
+                    'round-pill--done':   isRoundComplete(round) && activeRound !== round,
+                }"
                 @click="activeRound = round"
             >
-                Round {{ round }}
-                <span v-if="isRoundComplete(round)" class="round-check">✓</span>
+                {{ isRoundComplete(round) ? '✓' : round }}
             </button>
         </div>
 
-        <!-- Courts for active round -->
+        <!-- Courts -->
         <div class="courts-grid">
             <template v-for="game in gamesForActiveRound" :key="game.id">
+
                 <!-- Rest round -->
                 <div v-if="game.players.length < 4" class="rest-card">
-                    <span class="rest-icon">😴</span>
-                    <span>Rest: {{ getPlayerNameById(game.players[0].playerId) }}</span>
+                    <span class="rest-icon">☕️</span>
+                    <span class="rest-name">{{ getPlayerNameById(game.players[0].playerId) }}</span>
+                    <span class="rest-label">Sitting out</span>
                 </div>
 
                 <!-- Court card -->
                 <div v-else class="court-card">
                     <div class="court-label">{{ getCourtLabel(game) }}</div>
 
-                    <!-- Home team — click to score -->
+                    <!-- Home team -->
                     <div
-                        class="team-zone team-zone--home"
+                        class="team-zone"
                         @click="openPicker(game, true)"
-                        :class="{ 'team-zone--scored': game.homeScore !== null }"
                     >
-                        <div class="player-pills">
-                            <span
+                        <div class="player-list-inline">
+                            <div
                                 v-for="ps in homePlayers(game)"
                                 :key="ps.playerId"
-                                class="player-pill"
+                                class="player-chip"
                             >
-                                {{ getPlayerNameById(ps.playerId) }}
-                                <span class="side-dot" :class="ps.side === 'Right' ? 'side-dot--right' : 'side-dot--left'">
+                                <span class="chip-name">{{ getPlayerNameById(ps.playerId) }}</span>
+                                <span class="chip-side" :class="ps.side === 'Right' ? 'chip-side--r' : 'chip-side--l'">
                                     {{ ps.side === 'Right' ? 'R' : 'L' }}
                                 </span>
-                            </span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Score display -->
-                    <div class="court-score">
+                    <!-- Score row -->
+                    <div class="score-row">
                         <div
-                            class="score-bubble"
-                            :class="{ 'score-bubble--set': game.homeScore !== null }"
+                            class="score-pill"
+                            :class="{ 'score-pill--set': game.homeScore !== null }"
                             @click="openPicker(game, true)"
-                        >
-                            {{ game.homeScore !== null ? game.homeScore : '?' }}
-                        </div>
-                        <div class="court-net"></div>
+                        >{{ game.homeScore !== null ? game.homeScore : '–' }}</div>
+
+                        <div class="score-divider"></div>
+
                         <div
-                            class="score-bubble"
-                            :class="{ 'score-bubble--set': game.awayScore !== null }"
+                            class="score-pill"
+                            :class="{ 'score-pill--set': game.awayScore !== null }"
                             @click="openPicker(game, false)"
-                        >
-                            {{ game.awayScore !== null ? game.awayScore : '?' }}
-                        </div>
+                        >{{ game.awayScore !== null ? game.awayScore : '–' }}</div>
                     </div>
 
-                    <!-- Away team — click to score -->
+                    <!-- Away team -->
                     <div
                         class="team-zone team-zone--away"
                         @click="openPicker(game, false)"
-                        :class="{ 'team-zone--scored': game.awayScore !== null }"
                     >
-                        <div class="player-pills">
-                            <span
+                        <div class="player-list-inline">
+                            <div
                                 v-for="ps in awayPlayers(game)"
                                 :key="ps.playerId"
-                                class="player-pill"
+                                class="player-chip"
                             >
-                                {{ getPlayerNameById(ps.playerId) }}
-                                <span class="side-dot" :class="ps.side === 'Right' ? 'side-dot--right' : 'side-dot--left'">
+                                <span class="chip-name">{{ getPlayerNameById(ps.playerId) }}</span>
+                                <span class="chip-side" :class="ps.side === 'Right' ? 'chip-side--r' : 'chip-side--l'">
                                     {{ ps.side === 'Right' ? 'R' : 'L' }}
                                 </span>
-                            </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </template>
         </div>
 
         <!-- Actions -->
-        <div class="clearfix mt-3">
-            <div class="float-left">
-                <button type="button" @click="goBack" class="btn btn-pdl mt-1">
-                    <i class="las la-arrow-left"></i> Change teams
+        <div class="games-actions">
+            <div class="games-actions-secondary">
+                <button type="button" @click="goBack" class="btn-pdl-ghost">
+                    ← Setup
                 </button>
-                <button type="button" @click="reset" class="btn btn-pdl mt-1 ml-2">
-                    <i class="las la-times"></i> Start over
-                </button>
-            </div>
-            <div class="float-right">
-                <button
-                    type="button"
-                    @click="onCalculateScore"
-                    class="btn btn-pdl mt-1"
-                    :disabled="!allRoundScoresSet"
-                >
-                    Calculate results <i class="las la-arrow-right"></i>
+                <button type="button" @click="confirmReset = true" class="btn-pdl-ghost btn-danger-ghost">
+                    End tournament
                 </button>
             </div>
+            <button
+                type="button"
+                @click="onCalculateScore"
+                class="btn-pdl btn-calculate"
+                :disabled="!allRoundScoresSet"
+            >
+                {{ allRoundScoresSet ? 'See results →' : 'Score all matches first' }}
+            </button>
         </div>
 
         <!-- Score picker -->
@@ -121,6 +127,18 @@
             @score-set="onScoreSet"
             @close="pickerGame = null"
         />
+
+        <!-- End tournament confirm -->
+        <div v-if="confirmReset" class="confirm-overlay" @click.self="confirmReset = false">
+            <div class="confirm-sheet">
+                <p class="confirm-icon">⚠️</p>
+                <h3>End tournament?</h3>
+                <p class="confirm-body">All scores and player data will be deleted. This can't be undone.</p>
+                <button class="btn-pdl btn-destructive" @click="reset">Yes, end it</button>
+                <button class="btn-pdl-ghost" @click="confirmReset = false">Cancel</button>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -133,21 +151,18 @@ import ScorePicker from "./ScorePicker.vue";
 
 export default defineComponent({
     components: { ScorePicker },
-
     data() {
         return {
             activeRound: 1 as number,
             pickerGame: null as PadelGame | null,
             pickerScoringHome: true as boolean,
+            confirmReset: false,
         };
     },
-
     mounted() {
-        // Start on the first incomplete round, or the last round
         const incomplete = this.rounds.find(r => !this.isRoundComplete(r));
         this.activeRound = incomplete ?? this.rounds[this.rounds.length - 1];
     },
-
     computed: {
         getGames(): readonly PadelGame[] {
             return store.getters.americanoStore.getGames;
@@ -165,17 +180,19 @@ export default defineComponent({
         gamesForActiveRound(): readonly PadelGame[] {
             return this.getGames.filter(g => g.round === this.activeRound);
         },
+        totalMatchCount(): number {
+            return this.gamesForActiveRound.filter(g => g.players.length === 4).length;
+        },
+        completedCount(): number {
+            return this.gamesForActiveRound.filter(
+                g => g.players.length === 4 && g.homeScore !== null && g.awayScore !== null
+            ).length;
+        },
         allRoundScoresSet(): boolean {
-            return this.gamesForActiveRound
-                .filter(g => g.players.length === 4)
-                .every(g => g.homeScore !== null && g.awayScore !== null);
+            return this.totalMatchCount > 0 && this.completedCount === this.totalMatchCount;
         },
     },
-
     methods: {
-        rounds_for(r: number) {
-            return this.getGames.filter(g => g.round === r);
-        },
         isRoundComplete(round: number): boolean {
             return this.getGames
                 .filter(g => g.round === round && g.players.length === 4)
@@ -188,10 +205,7 @@ export default defineComponent({
             return game.players.filter(p => !p.home);
         },
         getPlayerNameById(id: number): string {
-            const player = store.getters.americanoStore.getPlayers.find(
-                (p: any) => p.id === id
-            );
-            return player ? player.name : "";
+            return store.getters.americanoStore.getPlayers.find((p: any) => p.id === id)?.name ?? "";
         },
         getCourtLabel(game: PadelGame): string {
             const rules = this.getRules;
@@ -200,21 +214,15 @@ export default defineComponent({
             if (rules.amountOfPlayers === 16) {
                 courtIndex = (game.playGroup - 1) * 2 + (game.matchNumber - 1);
             }
-            if (courtIndex < 0 || courtIndex >= courts) {
-                courtIndex = 0;
-            }
+            if (courtIndex < 0 || courtIndex >= courts) courtIndex = 0;
             const named = rules.courtNames?.[courtIndex];
-            return named && named.trim() ? named : `Court ${courtIndex + 1}`;
+            return named?.trim() ? named : `Court ${courtIndex + 1}`;
         },
         openPicker(game: PadelGame, scoringHome: boolean) {
             this.pickerGame = game;
             this.pickerScoringHome = scoringHome;
         },
-        onScoreSet(payload: {
-            game: PadelGame;
-            homeScore: number;
-            awayScore: number;
-        }) {
+        onScoreSet(payload: { game: PadelGame; homeScore: number; awayScore: number }) {
             payload.game.homeScore = payload.homeScore;
             payload.game.awayScore = payload.awayScore;
             store.dispatch.americanoStore.saveStateManually();
@@ -229,198 +237,259 @@ export default defineComponent({
         },
         reset() {
             store.commit.americanoStore.RESET();
+            this.confirmReset = false;
         },
     },
 });
 </script>
 
 <style scoped>
-/* Round tabs */
-.round-tabs {
+.games-page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 1rem 1rem 6rem;
+}
+
+/* Header */
+.games-header { margin-bottom: 1rem; }
+.games-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+.games-subtitle { margin: 0.1rem 0 0; color: var(--label-secondary); font-size: 0.9rem; }
+
+/* Round pills */
+.round-pills {
     display: flex;
     gap: 0.4rem;
     flex-wrap: wrap;
     margin-bottom: 1.2rem;
-    justify-content: center;
 }
 
-.round-tab {
-    padding: 0.3rem 0.9rem;
-    border-radius: 999px;
-    border: 2px solid var(--primary-color);
-    background: #fff;
-    color: var(--primary-color);
-    font-weight: 600;
+.round-pill {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--separator-opaque);
+    background: var(--surface);
+    color: var(--label-secondary);
     font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
 }
 
-.round-tab--active {
+.round-pill--active {
     background: var(--primary-color);
+    border-color: var(--primary-color);
     color: #fff;
 }
 
-.round-check {
-    margin-left: 0.3rem;
-    font-size: 0.8rem;
+.round-pill--done {
+    background: rgba(52,199,89,0.12);
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
 }
 
 /* Courts grid */
 .courts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 /* Court card */
 .court-card {
-    border-radius: 14px;
+    background: #C2784A;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
-    background: #c2784a; /* clay */
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    position: relative;
 }
 
 .court-label {
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.75);
-    padding: 0.4rem;
-    background: rgba(0,0,0,0.25);
+    color: rgba(255,255,255,0.7);
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.2);
 }
 
-/* Team zones */
 .team-zone {
-    padding: 0.8rem 1rem;
+    padding: 0.85rem 1rem;
     cursor: pointer;
-    transition: background 0.15s;
-    background: rgba(0,0,0,0.15);
-    min-height: 64px;
+    transition: background 0.12s;
+    min-height: 62px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(0,0,0,0.12);
 }
 
-.team-zone:hover {
-    background: rgba(0,0,0,0.28);
-}
+.team-zone:hover    { background: rgba(0,0,0,0.22); }
+.team-zone--away    { border-top: 1.5px solid rgba(255,255,255,0.18); }
 
-.team-zone--scored {
-    background: rgba(0,0,0,0.1);
-}
-
-.team-zone--home {
-    border-bottom: 2px solid rgba(255,255,255,0.3);
-}
-
-.team-zone--away {
-    border-top: 2px solid rgba(255,255,255,0.3);
-}
-
-.player-pills {
+.player-list-inline {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
     justify-content: center;
 }
 
-.player-pill {
-    background: rgba(47, 54, 64, 0.85);
-    color: #fff;
+.player-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(28,28,30,0.7);
     border-radius: 999px;
-    padding: 0.25rem 0.7rem;
-    font-size: 0.82rem;
+    padding: 0.2rem 0.55rem;
+}
+
+.chip-name {
+    color: #fff;
+    font-size: 0.85rem;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
 }
 
-.side-dot {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
+.chip-side {
+    width: 17px;
+    height: 17px;
     border-radius: 50%;
-    font-size: 0.65rem;
-    font-weight: 700;
-}
-
-.side-dot--left {
-    background: #0fb9b1;
-    color: #fff;
-}
-
-.side-dot--right {
-    background: #3b82f6;
-    color: #fff;
-}
-
-/* Score area */
-.court-score {
+    font-size: 0.62rem;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
 }
 
-.court-net {
+.chip-side--l { background: #0fb9b1; color: #fff; }
+.chip-side--r { background: #3b82f6; color: #fff; }
+
+/* Score row */
+.score-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.06);
+}
+
+.score-divider {
     width: 2px;
-    height: 30px;
-    background: rgba(255,255,255,0.5);
+    height: 28px;
+    background: rgba(255,255,255,0.4);
     border-radius: 1px;
 }
 
-.score-bubble {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    border: 2px solid rgba(255,255,255,0.5);
-    color: #fff;
-    font-size: 1.2rem;
+.score-pill {
+    min-width: 52px;
+    height: 52px;
+    border-radius: 26px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    font-size: 1.4rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.12s;
+    letter-spacing: -0.02em;
 }
 
-.score-bubble:hover {
-    background: rgba(255,255,255,0.35);
-}
-
-.score-bubble--set {
-    background: rgba(255,255,255,0.9);
-    color: #2f3640;
-    border-color: #fff;
-}
+.score-pill:hover      { background: rgba(255,255,255,0.22); }
+.score-pill--set       { background: rgba(255,255,255,0.92); color: #1C1C1E; border-color: transparent; }
 
 /* Rest card */
 .rest-card {
-    border-radius: 14px;
-    background: #f0f0f0;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 1.5rem;
-    color: #888;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 2rem 1rem;
+    gap: 0.3rem;
 }
 
-.rest-icon {
-    font-size: 1.4rem;
+.rest-icon  { font-size: 1.8rem; }
+.rest-name  { font-weight: 700; font-size: 1rem; }
+.rest-label { color: var(--label-secondary); font-size: 0.82rem; }
+
+/* Actions */
+.games-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.games-actions-secondary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-danger-ghost { color: var(--destructive-color) !important; }
+
+.btn-calculate {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+    border-radius: var(--radius-lg);
+}
+
+/* Confirm overlay */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 200;
+}
+
+.confirm-sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem 1.5rem 3rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slide-up 0.22s ease-out;
+}
+
+.confirm-icon { font-size: 2.5rem; margin: 0; }
+.confirm-body { color: var(--label-secondary); font-size: 0.9rem; max-width: 280px; margin: 0 0 0.5rem; }
+
+.btn-destructive {
+    background: var(--destructive-color) !important;
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: var(--radius-lg);
+}
+
+@keyframes slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+@media (min-width: 600px) {
+    .confirm-overlay { align-items: center; }
+    .confirm-sheet { border-radius: 24px; max-width: 400px; padding-bottom: 2rem; }
 }
 </style>
