@@ -85,8 +85,10 @@ export function numCategoriesForPlayers(count: number): number {
 
 /**
  * Resolves category-based seeding into precise player seeds.
- * Players within the same category are randomly shuffled; categories
- * are ordered 0 (top) → N (bottom). Returns a new array with updated `seed`.
+ * Categories are ordered 0 (top) → N (bottom). Within each category,
+ * the original list order is preserved — no shuffling — so that
+ * Top players always face Top players in round 1, Bottom faces Bottom, etc.
+ * Returns a new array with updated `seed`.
  */
 export function applyCategorySeeding(players: PadelPlayer[]): PadelPlayer[] {
     const result: PadelPlayer[] = [];
@@ -94,11 +96,6 @@ export function applyCategorySeeding(players: PadelPlayer[]): PadelPlayer[] {
 
     for (let cat = 0; cat <= maxCat; cat++) {
         const group = players.filter(p => (p.seedCategory ?? 0) === cat);
-        // Fisher-Yates shuffle within category
-        for (let i = group.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [group[i], group[j]] = [group[j], group[i]];
-        }
         result.push(...group);
     }
 
