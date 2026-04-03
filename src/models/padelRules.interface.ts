@@ -1,5 +1,5 @@
 export type GameMode = "Americano" | "Mexicano";
-export type SeedingMode = "exact" | "category";
+export type SeedingMode = "random" | "exact" | "category";
 
 export interface PadelRules {
     maxScore: number;
@@ -9,4 +9,5 @@ export interface PadelRules {
     courtNames: string[];
     mode: GameMode;
     seedingMode: SeedingMode;
+    respectPreferredSides: boolean;
 }

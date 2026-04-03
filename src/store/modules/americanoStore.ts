@@ -1,5 +1,5 @@
 import { PadelGame } from "@/models/padelGame.interface";
-import { PadelPlayer } from "@/models/padelPlayer.interface";
+import { PadelPlayer, PreferredSide } from "@/models/padelPlayer.interface";
 import { PadelRules } from "@/models/padelRules.interface";
 import type { Commit, Dispatch } from "vuex";
 import {
@@ -12,7 +12,7 @@ import {
     sortByScore,
     updatePlayerScores,
 } from "@/services/scoreService";
-import { prepareMexicanoRound, totalRounds, applyCategorySeeding } from "@/services/mexicanoService";
+import { prepareMexicanoRound, totalRounds, applyCategorySeeding, applyRandomSeeding } from "@/services/mexicanoService";
 import {
     loadAmericanoState,
     removeAmericanoState,
@@ -66,6 +66,7 @@ export default {
             courtNames: Array(16).fill(""),
             mode: "Americano",
             seedingMode: "exact",
+            respectPreferredSides: false,
         },
     } as AmericanoStoreState,
     mutations: {
@@ -166,6 +167,7 @@ export default {
             state.rules.courtNames = Array(16).fill("");
             state.rules.mode = "Americano";
             state.rules.seedingMode = "exact";
+            state.rules.respectPreferredSides = false;
             removeAmericanoState(state.tournamentName);
             state.tournamentName = new Date().toISOString().slice(0, 10);
         },
@@ -204,21 +206,31 @@ export default {
     },
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
+            // If preferred sides are disabled, treat everyone as "Both" for game prep
+            const withSides = (players: PadelPlayer[]): PadelPlayer[] =>
+                getters.getRules.respectPreferredSides
+                    ? players
+                    : players.map(p => ({ ...p, preferredSide: "Both" as PreferredSide }));
+
             if (getters.getRules.mode === "Mexicano") {
-                // Apply category seeding before first round if needed
+                // Apply seeding mode before first round
                 let players = getters.getPlayers;
-                if (getters.getRules.seedingMode === "category") {
+                if (getters.getRules.seedingMode === "random") {
+                    players = applyRandomSeeding(players);
+                    commit("UPDATE_PLAYERS", players);
+                } else if (getters.getRules.seedingMode === "category") {
                     players = applyCategorySeeding(players);
                     commit("UPDATE_PLAYERS", players);
                 }
+                // "exact": list order is already the seed order — no change needed
                 const games = prepareMexicanoRound(
-                    players,
+                    withSides(players),
                     getters.getRound
                 );
                 commit("UPDATE_GAMES", games);
             } else {
                 const games = prepareGames(
-                    getters.getPlayers,
+                    withSides(getters.getPlayers),
                     getters.getRules.randomSchedule
                 );
                 commit("UPDATE_GAMES", games);
@@ -259,8 +271,11 @@ export default {
             if (getters.getRules.mode === "Mexicano") {
                 if (getters.getRound < totalRounds(getters.getPlayers.length)) {
                     commit("INCREMENT_ROUND");
+                    const playersForRound = getters.getRules.respectPreferredSides
+                        ? getters.getPlayers
+                        : getters.getPlayers.map((p: PadelPlayer) => ({ ...p, preferredSide: "Both" as PreferredSide }));
                     const nextGames = prepareMexicanoRound(
-                        getters.getPlayers,
+                        playersForRound,
                         getters.getRound
                     );
                     commit("UPDATE_GAMES", nextGames);

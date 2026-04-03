@@ -1,70 +1,52 @@
 <template>
     <div class="setup-page">
+
+        <!-- ── Header + tournament name ───────────── -->
         <div class="setup-header">
             <h1>{{ $t('new_tournament') }}</h1>
-            <p class="setup-subtitle">{{ $t('set_up_game') }}</p>
+            <div class="name-field">
+                <input
+                    class="name-input"
+                    type="text"
+                    list="tournamentNames"
+                    v-model="tournamentNameRule"
+                    @change="onTournamentChange"
+                    :placeholder="$t('tournament_name_placeholder')"
+                    required
+                />
+                <datalist id="tournamentNames">
+                    <option v-for="name in tournamentNames" :key="name" :value="name" />
+                </datalist>
+            </div>
         </div>
 
         <form @submit.prevent="onAddPlayers">
 
-            <!-- ── Tournament name ──────────────────── -->
-            <p class="ios-section-header">{{ $t('tournament') }}</p>
-            <div class="ios-section">
-                <div class="ios-row">
-                    <input
-                        class="ios-input row-value-input"
-                        type="text"
-                        list="tournamentNames"
-                        v-model="tournamentNameRule"
-                        @change="onTournamentChange"
-                        :placeholder="$t('tournament_name_placeholder')"
-                        required
-                    />
-                    <datalist id="tournamentNames">
-                        <option v-for="name in tournamentNames" :key="name" :value="name" />
-                    </datalist>
-                </div>
-            </div>
-
             <!-- ── Game mode ───────────────────────── -->
             <p class="ios-section-header">{{ $t('game_format') }}</p>
             <div class="ios-section">
+                <!-- Format -->
                 <div class="ios-row justify-center">
                     <div class="seg-control mode-seg">
-                        <button
-                            type="button"
-                            :class="{ 'seg-active': modeRule === 'Americano' }"
-                            @click="modeRule = 'Americano'"
-                        >Americano</button>
-                        <button
-                            type="button"
-                            :class="{ 'seg-active': modeRule === 'Mexicano' }"
-                            @click="modeRule = 'Mexicano'"
-                        >Mexicano</button>
+                        <button type="button" :class="{ 'seg-active': modeRule === 'Americano' }" @click="modeRule = 'Americano'">Americano</button>
+                        <button type="button" :class="{ 'seg-active': modeRule === 'Mexicano' }" @click="modeRule = 'Mexicano'">Mexicano</button>
                     </div>
                 </div>
+                <!-- Americano: shuffle draw -->
                 <div class="ios-row" v-if="modeRule === 'Americano'">
                     <span class="row-label">{{ $t('shuffle_draw') }}</span>
-                    <div class="row-value">
-                        <label class="ios-toggle">
-                            <input type="checkbox" v-model="randomScheduleRule" :disabled="getIsGamePrepared" />
-                            <span class="ios-toggle-track"></span>
-                        </label>
-                    </div>
+                    <label class="ios-toggle">
+                        <input type="checkbox" v-model="randomScheduleRule" :disabled="getIsGamePrepared" />
+                        <span class="ios-toggle-track"></span>
+                    </label>
                 </div>
-                <!-- Mexicano seeding mode -->
-                <div class="ios-row justify-center" v-if="modeRule === 'Mexicano'">
-                    <div class="seg-control mode-seg">
-                        <button
-                            type="button"
-                            :class="{ 'seg-active': seedingModeRule === 'exact' }"
-                            @click="seedingModeRule = 'exact'"
-                        >{{ $t('seeding_exact') }}</button>
-                        <button
-                            type="button"
-                            :class="{ 'seg-active': seedingModeRule === 'category' }"
-                            @click="seedingModeRule = 'category'"
-                        >{{ $t('seeding_category') }}</button>
+                <!-- Mexicano: seeding -->
+                <div class="ios-row" v-if="modeRule === 'Mexicano'">
+                    <span class="row-label">{{ $t('seeding') }}</span>
+                    <div class="seg-control seed-seg">
+                        <button type="button" :class="{ 'seg-active': seedingModeRule === 'random' }" @click="seedingModeRule = 'random'">{{ $t('seeding_random') }}</button>
+                        <button type="button" :class="{ 'seg-active': seedingModeRule === 'exact' }" @click="seedingModeRule = 'exact'">{{ $t('seeding_exact') }}</button>
+                        <button type="button" :class="{ 'seg-active': seedingModeRule === 'category' }" @click="seedingModeRule = 'category'">{{ $t('seeding_category') }}</button>
                     </div>
                 </div>
             </div>
@@ -72,27 +54,23 @@
             <!-- ── Rules ──────────────────────────── -->
             <p class="ios-section-header">{{ $t('rules') }}</p>
             <div class="ios-section">
+                <!-- Points per round — stepper -->
                 <div class="ios-row">
                     <span class="row-label">{{ $t('max_points_round') }}</span>
-                    <input
-                        type="number"
-                        class="ios-input row-value-input text-right"
-                        v-model.number="maxScore"
-                        @change="onMaxScoreChange"
-                        min="1"
-                        required
-                    />
+                    <div class="stepper">
+                        <button type="button" class="stepper-btn" @click="stepMaxScore(-1)" :disabled="maxScore <= 1">−</button>
+                        <span class="stepper-val">{{ maxScore }}</span>
+                        <button type="button" class="stepper-btn" @click="stepMaxScore(1)">+</button>
+                    </div>
                 </div>
+                <!-- Number of players — stepper -->
                 <div class="ios-row">
                     <span class="row-label">{{ $t('number_of_players') }}</span>
-                    <select
-                        class="ios-select"
-                        v-model.number="amountOfPlayersRule"
-                        @change="handleAmountOfPlayersChange"
-                        :disabled="getIsGamePrepared"
-                    >
-                        <option v-for="n in playerOptions" :key="n" :value="n">{{ n }}</option>
-                    </select>
+                    <div class="stepper">
+                        <button type="button" class="stepper-btn" @click="stepPlayers(-1)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
+                        <span class="stepper-val">{{ amountOfPlayersRule }}</span>
+                        <button type="button" class="stepper-btn" @click="stepPlayers(1)" :disabled="amountOfPlayersRule >= 64 || getIsGamePrepared">+</button>
+                    </div>
                 </div>
                 <!-- Court names -->
                 <div class="ios-row court-names-row" v-if="numberOfCourts > 0">
@@ -104,19 +82,26 @@
                                 class="ios-input court-name-input"
                                 :placeholder="$t('court_label', { n: index })"
                                 :value="courtNamesRule[index - 1]"
-                                @input="updateCourtName(index - 1, $event.target.value)"
+                                @input="updateCourtName(index - 1, ($event.target as HTMLInputElement).value)"
                             />
                         </div>
                     </div>
                 </div>
+                <!-- Prefer sides -->
+                <div class="ios-row">
+                    <span class="row-label">{{ $t('prefer_sides') }}</span>
+                    <label class="ios-toggle">
+                        <input type="checkbox" v-model="respectPreferredSidesRule" />
+                        <span class="ios-toggle-track"></span>
+                    </label>
+                </div>
+                <!-- Colour code (16 players) -->
                 <div class="ios-row" v-if="amountOfPlayersRule === 16">
                     <span class="row-label">{{ $t('colour_code_groups') }}</span>
-                    <div class="row-value">
-                        <label class="ios-toggle">
-                            <input type="checkbox" v-model="colorCodeRule" />
-                            <span class="ios-toggle-track"></span>
-                        </label>
-                    </div>
+                    <label class="ios-toggle">
+                        <input type="checkbox" v-model="colorCodeRule" />
+                        <span class="ios-toggle-track"></span>
+                    </label>
                 </div>
             </div>
 
@@ -161,8 +146,8 @@
                         required
                     />
 
-                    <!-- Side segmented control -->
-                    <div class="seg-control side-seg">
+                    <!-- Side segmented control (only when respectPreferredSides is on) -->
+                    <div v-if="respectPreferredSidesRule" class="seg-control side-seg">
                         <button type="button"
                             :class="{ 'seg-active': player.preferredSide === 'Left' }"
                             @click="player.preferredSide = 'Left'"
@@ -292,6 +277,15 @@ export default defineComponent({
                 });
             },
         },
+        respectPreferredSidesRule: {
+            get(): boolean { return store.getters.americanoStore.getRules.respectPreferredSides ?? false; },
+            set(value: boolean) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    respectPreferredSides: value,
+                });
+            },
+        },
         numCategories(): number[] {
             const n = numCategoriesForPlayers(this.amountOfPlayersRule);
             return Array.from({ length: n }, (_, i) => i);
@@ -310,9 +304,6 @@ export default defineComponent({
             set(value: string) { store.commit.americanoStore.SET_TOURNAMENT_NAME(value); },
         },
         tournamentNames() { return getTournamentNames(); },
-        playerOptions() {
-            return Array.from({ length: 61 }, (_, i) => i + 4);
-        },
         numberOfCourts() {
             return Math.floor(this.amountOfPlayersRule / 4);
         },
@@ -346,6 +337,20 @@ export default defineComponent({
                 ...store.getters.americanoStore.getRules,
                 maxScore: Number(this.$data.maxScore),
             });
+        },
+        stepMaxScore(delta: number) {
+            const next = Math.max(1, this.$data.maxScore + delta);
+            this.$data.maxScore = next;
+            this.maxScoreInvalid = false;
+            store.commit.americanoStore.SET_RULES({
+                ...store.getters.americanoStore.getRules,
+                maxScore: next,
+            });
+        },
+        stepPlayers(delta: number) {
+            const next = Math.min(64, Math.max(4, this.amountOfPlayersRule + delta));
+            this.amountOfPlayersRule = next;
+            this.handleAmountOfPlayersChange();
         },
         handlePlayerNameChange() {
             this.$data.duplicateNameIds = getDuplicateIds(this.getPlayers);
@@ -485,11 +490,28 @@ export default defineComponent({
     letter-spacing: -0.03em;
 }
 
-.setup-subtitle {
-    color: var(--label-secondary);
-    font-size: 0.95rem;
-    margin: 0;
+/* Tournament name input — integrated into header */
+.name-field {
+    margin: 0.7rem 0 0.2rem;
 }
+.name-input {
+    width: 100%;
+    font-size: 1.05rem;
+    font-weight: 500;
+    text-align: center;
+    border: none;
+    border-bottom: 1.5px solid var(--separator);
+    border-radius: 0;
+    padding: 0.45rem 0;
+    background: transparent;
+    color: var(--label-primary);
+    font-family: inherit;
+}
+.name-input:focus {
+    outline: none;
+    border-bottom-color: var(--primary-color);
+}
+.name-input::placeholder { color: var(--label-tertiary); }
 
 /* Row layout */
 .ios-row { min-height: 48px; }
@@ -517,6 +539,46 @@ export default defineComponent({
 /* Mode segmented control */
 .mode-seg { width: 100%; }
 .mode-seg button { flex: 1; padding: 5px 0; font-size: 0.9rem; }
+
+/* Seeding 3-way segmented control */
+.seed-seg { flex-shrink: 0; }
+.seed-seg button { padding: 4px 10px; font-size: 0.8rem; }
+
+/* Stepper (+/-) */
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--separator);
+    overflow: hidden;
+}
+.stepper-btn {
+    width: 34px;
+    height: 32px;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1;
+    border: none;
+    background: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.stepper-btn:active { background: rgba(0,0,0,0.06); }
+.stepper-btn:disabled { color: var(--label-tertiary); cursor: default; }
+.stepper-val {
+    min-width: 36px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--label-primary);
+    border-left: 1px solid var(--separator);
+    border-right: 1px solid var(--separator);
+    padding: 0 4px;
+    line-height: 32px;
+}
 
 /* Side segmented control */
 .side-seg { flex-shrink: 0; }

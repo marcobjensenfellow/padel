@@ -84,6 +84,19 @@ export function numCategoriesForPlayers(count: number): number {
 }
 
 /**
+ * Randomises player order and reassigns seeds 1…N.
+ * Used when seedingMode === "random" for Mexicano.
+ */
+export function applyRandomSeeding(players: PadelPlayer[]): PadelPlayer[] {
+    const shuffled = [...players];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.map((p, i) => ({ ...p, seed: i + 1 }));
+}
+
+/**
  * Resolves category-based seeding into precise player seeds.
  * Categories are ordered 0 (top) → N (bottom). Within each category,
  * the original list order is preserved — no shuffling — so that
