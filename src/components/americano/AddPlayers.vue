@@ -43,73 +43,47 @@
                     <div
                         v-for="(player, index) in getPlayers"
                         :key="player.id"
-                        class="form-group"
+                        class="player-row form-group"
                     >
-                        <input
-                            type="text"
-                            class="form-control mx-auto"
-                            :placeholder="getPlayerPlaceholder(index)"
-                            v-model="player.name"
-                            @keyup="handlePlayerNameChange()"
-                            :class="{
-                                'is-invalid': isDuplicateName(player.id),
-                                'is-second': getColorCodeGroup(player) === 2,
-                                'is-first': getColorCodeGroup(player) === 1,
-                            }"
-                            required
-                        />
-                        <div class="mt-1">
-                            <div class="form-check form-check-inline">
-                                <input
-                                    class="form-check-input"
-                                    type="radio"
-                                    :id="`left-${player.id}`"
-                                    :name="`side-${player.id}`"
-                                    value="Left"
-                                    v-model="player.preferredSide"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    :for="`left-${player.id}`"
-                                >
-                                    Left
-                                </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input
-                                    class="form-check-input"
-                                    type="radio"
-                                    :id="`right-${player.id}`"
-                                    :name="`side-${player.id}`"
-                                    value="Right"
-                                    v-model="player.preferredSide"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    :for="`right-${player.id}`"
-                                >
-                                    Right
-                                </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input
-                                    class="form-check-input"
-                                    type="radio"
-                                    :id="`both-${player.id}`"
-                                    :name="`side-${player.id}`"
-                                    value="Both"
-                                    v-model="player.preferredSide"
-                                />
-                                <label
-                                    class="form-check-label"
-                                    :for="`both-${player.id}`"
-                                >
-                                    Both
-                                </label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input
+                                type="text"
+                                class="form-control player-name-input"
+                                :placeholder="getPlayerPlaceholder(index)"
+                                v-model="player.name"
+                                @keyup="handlePlayerNameChange()"
+                                :class="{
+                                    'is-invalid': isDuplicateName(player.id),
+                                    'is-second': getColorCodeGroup(player) === 2,
+                                    'is-first': getColorCodeGroup(player) === 1,
+                                }"
+                                required
+                            />
+                            <div class="side-toggle btn-group btn-group-sm" role="group" :aria-label="`Side preference for player ${index + 1}`">
+                                <button
+                                    type="button"
+                                    class="btn"
+                                    :class="player.preferredSide === 'Left' ? 'btn-side-active' : 'btn-side'"
+                                    @click="player.preferredSide = 'Left'"
+                                    title="Prefers left side"
+                                >L</button>
+                                <button
+                                    type="button"
+                                    class="btn"
+                                    :class="player.preferredSide === 'Both' ? 'btn-side-active' : 'btn-side'"
+                                    @click="player.preferredSide = 'Both'"
+                                    title="No preference"
+                                >–</button>
+                                <button
+                                    type="button"
+                                    class="btn"
+                                    :class="player.preferredSide === 'Right' ? 'btn-side-active' : 'btn-side'"
+                                    @click="player.preferredSide = 'Right'"
+                                    title="Prefers right side"
+                                >R</button>
                             </div>
                         </div>
                         <small
-                            id="duplicateNameHelp"
                             class="form-text text-danger"
                             v-if="isDuplicateName(player.id)"
                         >
@@ -508,7 +482,7 @@ export default defineComponent({
                 return "Go to matches";
             }
 
-            return "Start turnament";
+            return "Start tournament";
         },
         randomScheduleRule: {
             get() {
@@ -609,5 +583,48 @@ export default defineComponent({
 
 .is-first {
     background-color: rgba(243, 156, 18, 0.15);
+}
+
+.player-row {
+    margin-bottom: 0.4rem;
+}
+
+.player-name-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.side-toggle {
+    flex-shrink: 0;
+}
+
+.btn-side {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 28px;
+}
+
+.btn-side:hover {
+    background-color: #ddd;
+    border-color: #bbb;
+    color: #333;
+}
+
+.btn-side-active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 28px;
 }
 </style>

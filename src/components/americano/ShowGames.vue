@@ -1,89 +1,126 @@
 <template>
     <div v-if="getGames.length > 0">
-        <h3 class="text-center">Matches</h3>
-        <form @submit.prevent="onCalculateScore">
-            <div class="form-group">
-                <div class="score-container">
-                    <div v-for="(game, index) in getGames" :key="game.id">
-                        <div v-if="IsNewRound(index)" class="score-round">
-                            Round: {{ game.round }}
-                        </div>
-                        <div
-                            :class="{
-                                'top-border': shouldHaveTopBorder(game),
-                                'is-second': getColorCodeGroup(game) === 2,
-                                'is-first': getColorCodeGroup(game) === 1,
-                            }"
-                            class="game-container"
-                        >
-                            <div
-                                v-if="game.players.length === 4"
-                                class="d-flex flex-column flex-md-row justify-content-between"
+        <!-- Round tabs -->
+        <div class="round-tabs">
+            <button
+                v-for="round in rounds"
+                :key="round"
+                class="round-tab"
+                :class="{ 'round-tab--active': activeRound === round }"
+                @click="activeRound = round"
+            >
+                Round {{ round }}
+                <span v-if="isRoundComplete(round)" class="round-check">✓</span>
+            </button>
+        </div>
+
+        <!-- Courts for active round -->
+        <div class="courts-grid">
+            <template v-for="game in gamesForActiveRound" :key="game.id">
+                <!-- Rest round -->
+                <div v-if="game.players.length < 4" class="rest-card">
+                    <span class="rest-icon">😴</span>
+                    <span>Rest: {{ getPlayerNameById(game.players[0].playerId) }}</span>
+                </div>
+
+                <!-- Court card -->
+                <div v-else class="court-card">
+                    <div class="court-label">{{ getCourtLabel(game) }}</div>
+
+                    <!-- Home team — click to score -->
+                    <div
+                        class="team-zone team-zone--home"
+                        @click="openPicker(game, true)"
+                        :class="{ 'team-zone--scored': game.homeScore !== null }"
+                    >
+                        <div class="player-pills">
+                            <span
+                                v-for="ps in homePlayers(game)"
+                                :key="ps.playerId"
+                                class="player-pill"
                             >
-                                <div class="team-element p-2">
-                                    <span class="team">{{
-                                        getPlayerNames(game, 1)
-                                    }}</span>
-                                    <span class="vs"> vs </span>
-                                    <span class="team">{{
-                                        getPlayerNames(game, 2)
-                                    }}</span>
-                                </div>
+                                {{ getPlayerNameById(ps.playerId) }}
+                                <span class="side-dot" :class="ps.side === 'Right' ? 'side-dot--right' : 'side-dot--left'">
+                                    {{ ps.side === 'Right' ? 'R' : 'L' }}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
 
-                                <span class="team-element pt-2">
-                                    {{ printCourt(game, index) }}</span
-                                >
+                    <!-- Score display -->
+                    <div class="court-score">
+                        <div
+                            class="score-bubble"
+                            :class="{ 'score-bubble--set': game.homeScore !== null }"
+                            @click="openPicker(game, true)"
+                        >
+                            {{ game.homeScore !== null ? game.homeScore : '?' }}
+                        </div>
+                        <div class="court-net"></div>
+                        <div
+                            class="score-bubble"
+                            :class="{ 'score-bubble--set': game.awayScore !== null }"
+                            @click="openPicker(game, false)"
+                        >
+                            {{ game.awayScore !== null ? game.awayScore : '?' }}
+                        </div>
+                    </div>
 
-                                <div class="team-element p-2 align-self-center">
-                                    <input
-                                        v-model="game.homeScore"
-                                        class="input-element"
-                                        required
-                                        @focusout="handleFocusChange(game, 1)"
-                                    />
-                                    -
-                                    <input
-                                        v-model="game.awayScore"
-                                        class="input-element"
-                                        required
-                                        @focusout="handleFocusChange(game, 2)"
-                                    />
-                                </div>
-                            </div>
-                            <div v-else class="p-2">
-                                Rest round:
-                                {{
-                                    getPlayerNameById(game.players[0].playerId)
-                                }}
-                            </div>
+                    <!-- Away team — click to score -->
+                    <div
+                        class="team-zone team-zone--away"
+                        @click="openPicker(game, false)"
+                        :class="{ 'team-zone--scored': game.awayScore !== null }"
+                    >
+                        <div class="player-pills">
+                            <span
+                                v-for="ps in awayPlayers(game)"
+                                :key="ps.playerId"
+                                class="player-pill"
+                            >
+                                {{ getPlayerNameById(ps.playerId) }}
+                                <span class="side-dot" :class="ps.side === 'Right' ? 'side-dot--right' : 'side-dot--left'">
+                                    {{ ps.side === 'Right' ? 'R' : 'L' }}
+                                </span>
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="clearfix">
-                    <div class="float-left">
-                        <button
-                            type="button"
-                            @click="goBack"
-                            class="btn btn-pdl mt-3"
-                        >
-                            <i class="las la-arrow-left"></i> Change teams
-                        </button>
-                        <button
-                            type="button"
-                            @click="reset"
-                            class="btn btn-pdl mt-3 ml-3"
-                        >
-                            <i class="las la-times"></i> Start over
-                        </button>
-                    </div>
-                    <div class="float-right">
-                        <button type="submit" class="btn btn-pdl mt-3">
-                            Calculate results <i class="las la-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
+            </template>
+        </div>
+
+        <!-- Actions -->
+        <div class="clearfix mt-3">
+            <div class="float-left">
+                <button type="button" @click="goBack" class="btn btn-pdl mt-1">
+                    <i class="las la-arrow-left"></i> Change teams
+                </button>
+                <button type="button" @click="reset" class="btn btn-pdl mt-1 ml-2">
+                    <i class="las la-times"></i> Start over
+                </button>
             </div>
-        </form>
+            <div class="float-right">
+                <button
+                    type="button"
+                    @click="onCalculateScore"
+                    class="btn btn-pdl mt-1"
+                    :disabled="!allRoundScoresSet"
+                >
+                    Calculate results <i class="las la-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Score picker -->
+        <ScorePicker
+            v-if="pickerGame !== null"
+            :game="pickerGame"
+            :scoring-home="pickerScoringHome"
+            :max-score="getRules.maxScore"
+            :players="getPlayers"
+            @score-set="onScoreSet"
+            @close="pickerGame = null"
+        />
     </div>
 </template>
 
@@ -91,166 +128,299 @@
 import { defineComponent } from "vue";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
-import { getFullPlayerNamesWithSide } from "@/services/htmlHelperService";
-import { evenScore, removeNotNumbers } from "@/services/scoreService";
-import { GameSide } from "@/models/gameSide.enum";
+import { PlayerScore } from "@/models/playerScore.interface";
+import ScorePicker from "./ScorePicker.vue";
 
 export default defineComponent({
+    components: { ScorePicker },
+
+    data() {
+        return {
+            activeRound: 1 as number,
+            pickerGame: null as PadelGame | null,
+            pickerScoringHome: true as boolean,
+        };
+    },
+
+    mounted() {
+        // Start on the first incomplete round, or the last round
+        const incomplete = this.rounds.find(r => !this.isRoundComplete(r));
+        this.activeRound = incomplete ?? this.rounds[this.rounds.length - 1];
+    },
+
+    computed: {
+        getGames(): readonly PadelGame[] {
+            return store.getters.americanoStore.getGames;
+        },
+        getPlayers() {
+            return store.getters.americanoStore.getPlayers;
+        },
+        getRules() {
+            return store.getters.americanoStore.getRules;
+        },
+        rounds(): number[] {
+            const max = Math.max(...this.getGames.map(g => g.round));
+            return Array.from({ length: max }, (_, i) => i + 1);
+        },
+        gamesForActiveRound(): readonly PadelGame[] {
+            return this.getGames.filter(g => g.round === this.activeRound);
+        },
+        allRoundScoresSet(): boolean {
+            return this.gamesForActiveRound
+                .filter(g => g.players.length === 4)
+                .every(g => g.homeScore !== null && g.awayScore !== null);
+        },
+    },
+
     methods: {
-        onCalculateScore(): void {
-            store.dispatch.americanoStore.updatePlayerScores();
+        rounds_for(r: number) {
+            return this.getGames.filter(g => g.round === r);
         },
-        IsNewRound(index: number) {
-            if (index === 0) return true;
-            const games = this.getGames;
-            return games[index].round !== games[index - 1].round;
+        isRoundComplete(round: number): boolean {
+            return this.getGames
+                .filter(g => g.round === round && g.players.length === 4)
+                .every(g => g.homeScore !== null && g.awayScore !== null);
         },
-        getPlayerNames(game: PadelGame, side: GameSide) {
-            return getFullPlayerNamesWithSide(game, side);
+        homePlayers(game: PadelGame): PlayerScore[] {
+            return game.players.filter(p => p.home);
         },
-        shouldHaveTopBorder(game: PadelGame) {
-            const lastTwoGamesOfFour = game.matchNumber == 2;
-            const secondGameOfFour =
-                game.playGroup == 2 && game.matchNumber == 1;
-            return lastTwoGamesOfFour || secondGameOfFour;
+        awayPlayers(game: PadelGame): PlayerScore[] {
+            return game.players.filter(p => !p.home);
         },
-        goBack(): void {
-            store.dispatch.americanoStore.sortPlayersById();
-            store.commit.americanoStore.DECREMENT_STEP();
-        },
-        reset(): void {
-            store.commit.americanoStore.RESET();
-        },
-        handleFocusChange(game: PadelGame, side: GameSide) {
-            removeNotNumbers(
-                game,
-                side,
-                store.getters.americanoStore.getRules.maxScore
-            );
-            evenScore(
-                game,
-                store.getters.americanoStore.getRules.maxScore,
-                side
-            );
-            store.dispatch.americanoStore.saveStateManually();
-        },
-        getColorCodeGroup(game: PadelGame) {
-            if (store.getters.americanoStore.getRules.colorCode === false) {
-                return 0;
-            }
-
-            return game.playGroup;
-        },
-        getCourt(index: number) {
-            const rules = this.getRules;
-            if (rules.courtNames) return rules.courtNames[index];
-            return "";
-        },
-        printCourt(game: PadelGame, index: number) {
-            const courts = Math.floor(this.getRules.amountOfPlayers / 4);
-
-            let courtIndex = game.matchNumber - 1;
-
-            if (this.getRules.amountOfPlayers === 16) {
-                courtIndex = (game.playGroup - 1) * 2 + (game.matchNumber - 1);
-            }
-
-            if (courtIndex < 0 || courtIndex >= courts) {
-                courtIndex = index % courts;
-            }
-
-            return this.getCourt(courtIndex) || `Court ${courtIndex + 1}`;
-        },
-        getPlayerNameById(id: number) {
+        getPlayerNameById(id: number): string {
             const player = store.getters.americanoStore.getPlayers.find(
                 (p: any) => p.id === id
             );
             return player ? player.name : "";
         },
-    },
-
-    computed: {
-        getGames() {
-            return store.getters.americanoStore.getGames;
+        getCourtLabel(game: PadelGame): string {
+            const rules = this.getRules;
+            const courts = Math.floor(rules.amountOfPlayers / 4);
+            let courtIndex = game.matchNumber - 1;
+            if (rules.amountOfPlayers === 16) {
+                courtIndex = (game.playGroup - 1) * 2 + (game.matchNumber - 1);
+            }
+            if (courtIndex < 0 || courtIndex >= courts) {
+                courtIndex = 0;
+            }
+            const named = rules.courtNames?.[courtIndex];
+            return named && named.trim() ? named : `Court ${courtIndex + 1}`;
         },
-        getRules() {
-            return store.getters.americanoStore.getRules;
+        openPicker(game: PadelGame, scoringHome: boolean) {
+            this.pickerGame = game;
+            this.pickerScoringHome = scoringHome;
+        },
+        onScoreSet(payload: {
+            game: PadelGame;
+            homeScore: number;
+            awayScore: number;
+        }) {
+            payload.game.homeScore = payload.homeScore;
+            payload.game.awayScore = payload.awayScore;
+            store.dispatch.americanoStore.saveStateManually();
+            this.pickerGame = null;
+        },
+        onCalculateScore() {
+            store.dispatch.americanoStore.updatePlayerScores();
+        },
+        goBack() {
+            store.dispatch.americanoStore.sortPlayersById();
+            store.commit.americanoStore.DECREMENT_STEP();
+        },
+        reset() {
+            store.commit.americanoStore.RESET();
         },
     },
 });
 </script>
 
-<style>
-.score-container {
-    border-radius: 0.375rem;
-    overflow: auto;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+<style scoped>
+/* Round tabs */
+.round-tabs {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+    justify-content: center;
 }
 
-.score-round {
-    background-color: var(--primary-color);
-    text-align: left;
+.round-tab {
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    border: 2px solid var(--primary-color);
+    background: #fff;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.round-tab--active {
+    background: var(--primary-color);
     color: #fff;
-    padding: 0.4rem;
 }
 
-.game-container {
-    padding: 0.2rem;
+.round-check {
+    margin-left: 0.3rem;
+    font-size: 0.8rem;
 }
 
-.team {
-    font-weight: bold;
-    color: var(--dark-color);
+/* Courts grid */
+.courts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
 }
 
-.vs {
-    color: #e74c3c;
+/* Court card */
+.court-card {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+    background: #c2784a; /* clay */
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
-.vs-element {
-    width: 150px;
-}
-
-.input-element {
-    width: 35px;
+.court-label {
     text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    padding: 0.4rem;
+    background: rgba(0,0,0,0.25);
 }
 
-.top-border {
-    border-top: 0.1rem solid var(--primary-color);
+/* Team zones */
+.team-zone {
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    background: rgba(0,0,0,0.15);
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-pdl {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
+.team-zone:hover {
+    background: rgba(0,0,0,0.28);
+}
+
+.team-zone--scored {
+    background: rgba(0,0,0,0.1);
+}
+
+.team-zone--home {
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+.team-zone--away {
+    border-top: 2px solid rgba(255,255,255,0.3);
+}
+
+.player-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.player-pill {
+    background: rgba(47, 54, 64, 0.85);
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.side-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.side-dot--left {
+    background: #0fb9b1;
     color: #fff;
 }
 
-@media (max-width: 767.98px) {
-    .team-element {
-        width: 100%;
-        text-align: center;
-    }
-    .input-element {
-        width: 45px;
-    }
+.side-dot--right {
+    background: #3b82f6;
+    color: #fff;
 }
 
-@media print {
-    .top-border {
-        border-top: 0.1rem solid transparent;
-    }
+/* Score area */
+.court-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    background: rgba(255,255,255,0.08);
+}
 
-    .score-round {
-        border-bottom: 0.1rem solid var(--primary-color);
-    }
+.court-net {
+    width: 2px;
+    height: 30px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 1px;
+}
 
-    .score-round {
-        color: var(--primary-color);
-    }
+.score-bubble {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.5);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+}
 
-    .btn-pdl {
-        display: none;
-    }
+.score-bubble:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+.score-bubble--set {
+    background: rgba(255,255,255,0.9);
+    color: #2f3640;
+    border-color: #fff;
+}
+
+/* Rest card */
+.rest-card {
+    border-radius: 14px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    color: #888;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.rest-icon {
+    font-size: 1.4rem;
 }
 </style>

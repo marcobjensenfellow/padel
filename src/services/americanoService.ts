@@ -1,5 +1,6 @@
 import { PadelGame } from "@/models/padelGame.interface";
 import { PadelPlayer, PreferredSide } from "../models/padelPlayer.interface";
+import { chooseSides, playersCanTeam, pairTeams } from "./sideService";
 
 export function getPadelPlayers(amount = 8): PadelPlayer[] {
     const padelPlayers: PadelPlayer[] = [];
@@ -22,51 +23,6 @@ function shuffleArray(array: Array<any>) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-function chooseSides(
-    first: PadelPlayer,
-    second: PadelPlayer
-): [PreferredSide, PreferredSide] {
-    if (first.preferredSide === "Left" && second.preferredSide !== "Left") {
-        return ["Left", "Right"];
-    }
-
-    if (second.preferredSide === "Left" && first.preferredSide !== "Left") {
-        return ["Right", "Left"];
-    }
-
-    if (first.preferredSide === "Right" && second.preferredSide !== "Right") {
-        return ["Right", "Left"];
-    }
-
-    if (second.preferredSide === "Right" && first.preferredSide !== "Right") {
-        return ["Left", "Right"];
-    }
-
-    return ["Left", "Right"];
-}
-
-function setPlayerSides(game: PadelGame, allPlayers: PadelPlayer[]) {
-    const homePlayers = game.players.filter(p => p.home);
-    const awayPlayers = game.players.filter(p => !p.home);
-
-    const h1 = allPlayers.find(p => p.id === homePlayers[0].playerId);
-    const h2 = allPlayers.find(p => p.id === homePlayers[1].playerId);
-    const a1 = allPlayers.find(p => p.id === awayPlayers[0].playerId);
-    const a2 = allPlayers.find(p => p.id === awayPlayers[1].playerId);
-
-    if (h1 && h2) {
-        const [s1, s2] = chooseSides(h1, h2);
-        homePlayers[0].side = s1;
-        homePlayers[1].side = s2;
-    }
-
-    if (a1 && a2) {
-        const [s3, s4] = chooseSides(a1, a2);
-        awayPlayers[0].side = s3;
-        awayPlayers[1].side = s4;
     }
 }
 
@@ -132,9 +88,7 @@ export function balancePlayerSides(games: PadelGame[], players: PadelPlayer[]) {
     });
 
     sortedGames.forEach(game => {
-        if (game.players.length < 4) {
-            return;
-        }
+        if (game.players.length < 4) return;
 
         const homePlayers = game.players.filter(p => p.home);
         const awayPlayers = game.players.filter(p => !p.home);
@@ -149,7 +103,6 @@ export function balancePlayerSides(games: PadelGame[], players: PadelPlayer[]) {
             homePlayers[0].side = s1;
             homePlayers[1].side = s2;
         }
-
         if (a1 && a2) {
             const [s3, s4] = chooseBalancedSides(a1, a2, counts);
             awayPlayers[0].side = s3;
@@ -161,430 +114,77 @@ export function balancePlayerSides(games: PadelGame[], players: PadelPlayer[]) {
 function resetIds(array: PadelPlayer[]) {
     let id = 1;
     array.forEach(player => {
-        player.id = id;
-        id++;
+        player.id = id++;
     });
 }
 
+// Hardcoded round-robin for exactly 8 players (7 rounds, 2 courts).
+// Does NOT call balancePlayerSides — that is done once in prepareGames.
 function setupGamesWithPlayers(
     players: PadelPlayer[],
     playGroup = 1
 ): PadelGame[] {
     const padelGames: PadelGame[] = [];
 
-    padelGames.push(
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[0].id,
-                    home: true,
-                },
-                {
-                    playerId: players[1].id,
-                    home: true,
-                },
-                {
-                    playerId: players[2].id,
-                    home: false,
-                },
-                {
-                    playerId: players[3].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 1,
-            id: 1,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[4].id,
-                    home: true,
-                },
-                {
-                    playerId: players[5].id,
-                    home: true,
-                },
-                {
-                    playerId: players[6].id,
-                    home: false,
-                },
-                {
-                    playerId: players[7].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 1,
-            id: 2,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[0].id,
-                    home: true,
-                },
-                {
-                    playerId: players[2].id,
-                    home: true,
-                },
-                {
-                    playerId: players[4].id,
-                    home: false,
-                },
-                {
-                    playerId: players[6].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 2,
-            id: 3,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[1].id,
-                    home: true,
-                },
-                {
-                    playerId: players[3].id,
-                    home: true,
-                },
-                {
-                    playerId: players[5].id,
-                    home: false,
-                },
-                {
-                    playerId: players[7].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 2,
-            id: 4,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[0].id,
-                    home: true,
-                },
-                {
-                    playerId: players[4].id,
-                    home: true,
-                },
-                {
-                    playerId: players[1].id,
-                    home: false,
-                },
-                {
-                    playerId: players[5].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 3,
-            id: 5,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[2].id,
-                    home: true,
-                },
-                {
-                    playerId: players[6].id,
-                    home: true,
-                },
-                {
-                    playerId: players[3].id,
-                    home: false,
-                },
-                {
-                    playerId: players[7].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 3,
-            id: 6,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[2].id,
-                    home: true,
-                },
-                {
-                    playerId: players[4].id,
-                    home: true,
-                },
-                {
-                    playerId: players[1].id,
-                    home: false,
-                },
-                {
-                    playerId: players[7].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 4,
-            id: 7,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[3].id,
-                    home: true,
-                },
-                {
-                    playerId: players[5].id,
-                    home: true,
-                },
-                {
-                    playerId: players[0].id,
-                    home: false,
-                },
-                {
-                    playerId: players[6].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 4,
-            id: 8,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[4].id,
-                    home: true,
-                },
-                {
-                    playerId: players[7].id,
-                    home: true,
-                },
-                {
-                    playerId: players[0].id,
-                    home: false,
-                },
-                {
-                    playerId: players[3].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 5,
-            id: 9,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[1].id,
-                    home: true,
-                },
-                {
-                    playerId: players[2].id,
-                    home: true,
-                },
-                {
-                    playerId: players[5].id,
-                    home: false,
-                },
-                {
-                    playerId: players[6].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 5,
-            id: 10,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[0].id,
-                    home: true,
-                },
-                {
-                    playerId: players[7].id,
-                    home: true,
-                },
-                {
-                    playerId: players[1].id,
-                    home: false,
-                },
-                {
-                    playerId: players[6].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 6,
-            id: 11,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[3].id,
-                    home: true,
-                },
-                {
-                    playerId: players[4].id,
-                    home: true,
-                },
-                {
-                    playerId: players[2].id,
-                    home: false,
-                },
-                {
-                    playerId: players[5].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 6,
-            id: 12,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[2].id,
-                    home: true,
-                },
-                {
-                    playerId: players[7].id,
-                    home: true,
-                },
-                {
-                    playerId: players[0].id,
-                    home: false,
-                },
-                {
-                    playerId: players[5].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 1,
-            round: 7,
-            id: 13,
-            playGroup,
-        },
-        {
-            homeScore: null,
-            awayScore: null,
-            players: [
-                {
-                    playerId: players[3].id,
-                    home: true,
-                },
-                {
-                    playerId: players[6].id,
-                    home: true,
-                },
-                {
-                    playerId: players[1].id,
-                    home: false,
-                },
-                {
-                    playerId: players[4].id,
-                    home: false,
-                },
-            ],
-            matchNumber: 2,
-            round: 7,
-            id: 14,
-            playGroup,
-        }
-    );
+    const game = (
+        id: number,
+        round: number,
+        matchNumber: number,
+        h1: number,
+        h2: number,
+        a1: number,
+        a2: number
+    ): PadelGame => ({
+        homeScore: null,
+        awayScore: null,
+        players: [
+            { playerId: players[h1].id, home: true },
+            { playerId: players[h2].id, home: true },
+            { playerId: players[a1].id, home: false },
+            { playerId: players[a2].id, home: false },
+        ],
+        matchNumber,
+        round,
+        id,
+        playGroup,
+    });
 
-    balancePlayerSides(padelGames, players);
+    padelGames.push(
+        game(1,  1, 1, 0, 1, 2, 3),
+        game(2,  1, 2, 4, 5, 6, 7),
+        game(3,  2, 1, 0, 2, 4, 6),
+        game(4,  2, 2, 1, 3, 5, 7),
+        game(5,  3, 1, 0, 4, 1, 5),
+        game(6,  3, 2, 2, 6, 3, 7),
+        game(7,  4, 1, 2, 4, 1, 7),
+        game(8,  4, 2, 3, 5, 0, 6),
+        game(9,  5, 1, 4, 7, 0, 3),
+        game(10, 5, 2, 1, 2, 5, 6),
+        game(11, 6, 1, 0, 7, 1, 6),
+        game(12, 6, 2, 3, 4, 2, 5),
+        game(13, 7, 1, 2, 7, 0, 5),
+        game(14, 7, 2, 3, 6, 1, 4)
+    );
 
     return padelGames;
 }
 
 function mergeAlternating(array1: Array<any>, array2: Array<any>) {
     const mergedArray = [];
-
     for (
         let i = 0, len = Math.max(array1.length, array2.length);
         i < len;
         i++
     ) {
-        if (i < array1.length) {
-            mergedArray.push(array1[i]);
-        }
-        if (i < array2.length) {
-            mergedArray.push(array2[i]);
-        }
+        if (i < array1.length) mergedArray.push(array1[i]);
+        if (i < array2.length) mergedArray.push(array2[i]);
     }
     return mergedArray;
 }
 
 function splitArrayInHalf(array: Array<any>): Array<any>[] {
     const middle = Math.ceil(array.length / 2);
-
-    const leftArray = array.slice(0, middle);
-    const rightArray = array.slice(middle);
-
-    return [leftArray, rightArray];
-}
-
-function playersCanTeam(p1: PadelPlayer, p2: PadelPlayer): boolean {
-    if (p1.preferredSide === "Both" || p2.preferredSide === "Both") return true;
-    return p1.preferredSide !== p2.preferredSide;
-}
-
-function pairTeams(group: PadelPlayer[]): [PadelPlayer[], PadelPlayer[]] {
-    const arr = [...group];
-    for (let i = 0; i < 10; i++) {
-        shuffleArray(arr);
-        if (playersCanTeam(arr[0], arr[1]) && playersCanTeam(arr[2], arr[3])) {
-            return [arr.slice(0, 2), arr.slice(2, 4)];
-        }
-    }
-    return [arr.slice(0, 2), arr.slice(2, 4)];
+    return [array.slice(0, middle), array.slice(middle)];
 }
 
 function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
@@ -623,18 +223,18 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
                 continue;
             }
 
+            // pairTeams respects preferredSide when shuffling teams
             const [team1, team2] = pairTeams(group);
-            const [s1, s2] = chooseSides(team1[0], team1[1]);
-            const [s3, s4] = chooseSides(team2[0], team2[1]);
 
+            // Placeholder sides — balancePlayerSides sets the final values
             games.push({
                 homeScore: null,
                 awayScore: null,
                 players: [
-                    { playerId: team1[0].id, home: true, side: s1 },
-                    { playerId: team1[1].id, home: true, side: s2 },
-                    { playerId: team2[0].id, home: false, side: s3 },
-                    { playerId: team2[1].id, home: false, side: s4 },
+                    { playerId: team1[0].id, home: true, side: "Left" },
+                    { playerId: team1[1].id, home: true, side: "Right" },
+                    { playerId: team2[0].id, home: false, side: "Left" },
+                    { playerId: team2[1].id, home: false, side: "Right" },
                 ],
                 matchNumber: Math.floor(i / 4) + 1,
                 round: r,
@@ -668,23 +268,21 @@ export function prepareGames(
         resetIds(players);
     }
 
-    if (players.length !== 8 && players.length !== 16) {
-        const randomGames = generateRandomGames(players);
-        balancePlayerSides(randomGames, players);
-        return randomGames;
-    }
+    let games: PadelGame[];
 
     if (players.length === 16) {
-        const arrays = splitArrayInHalf(players);
-
-        const games1 = setupGamesWithPlayers(arrays[0]);
-        const games2 = setupGamesWithPlayers(arrays[1], 2);
-        const combinedGames = mergeAlternating(games1, games2);
-        balancePlayerSides(combinedGames, players);
-        return combinedGames;
+        const [first, second] = splitArrayInHalf(players);
+        games = mergeAlternating(
+            setupGamesWithPlayers(first),
+            setupGamesWithPlayers(second, 2)
+        );
+    } else if (players.length === 8) {
+        games = setupGamesWithPlayers(players);
+    } else {
+        games = generateRandomGames(players);
     }
 
-    const games = setupGamesWithPlayers(players);
+    // Single authoritative call — balances sides across all rounds at once
     balancePlayerSides(games, players);
     return games;
 }
@@ -694,26 +292,20 @@ export function getColorCodeGroupFromPlayer(
     players: PadelPlayer[] | readonly PadelPlayer[],
     games: PadelGame[] | readonly PadelGame[]
 ) {
-    const gameWithPlayer = games.find(game => {
-        const playerIncluded = game.players.find(p => p.playerId === player.id);
-
-        if (playerIncluded) {
-            return game;
-        }
-    });
-
+    const gameWithPlayer = games.find(game =>
+        game.players.find(p => p.playerId === player.id)
+    );
     return gameWithPlayer?.playGroup;
 }
 
 export function allNamesAreEmpty(players: PadelPlayer[]) {
-    const namedPlayers = players.filter(player => player.name !== "");
-    return namedPlayers.length === 0;
+    return players.filter(player => player.name !== "").length === 0;
 }
 
 export function getMaxRound(games: readonly PadelGame[]): number {
-    if (games.length === 0) {
-        return 0;
-    }
-
+    if (games.length === 0) return 0;
     return Math.max(...games.map(g => g.round));
 }
+
+// Re-export so existing imports from americanoService still work
+export { chooseSides, playersCanTeam };

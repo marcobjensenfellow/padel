@@ -37,36 +37,40 @@ export function getFullPlayerNames(game: PadelGame, side: GameSide) {
     return `${firstPlayer.name} & ${secondPlayer.name}`;
 }
 
+function sideBadge(side?: string): string {
+    const label = side === "Right" ? "R" : "L";
+    const color = side === "Right"
+        ? "background:#3b82f6;color:#fff"
+        : "background:#0fb9b1;color:#fff";
+    return `<span style="${color};border-radius:3px;padding:1px 5px;font-size:0.7em;font-weight:700;margin-left:3px;vertical-align:middle">${label}</span>`;
+}
+
 export function getFullPlayerNamesWithSide(game: PadelGame, side: GameSide) {
     const isHome = side === GameSide.Home;
 
     const players = game.players.filter(p => p.home === isHome);
-
-    const short = (s?: string) => (s === "Right" ? "R" : "L");
 
     if (players.length === 0) {
         return "";
     }
 
     const first = store.getters.americanoStore.getPlayers.find(
-        p => p.id === players[0].playerId
+        (p: PadelPlayer) => p.id === players[0].playerId
     );
 
     if (players.length === 1) {
-        return first ? `${first.name} (${short(players[0].side)})` : "";
+        return first ? `${first.name}${sideBadge(players[0].side)}` : "";
     }
 
     const second = store.getters.americanoStore.getPlayers.find(
-        p => p.id === players[1].playerId
+        (p: PadelPlayer) => p.id === players[1].playerId
     );
 
     if (!first || !second) {
         return "";
     }
 
-    return `${first.name} (${short(players[0].side)}) & ${second.name} (${short(
-        players[1].side
-    )})`;
+    return `${first.name}${sideBadge(players[0].side)} &amp; ${second.name}${sideBadge(players[1].side)}`;
 }
 
 export function isValidMaxScore(value: number): boolean {
