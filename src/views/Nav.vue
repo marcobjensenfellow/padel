@@ -1,13 +1,30 @@
 <template>
     <header class="ios-nav">
         <div class="ios-nav-inner">
-            <span class="ios-nav-title">Padel</span>
+            <span class="ios-nav-title">{{ $t('app_title') }}</span>
+            <button
+                class="lang-btn"
+                @click="toggleLocale"
+                :aria-label="$i18n.locale === 'en' ? 'Skift til dansk' : 'Switch to English'"
+            >
+                {{ $i18n.locale === 'en' ? 'DA' : 'EN' }}
+            </button>
         </div>
     </header>
 </template>
 
-<script>
-export default {};
+<script lang="ts">
+import { defineComponent } from "vue";
+import { Locale } from "@/i18n";
+
+export default defineComponent({
+    methods: {
+        toggleLocale() {
+            const next: Locale = this.$i18n.locale === "en" ? "da" : "en";
+            this.$setLocale(next);
+        },
+    },
+});
 </script>
 
 <style scoped>
@@ -28,6 +45,7 @@ export default {};
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .ios-nav-title {
@@ -35,5 +53,24 @@ export default {};
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #1C1C1E;
+}
+
+.lang-btn {
+    position: absolute;
+    right: 1.2rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--primary-color);
+    background: rgba(0, 122, 255, 0.08);
+    border: none;
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.lang-btn:hover {
+    background: rgba(0, 122, 255, 0.16);
 }
 </style>

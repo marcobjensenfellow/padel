@@ -12,7 +12,7 @@ import {
     sortByScore,
     updatePlayerScores,
 } from "@/services/scoreService";
-import { prepareMexicanoRound, totalRounds } from "@/services/mexicanoService";
+import { prepareMexicanoRound, totalRounds, applyCategorySeeding } from "@/services/mexicanoService";
 import {
     loadAmericanoState,
     removeAmericanoState,
@@ -65,6 +65,7 @@ export default {
             colorCode: false,
             courtNames: Array(16).fill(""),
             mode: "Americano",
+            seedingMode: "exact",
         },
     } as AmericanoStoreState,
     mutations: {
@@ -164,6 +165,7 @@ export default {
             state.rules.colorCode = false;
             state.rules.courtNames = Array(16).fill("");
             state.rules.mode = "Americano";
+            state.rules.seedingMode = "exact";
             removeAmericanoState(state.tournamentName);
             state.tournamentName = new Date().toISOString().slice(0, 10);
         },
@@ -203,8 +205,14 @@ export default {
     actions: {
         prepareGames({ commit, getters }: AmericanoStoreActions) {
             if (getters.getRules.mode === "Mexicano") {
+                // Apply category seeding before first round if needed
+                let players = getters.getPlayers;
+                if (getters.getRules.seedingMode === "category") {
+                    players = applyCategorySeeding(players);
+                    commit("UPDATE_PLAYERS", players);
+                }
                 const games = prepareMexicanoRound(
-                    getters.getPlayers,
+                    players,
                     getters.getRound
                 );
                 commit("UPDATE_GAMES", games);

@@ -4,9 +4,9 @@
             <div class="picker-handle"></div>
             <button class="picker-close" @click="$emit('close')" aria-label="Close">✕</button>
 
-            <p class="picker-for">Points for</p>
+            <p class="picker-for">{{ $t('points_for') }}</p>
             <p class="picker-team">{{ activeTeamName }}</p>
-            <p class="picker-other">{{ otherTeamName }} gets the rest</p>
+            <p class="picker-other">{{ otherTeamName }} {{ $t('gets_the_rest') }}</p>
 
             <div class="picker-grid">
                 <button

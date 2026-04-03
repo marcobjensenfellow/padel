@@ -12,6 +12,7 @@ export function getPadelPlayers(amount = 8): PadelPlayer[] {
             id: i + 1,
             preferredSide: "Both",
             seed: i + 1,
+            seedCategory: 0,
         };
         padelPlayers.push(padelPlayer);
     }
@@ -187,7 +188,7 @@ function splitArrayInHalf(array: Array<any>): Array<any>[] {
     return [array.slice(0, middle), array.slice(middle)];
 }
 
-function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
+function generateRandomGames(players: PadelPlayer[], randomSchedule = true): PadelGame[] {
     const games: PadelGame[] = [];
     const rounds = players.length;
     const oversidderCount = players.length % 4;
@@ -204,7 +205,7 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
         }
 
         const activePlayers = players.filter(p => !oversidders.includes(p));
-        shuffleArray(activePlayers);
+        if (randomSchedule) shuffleArray(activePlayers);
 
         for (let i = 0; i < activePlayers.length; i += 4) {
             const group = activePlayers.slice(i, i + 4);
@@ -260,9 +261,12 @@ function generateRandomGames(players: PadelPlayer[]): PadelGame[] {
 }
 
 export function prepareGames(
-    players: PadelPlayer[],
+    playersInput: PadelPlayer[],
     randomSchedule: boolean
 ): PadelGame[] {
+    // Work on a shallow copy to avoid mutating store state
+    const players = [...playersInput];
+
     if (randomSchedule) {
         shuffleArray(players);
         resetIds(players);
@@ -279,7 +283,7 @@ export function prepareGames(
     } else if (players.length === 8) {
         games = setupGamesWithPlayers(players);
     } else {
-        games = generateRandomGames(players);
+        games = generateRandomGames(players, randomSchedule);
     }
 
     // Single authoritative call — balances sides across all rounds at once

@@ -71,3 +71,36 @@ export function prepareMexicanoRound(
 export function totalRounds(amountOfPlayers: number): number {
     return amountOfPlayers - 1;
 }
+
+/**
+ * Returns the number of seed categories for a given player count:
+ *   8  players → 2 (Top / Bottom)
+ *   16 players → 3 (Top / Middle / Bottom)
+ *   24 players → 4
+ *   32+ players → 5 (max)
+ */
+export function numCategoriesForPlayers(count: number): number {
+    return Math.min(5, Math.max(2, Math.floor(count / 8) + 1));
+}
+
+/**
+ * Resolves category-based seeding into precise player seeds.
+ * Players within the same category are randomly shuffled; categories
+ * are ordered 0 (top) → N (bottom). Returns a new array with updated `seed`.
+ */
+export function applyCategorySeeding(players: PadelPlayer[]): PadelPlayer[] {
+    const result: PadelPlayer[] = [];
+    const maxCat = Math.max(...players.map(p => p.seedCategory ?? 0));
+
+    for (let cat = 0; cat <= maxCat; cat++) {
+        const group = players.filter(p => (p.seedCategory ?? 0) === cat);
+        // Fisher-Yates shuffle within category
+        for (let i = group.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [group[i], group[j]] = [group[j], group[i]];
+        }
+        result.push(...group);
+    }
+
+    return result.map((p, i) => ({ ...p, seed: i + 1 }));
+}

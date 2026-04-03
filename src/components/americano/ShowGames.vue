@@ -3,8 +3,8 @@
 
         <!-- Header -->
         <div class="games-header">
-            <h1>Round {{ activeRound }}</h1>
-            <p class="games-subtitle">{{ completedCount }}/{{ totalMatchCount }} matches scored</p>
+            <h1>{{ $t('round_n', { n: activeRound }) }}</h1>
+            <p class="games-subtitle">{{ $t('matches_scored', { done: completedCount, total: totalMatchCount }) }}</p>
         </div>
 
         <!-- Round pills -->
@@ -31,7 +31,7 @@
                 <div v-if="game.players.length < 4" class="rest-card">
                     <span class="rest-icon">☕️</span>
                     <span class="rest-name">{{ getPlayerNameById(game.players[0].playerId) }}</span>
-                    <span class="rest-label">Sitting out</span>
+                    <span class="rest-label">{{ $t('sitting_out') }}</span>
                 </div>
 
                 <!-- Court card -->
@@ -101,10 +101,10 @@
         <div class="games-actions">
             <div class="games-actions-secondary">
                 <button type="button" @click="goBack" class="btn-pdl-ghost">
-                    ← Setup
+                    {{ $t('nav_setup') }}
                 </button>
                 <button type="button" @click="confirmReset = true" class="btn-pdl-ghost btn-danger-ghost">
-                    End tournament
+                    {{ $t('end_tournament') }}
                 </button>
             </div>
             <button
@@ -113,7 +113,7 @@
                 class="btn-pdl btn-calculate"
                 :disabled="!allRoundScoresSet"
             >
-                {{ allRoundScoresSet ? 'See results →' : 'Score all matches first' }}
+                {{ allRoundScoresSet ? $t('see_results') : $t('score_all_first') }}
             </button>
         </div>
 
@@ -132,10 +132,10 @@
         <div v-if="confirmReset" class="confirm-overlay" @click.self="confirmReset = false">
             <div class="confirm-sheet">
                 <p class="confirm-icon">⚠️</p>
-                <h3>End tournament?</h3>
-                <p class="confirm-body">All scores and player data will be deleted. This can't be undone.</p>
-                <button class="btn-pdl btn-destructive" @click="reset">Yes, end it</button>
-                <button class="btn-pdl-ghost" @click="confirmReset = false">Cancel</button>
+                <h3>{{ $t('end_confirm_title') }}</h3>
+                <p class="confirm-body">{{ $t('end_confirm_body') }}</p>
+                <button class="btn-pdl btn-destructive" @click="reset">{{ $t('end_confirm_yes') }}</button>
+                <button class="btn-pdl-ghost" @click="confirmReset = false">{{ $t('end_confirm_cancel') }}</button>
             </div>
         </div>
 

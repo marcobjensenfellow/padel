@@ -1,24 +1,23 @@
 <template>
     <div class="setup-page">
         <div class="setup-header">
-            <h1>New tournament</h1>
-            <p class="setup-subtitle">Set up your game</p>
+            <h1>{{ $t('new_tournament') }}</h1>
+            <p class="setup-subtitle">{{ $t('set_up_game') }}</p>
         </div>
 
         <form @submit.prevent="onAddPlayers">
 
             <!-- ── Tournament name ──────────────────── -->
-            <p class="ios-section-header">Tournament</p>
+            <p class="ios-section-header">{{ $t('tournament') }}</p>
             <div class="ios-section">
                 <div class="ios-row">
-                    <span class="row-label">Name</span>
                     <input
                         class="ios-input row-value-input"
                         type="text"
                         list="tournamentNames"
                         v-model="tournamentNameRule"
                         @change="onTournamentChange"
-                        placeholder="e.g. Friday session"
+                        :placeholder="$t('tournament_name_placeholder')"
                         required
                     />
                     <datalist id="tournamentNames">
@@ -28,7 +27,7 @@
             </div>
 
             <!-- ── Game mode ───────────────────────── -->
-            <p class="ios-section-header">Game format</p>
+            <p class="ios-section-header">{{ $t('game_format') }}</p>
             <div class="ios-section">
                 <div class="ios-row justify-center">
                     <div class="seg-control mode-seg">
@@ -45,7 +44,7 @@
                     </div>
                 </div>
                 <div class="ios-row" v-if="modeRule === 'Americano'">
-                    <span class="row-label">Shuffle draw</span>
+                    <span class="row-label">{{ $t('shuffle_draw') }}</span>
                     <div class="row-value">
                         <label class="ios-toggle">
                             <input type="checkbox" v-model="randomScheduleRule" :disabled="getIsGamePrepared" />
@@ -53,13 +52,28 @@
                         </label>
                     </div>
                 </div>
+                <!-- Mexicano seeding mode -->
+                <div class="ios-row justify-center" v-if="modeRule === 'Mexicano'">
+                    <div class="seg-control mode-seg">
+                        <button
+                            type="button"
+                            :class="{ 'seg-active': seedingModeRule === 'exact' }"
+                            @click="seedingModeRule = 'exact'"
+                        >{{ $t('seeding_exact') }}</button>
+                        <button
+                            type="button"
+                            :class="{ 'seg-active': seedingModeRule === 'category' }"
+                            @click="seedingModeRule = 'category'"
+                        >{{ $t('seeding_category') }}</button>
+                    </div>
+                </div>
             </div>
 
             <!-- ── Rules ──────────────────────────── -->
-            <p class="ios-section-header">Rules</p>
+            <p class="ios-section-header">{{ $t('rules') }}</p>
             <div class="ios-section">
                 <div class="ios-row">
-                    <span class="row-label">Max points / round</span>
+                    <span class="row-label">{{ $t('max_points_round') }}</span>
                     <input
                         type="number"
                         class="ios-input row-value-input text-right"
@@ -70,7 +84,7 @@
                     />
                 </div>
                 <div class="ios-row">
-                    <span class="row-label">Number of players</span>
+                    <span class="row-label">{{ $t('number_of_players') }}</span>
                     <select
                         class="ios-select"
                         v-model.number="amountOfPlayersRule"
@@ -84,11 +98,11 @@
                 <div class="ios-row court-names-row" v-if="numberOfCourts > 0">
                     <div class="court-names-grid">
                         <div v-for="index in numberOfCourts" :key="index" class="court-name-item">
-                            <span class="court-name-label">Court {{ index }}</span>
+                            <span class="court-name-label">{{ $t('court_label', { n: index }) }}</span>
                             <input
                                 type="text"
                                 class="ios-input court-name-input"
-                                :placeholder="`Court ${index}`"
+                                :placeholder="$t('court_label', { n: index })"
                                 :value="courtNamesRule[index - 1]"
                                 @input="updateCourtName(index - 1, $event.target.value)"
                             />
@@ -96,7 +110,7 @@
                     </div>
                 </div>
                 <div class="ios-row" v-if="amountOfPlayersRule === 16">
-                    <span class="row-label">Colour code groups</span>
+                    <span class="row-label">{{ $t('colour_code_groups') }}</span>
                     <div class="row-value">
                         <label class="ios-toggle">
                             <input type="checkbox" v-model="colorCodeRule" />
@@ -108,10 +122,10 @@
 
             <!-- ── Players ─────────────────────────── -->
             <div class="players-header-row">
-                <p class="ios-section-header" style="margin:0">Players</p>
+                <p class="ios-section-header" style="margin:0">{{ $t('players') }}</p>
                 <div class="player-quick-btns">
-                    <button type="button" class="btn-pdl-ghost" @click="fillFunnyNames">Autofill</button>
-                    <button type="button" class="btn-pdl-ghost" @click="fillDemoNinePlayers">Demo</button>
+                    <button type="button" class="btn-pdl-ghost" @click="fillFunnyNames">{{ $t('autofill') }}</button>
+                    <button type="button" class="btn-pdl-ghost" @click="fillDemoNinePlayers">{{ $t('demo') }}</button>
                 </div>
             </div>
             <div
@@ -127,20 +141,20 @@
                         'is-second': getColorCodeGroup(player) === 2,
                         'drag-over': dragOverIndex === index,
                     }"
-                    :draggable="isMexicano"
+                    :draggable="isMexicano && seedingModeRule === 'exact'"
                     @dragstart="onDragStart(index)"
                     @dragover.prevent="onDragOver(index)"
                     @drop="onDrop(index)"
                     @dragend="onDragEnd"
                 >
-                    <!-- Seed number (Mexicano only) -->
-                    <span v-if="isMexicano" class="seed-badge">{{ index + 1 }}</span>
+                    <!-- Seed number (Mexicano exact mode only) -->
+                    <span v-if="isMexicano && seedingModeRule === 'exact'" class="seed-badge">{{ index + 1 }}</span>
 
                     <!-- Name input -->
                     <input
                         type="text"
                         class="ios-input player-name"
-                        :placeholder="'Player ' + (index + 1)"
+                        :placeholder="$t('player_n', { n: index + 1 })"
                         v-model="player.name"
                         @keyup="handlePlayerNameChange"
                         :class="{ 'name-invalid': isDuplicateName(player.id) }"
@@ -163,16 +177,28 @@
                             title="Prefers right side">R</button>
                     </div>
 
-                    <!-- Drag handle (Mexicano only) -->
-                    <span v-if="isMexicano" class="drag-handle">⠿</span>
+                    <!-- Category pills (Mexicano + category mode) -->
+                    <div v-if="isMexicano && seedingModeRule === 'category'" class="cat-seg">
+                        <button
+                            v-for="(_, ci) in numCategories"
+                            :key="ci"
+                            type="button"
+                            class="cat-btn"
+                            :class="{ 'cat-btn--active': (player.seedCategory ?? 0) === ci }"
+                            @click="setCategoryForPlayer(player, ci)"
+                        >{{ categoryLabel(ci) }}</button>
+                    </div>
+
+                    <!-- Drag handle (Mexicano exact mode only) -->
+                    <span v-if="isMexicano && seedingModeRule === 'exact'" class="drag-handle">⠿</span>
                 </div>
             </div>
-            <p v-if="duplicateNameIds.length > 0" class="error-text">Some names are duplicated</p>
-            <p v-if="maxScoreInvalid" class="error-text">Max points must be a number greater than 0</p>
+            <p v-if="duplicateNameIds.length > 0" class="error-text">{{ $t('duplicate_names_error') }}</p>
+            <p v-if="maxScoreInvalid" class="error-text">{{ $t('max_score_error') }}</p>
 
             <!-- ── Actions ──────────────────────────── -->
             <div class="action-row">
-                <button type="button" @click="reset" class="btn-pdl-secondary">Reset</button>
+                <button type="button" @click="reset" class="btn-pdl-secondary">{{ $t('reset') }}</button>
                 <button type="submit" class="btn-pdl">
                     {{ getAddPlayerText }} →
                 </button>
@@ -184,8 +210,9 @@
 
 <script lang="ts">
 import { PadelPlayer, PreferredSide } from "@/models/padelPlayer.interface";
-import { PadelRules } from "@/models/padelRules.interface";
+import { PadelRules, SeedingMode } from "@/models/padelRules.interface";
 import { getColorCodeGroupFromPlayer } from "@/services/americanoService";
+import { numCategoriesForPlayers } from "@/services/mexicanoService";
 import { getDuplicateIds, isValidMaxScore } from "@/services/htmlHelperService";
 import store from "@/store/index";
 import { defineComponent } from "vue";
@@ -216,8 +243,8 @@ export default defineComponent({
         },
         getAddPlayerText() {
             return store.getters.americanoStore.getIsGamePrepared
-                ? "Go to matches"
-                : "Start tournament";
+                ? this.$t("go_to_matches")
+                : this.$t("start_tournament");
         },
         modeRule: {
             get() { return store.getters.americanoStore.getRules.mode; },
@@ -255,6 +282,19 @@ export default defineComponent({
                     colorCode: value,
                 });
             },
+        },
+        seedingModeRule: {
+            get(): SeedingMode { return store.getters.americanoStore.getRules.seedingMode ?? "exact"; },
+            set(value: SeedingMode) {
+                store.commit.americanoStore.SET_RULES({
+                    ...store.getters.americanoStore.getRules,
+                    seedingMode: value,
+                });
+            },
+        },
+        numCategories(): number[] {
+            const n = numCategoriesForPlayers(this.amountOfPlayersRule);
+            return Array.from({ length: n }, (_, i) => i);
         },
         courtNamesRule: {
             get() { return store.getters.americanoStore.getRules.courtNames; },
@@ -317,7 +357,7 @@ export default defineComponent({
             let players = [...current];
             if (target > current.length) {
                 for (let i = current.length; i < target; i++) {
-                    players.push({ name: "", score: 0, id: i + 1, preferredSide: "Both", seed: i + 1 });
+                    players.push({ name: "", score: 0, id: i + 1, preferredSide: "Both", seed: i + 1, seedCategory: 0 });
                 }
             } else {
                 players = players.slice(0, target);
@@ -355,7 +395,18 @@ export default defineComponent({
                 store.getters.americanoStore.getGames
             );
         },
-        /* ── Drag to reorder (Mexicano seeding) ── */
+        /* ── Category seeding ── */
+        categoryLabel(catIndex: number): string {
+            const n = numCategoriesForPlayers(this.amountOfPlayersRule);
+            return this.$t(`cat_${catIndex}_of_${n}`);
+        },
+        setCategoryForPlayer(player: PadelPlayer, catIndex: number) {
+            const updated = [...this.getPlayers];
+            const idx = updated.findIndex(p => p.id === player.id);
+            if (idx !== -1) updated[idx] = { ...updated[idx], seedCategory: catIndex };
+            store.commit.americanoStore.UPDATE_PLAYERS(updated);
+        },
+        /* ── Drag to reorder (Mexicano exact seeding) ── */
         onDragStart(index: number) {
             this.$data.dragIndex = index;
         },
@@ -400,7 +451,7 @@ export default defineComponent({
             ];
             const players: PadelPlayer[] = demo.map((p, i) => ({
                 name: p.name, score: 0, id: i + 1,
-                preferredSide: p.side as PreferredSide, seed: i + 1,
+                preferredSide: p.side as PreferredSide, seed: i + 1, seedCategory: 0,
             }));
             store.commit.americanoStore.UPDATE_PLAYERS(players);
             store.commit.americanoStore.SET_RULES({
@@ -470,6 +521,30 @@ export default defineComponent({
 /* Side segmented control */
 .side-seg { flex-shrink: 0; }
 .side-seg button { padding: 4px 8px; font-size: 0.78rem; font-weight: 700; min-width: 26px; }
+
+/* Category pills */
+.cat-seg {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.cat-btn {
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 20px;
+    border: 1.5px solid var(--separator);
+    background: var(--bg);
+    color: var(--label-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.cat-btn--active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
 
 /* iOS Toggle switch */
 .ios-toggle { position: relative; display: inline-block; cursor: pointer; }

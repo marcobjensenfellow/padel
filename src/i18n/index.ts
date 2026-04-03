@@ -1,0 +1,189 @@
+import { reactive } from "vue";
+
+export type Locale = "en" | "da";
+const STORAGE_KEY = "padel_locale";
+
+function detectLocale(): Locale {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === "en" || saved === "da") return saved as Locale;
+        const lang = (navigator.language || "").toLowerCase();
+        return lang.startsWith("da") ? "da" : "en";
+    } catch {
+        return "en";
+    }
+}
+
+export const i18nState = reactive({ locale: detectLocale() });
+
+export function setLocale(lang: Locale): void {
+    i18nState.locale = lang;
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* ignore */ }
+}
+
+type Messages = Record<string, string>;
+const messages: Record<Locale, Messages> = {
+    en: {
+        // Nav
+        app_title: "Padel",
+        // AddPlayers
+        new_tournament: "New tournament",
+        set_up_game: "Set up your game",
+        tournament: "TOURNAMENT",
+        tournament_name_placeholder: "e.g. Friday session",
+        game_format: "GAME FORMAT",
+        shuffle_draw: "Shuffle draw",
+        rules: "RULES",
+        max_points_round: "Max points / round",
+        number_of_players: "Number of players",
+        colour_code_groups: "Colour code groups",
+        court_label: "Court {n}",
+        players: "PLAYERS",
+        autofill: "Autofill",
+        demo: "Demo",
+        player_n: "Player {n}",
+        duplicate_names_error: "Some names are duplicated",
+        max_score_error: "Max points must be a number greater than 0",
+        reset: "Reset",
+        go_to_matches: "Go to matches",
+        start_tournament: "Start tournament",
+        // ShowGames
+        round_n: "Round {n}",
+        matches_scored: "{done}/{total} matches scored",
+        sitting_out: "Sitting out",
+        nav_setup: "← Setup",
+        end_tournament: "End tournament",
+        see_results: "See results →",
+        score_all_first: "Score all matches first",
+        // ShowGames confirm
+        end_confirm_title: "End tournament?",
+        end_confirm_body: "All progress will be lost.",
+        end_confirm_yes: "Yes, end it",
+        end_confirm_cancel: "Cancel",
+        // ShowScore
+        standings: "Standings",
+        round_of: "Round {current} of {total}",
+        final_standings: "Final standings",
+        current_standings: "Current standings",
+        group_a: "Group A",
+        group_b: "Group B",
+        show_combined: "Show combined",
+        show_by_group: "Show by group",
+        next_round: "Next round →",
+        back_to_matches: "← Back to matches",
+        end_early: "End tournament",
+        end_early_title: "End tournament early?",
+        round_remaining: "{n} round remaining. Current standings will be the final result.",
+        rounds_remaining: "{n} rounds remaining. Current standings will be the final result.",
+        yes_end: "Yes, end here",
+        keep_playing: "Keep playing",
+        // ScorePicker
+        points_for: "POINTS FOR",
+        gets_the_rest: "gets the rest",
+        // Seeding
+        seeding: "SEEDING",
+        seeding_exact: "Exact",
+        seeding_category: "Category",
+        cat_0_of_2: "Top",
+        cat_1_of_2: "Bottom",
+        cat_0_of_3: "Top",
+        cat_1_of_3: "Middle",
+        cat_2_of_3: "Bottom",
+        cat_0_of_4: "Top",
+        cat_1_of_4: "Upper",
+        cat_2_of_4: "Lower",
+        cat_3_of_4: "Bottom",
+        cat_0_of_5: "Top",
+        cat_1_of_5: "Upper",
+        cat_2_of_5: "Middle",
+        cat_3_of_5: "Lower",
+        cat_4_of_5: "Bottom",
+    },
+    da: {
+        // Nav
+        app_title: "Padel",
+        // AddPlayers
+        new_tournament: "Ny turnering",
+        set_up_game: "Opsæt dit spil",
+        tournament: "TURNERING",
+        tournament_name_placeholder: "f.eks. Fredagssession",
+        game_format: "SPILFORMAT",
+        shuffle_draw: "Tilfældig lodtrækning",
+        rules: "REGLER",
+        max_points_round: "Maks point / runde",
+        number_of_players: "Antal spillere",
+        colour_code_groups: "Farvekode grupper",
+        court_label: "Bane {n}",
+        players: "SPILLERE",
+        autofill: "Autoudfyld",
+        demo: "Demo",
+        player_n: "Spiller {n}",
+        duplicate_names_error: "Nogle navne er duplikerede",
+        max_score_error: "Maks point skal være et tal større end 0",
+        reset: "Nulstil",
+        go_to_matches: "Gå til kampe",
+        start_tournament: "Start turnering",
+        // ShowGames
+        round_n: "Runde {n}",
+        matches_scored: "{done}/{total} kampe scoret",
+        sitting_out: "Sidder ude",
+        nav_setup: "← Opsætning",
+        end_tournament: "Afslut turnering",
+        see_results: "Se resultater →",
+        score_all_first: "Score alle kampe først",
+        // ShowGames confirm
+        end_confirm_title: "Afslut turnering?",
+        end_confirm_body: "Al fremskridt vil gå tabt.",
+        end_confirm_yes: "Ja, afslut",
+        end_confirm_cancel: "Annuller",
+        // ShowScore
+        standings: "Stilling",
+        round_of: "Runde {current} af {total}",
+        final_standings: "Slutstilling",
+        current_standings: "Aktuel stilling",
+        group_a: "Gruppe A",
+        group_b: "Gruppe B",
+        show_combined: "Vis samlet",
+        show_by_group: "Vis pr. gruppe",
+        next_round: "Næste runde →",
+        back_to_matches: "← Tilbage til kampe",
+        end_early: "Afslut turnering",
+        end_early_title: "Afslutte turneringen tidligt?",
+        round_remaining: "{n} runde tilbage. Aktuel stilling vil være slutresultatet.",
+        rounds_remaining: "{n} runder tilbage. Aktuel stilling vil være slutresultatet.",
+        yes_end: "Ja, afslut her",
+        keep_playing: "Fortsæt spillet",
+        // ScorePicker
+        points_for: "POINT TIL",
+        gets_the_rest: "får resten",
+        // Seeding
+        seeding: "SEEDING",
+        seeding_exact: "Eksakt",
+        seeding_category: "Kategori",
+        cat_0_of_2: "Top",
+        cat_1_of_2: "Bund",
+        cat_0_of_3: "Top",
+        cat_1_of_3: "Midt",
+        cat_2_of_3: "Bund",
+        cat_0_of_4: "Top",
+        cat_1_of_4: "Øvre",
+        cat_2_of_4: "Nedre",
+        cat_3_of_4: "Bund",
+        cat_0_of_5: "Top",
+        cat_1_of_5: "Øvre",
+        cat_2_of_5: "Midt",
+        cat_3_of_5: "Nedre",
+        cat_4_of_5: "Bund",
+    },
+};
+
+export function t(key: string, params?: Record<string, string | number>): string {
+    const locale = i18nState.locale;
+    let str = messages[locale][key] ?? messages["en"][key] ?? key;
+    if (params) {
+        for (const [k, v] of Object.entries(params)) {
+            str = str.replace(`{${k}}`, String(v));
+        }
+    }
+    return str;
+}

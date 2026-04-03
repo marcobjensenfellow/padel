@@ -6,4 +6,6 @@ export interface PadelPlayer {
     id: number;
     preferredSide: PreferredSide;
     seed: number;
+    /** Category tier for category-based seeding (0=top, 1=second, ...) */
+    seedCategory: number;
 }

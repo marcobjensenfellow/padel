@@ -3,12 +3,12 @@
 
         <!-- Header -->
         <div class="score-header">
-            <h1>Standings</h1>
+            <h1>{{ $t('standings') }}</h1>
             <p class="score-subtitle" v-if="isMexicano">
-                Round {{ currentRound }} of {{ totalRoundsCount }}
+                {{ $t('round_of', { current: currentRound, total: totalRoundsCount }) }}
             </p>
             <p class="score-subtitle" v-else>
-                {{ isFullyComplete ? 'Final standings' : 'Current standings' }}
+                {{ isFullyComplete ? $t('final_standings') : $t('current_standings') }}
             </p>
         </div>
 
@@ -40,7 +40,7 @@
         <!-- Two-group tables (16 players) -->
         <div v-if="showTwoTables" class="two-tables">
             <div>
-                <p class="ios-section-header">Group A</p>
+                <p class="ios-section-header">{{ $t('group_a') }}</p>
                 <div class="ios-section standings-table">
                     <div
                         v-for="(player, index) in getFirstGroup()"
@@ -58,7 +58,7 @@
                 </div>
             </div>
             <div>
-                <p class="ios-section-header">Group B</p>
+                <p class="ios-section-header">{{ $t('group_b') }}</p>
                 <div class="ios-section standings-table">
                     <div
                         v-for="(player, index) in getSecondGroup()"
@@ -80,7 +80,7 @@
         <!-- Change grouping toggle -->
         <div class="grouping-toggle" v-if="hasTwoGroups">
             <button class="btn-pdl-ghost" @click="showTwoTables = !showTwoTables">
-                {{ showTwoTables ? 'Show combined' : 'Show by group' }}
+                {{ showTwoTables ? $t('show_combined') : $t('show_by_group') }}
             </button>
         </div>
 
@@ -92,27 +92,27 @@
                 @click="nextRound"
                 class="btn-pdl btn-primary-full"
             >
-                Next round →
+                {{ $t('next_round') }}
             </button>
             <button
                 v-else
                 @click="newGame"
                 class="btn-pdl btn-primary-full"
             >
-                New tournament
+                {{ $t('new_tournament') }}
             </button>
 
             <!-- Secondary: back to matches / mid-tournament end -->
             <div class="score-actions-secondary">
                 <button @click="goBack" class="btn-pdl-ghost">
-                    ← Back to matches
+                    {{ $t('back_to_matches') }}
                 </button>
                 <button
                     v-if="hasMoreRounds"
                     @click="confirmEnd = true"
                     class="btn-pdl-ghost btn-danger-ghost"
                 >
-                    End tournament
+                    {{ $t('end_early') }}
                 </button>
             </div>
         </div>
@@ -121,13 +121,12 @@
         <div v-if="confirmEnd" class="confirm-overlay" @click.self="confirmEnd = false">
             <div class="confirm-sheet">
                 <p class="confirm-icon">⚠️</p>
-                <h3>End tournament early?</h3>
+                <h3>{{ $t('end_early_title') }}</h3>
                 <p class="confirm-body">
-                    {{ roundsRemaining }} round{{ roundsRemaining > 1 ? 's' : '' }} remaining.
-                    Current standings will be the final result.
+                    {{ $t(roundsRemaining === 1 ? 'round_remaining' : 'rounds_remaining', { n: roundsRemaining }) }}
                 </p>
-                <button class="btn-pdl btn-destructive" @click="endEarly">Yes, end here</button>
-                <button class="btn-pdl-ghost" @click="confirmEnd = false">Keep playing</button>
+                <button class="btn-pdl btn-destructive" @click="endEarly">{{ $t('yes_end') }}</button>
+                <button class="btn-pdl-ghost" @click="confirmEnd = false">{{ $t('keep_playing') }}</button>
             </div>
         </div>
 
