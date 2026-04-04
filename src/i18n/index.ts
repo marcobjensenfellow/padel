@@ -117,6 +117,8 @@ const messages: Record<Locale, Messages> = {
         history_winner: "Winner",
         history_copy: "Copy with seeding",
         history_copy_confirm: "Start a new tournament with these players seeded from their final ranking?",
+        history_resume_btn: "Continue tournament",
+        history_not_current: "This tournament is no longer the active game.",
         // Seeding (also declared inline above near seeding_random)
         seeding_exact: "Exact",
         seeding_category: "Category",
@@ -229,6 +231,8 @@ const messages: Record<Locale, Messages> = {
         history_winner: "Vinder",
         history_copy: "Kopier med seeding",
         history_copy_confirm: "Start en ny turnering med disse spillere seedet ud fra deres slutplacering?",
+        history_resume_btn: "Fortsæt turnering",
+        history_not_current: "Denne turnering er ikke det aktuelle spil.",
         // Seeding
         seeding_exact: "Eksakt",
         seeding_category: "Kategori",

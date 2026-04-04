@@ -19,7 +19,6 @@
         <section class="format-section">
             <p class="format-label">{{ $t('home_pick_format') }}</p>
             <div class="format-cards">
-                <!-- Americano -->
                 <button
                     type="button"
                     class="format-card"
@@ -30,7 +29,6 @@
                     <span class="format-card-name">Americano</span>
                     <span class="format-card-desc">{{ $t('home_americano_desc') }}</span>
                 </button>
-                <!-- Mexicano -->
                 <button
                     type="button"
                     class="format-card"
@@ -42,8 +40,6 @@
                     <span class="format-card-desc">{{ $t('home_mexicano_desc') }}</span>
                 </button>
             </div>
-
-            <!-- Continue saved game link -->
             <p v-if="hasSavedGame" class="format-continue-hint">
                 {{ $t('home_or_continue') }}
                 <router-link to="/spil" class="format-continue-link">
@@ -52,7 +48,7 @@
             </p>
         </section>
 
-        <!-- Features — the 4 real USPs -->
+        <!-- Features -->
         <section class="features">
             <div class="feat-card">
                 <span class="feat-icon">🌱</span>
@@ -92,13 +88,16 @@
                     v-for="entry in history"
                     :key="entry.id"
                     class="history-row"
+                    :class="{ 'history-row--open': openedId === entry.id }"
                 >
-                    <div class="history-main">
+                    <!-- Row header — clickable to expand/collapse -->
+                    <div class="history-main" @click="toggleOpen(entry)">
                         <div class="history-name-row">
                             <span class="history-name">{{ entry.name }}</span>
                             <span class="history-badge" :class="entry.completed ? 'badge--done' : 'badge--live'">
                                 {{ entry.completed ? $t('history_completed') : $t('history_ongoing') }}
                             </span>
+                            <span class="history-chevron" :class="{ 'chevron--open': openedId === entry.id }">›</span>
                         </div>
                         <div class="history-meta">
                             <span class="history-format">{{ entry.format }}</span>
@@ -109,37 +108,55 @@
                             <span class="history-dot">·</span>
                             <span class="history-date">{{ formatDate(entry.savedAt) }}</span>
                         </div>
-                        <div v-if="entry.top3.length > 0" class="history-podium">
-                            <span
-                                v-for="(p, i) in entry.top3"
-                                :key="i"
-                                class="podium-chip"
-                            >
-                                {{ podiumIcon(i) }} {{ p.name }}
-                                <span class="podium-score">{{ p.score }}</span>
-                            </span>
-                        </div>
                     </div>
 
-                    <!-- Copy with seeding -->
-                    <div v-if="entry.players && entry.players.length > 0" class="history-actions">
-                        <button
-                            v-if="copyingId !== entry.id"
-                            type="button"
-                            class="btn-copy"
-                            @click="copyingId = entry.id"
-                        >
-                            🔁 {{ $t('history_copy') }}
-                        </button>
-                        <div v-else class="copy-confirm">
-                            <p class="copy-confirm-text">{{ $t('history_copy_confirm') }}</p>
-                            <div class="copy-confirm-btns">
-                                <button type="button" class="btn-pdl btn-confirm-yes" @click="doCopy(entry)">
-                                    {{ $t('home_cta') }} →
-                                </button>
-                                <button type="button" class="btn-pdl-ghost" @click="copyingId = null">
-                                    {{ $t('end_confirm_cancel') }}
-                                </button>
+                    <!-- Expanded panel -->
+                    <div v-if="openedId === entry.id" class="history-expanded">
+
+                        <!-- Continue button for the active ongoing game -->
+                        <div v-if="!entry.completed && isCurrentGame(entry)" class="history-resume">
+                            <button type="button" class="btn-pdl btn-resume" @click="resumeGame">
+                                {{ $t('history_resume_btn') }} →
+                            </button>
+                        </div>
+                        <div v-else-if="!entry.completed && !isCurrentGame(entry)" class="history-resume-note">
+                            {{ $t('history_not_current') }}
+                        </div>
+
+                        <!-- Full results table -->
+                        <div v-if="entry.players && entry.players.length > 0" class="results-table">
+                            <div
+                                v-for="(p, i) in entry.players"
+                                :key="i"
+                                class="result-row"
+                                :class="{ 'result-row--top': i < 3 }"
+                            >
+                                <span class="result-pos">{{ rankLabel(i) }}</span>
+                                <span class="result-name">{{ p.name }}</span>
+                                <span class="result-score">{{ p.score }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Copy with seeding -->
+                        <div v-if="entry.players && entry.players.length > 0" class="history-actions">
+                            <button
+                                v-if="copyingId !== entry.id"
+                                type="button"
+                                class="btn-copy"
+                                @click.stop="copyingId = entry.id"
+                            >
+                                🔁 {{ $t('history_copy') }}
+                            </button>
+                            <div v-else class="copy-confirm">
+                                <p class="copy-confirm-text">{{ $t('history_copy_confirm') }}</p>
+                                <div class="copy-confirm-btns">
+                                    <button type="button" class="btn-pdl btn-confirm-yes" @click="doCopy(entry)">
+                                        {{ $t('home_cta') }} →
+                                    </button>
+                                    <button type="button" class="btn-pdl-ghost" @click.stop="copyingId = null">
+                                        {{ $t('end_confirm_cancel') }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -152,7 +169,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import router from "@/router/index";
 import store from "@/store/index";
 import { getHistory, TournamentSummary } from "@/services/tournamentHistoryService";
 import type { GameMode } from "@/models/padelRules.interface";
@@ -163,24 +180,36 @@ export default defineComponent({
         return {
             history: [] as TournamentSummary[],
             copyingId: null as string | null,
+            openedId: null as string | null,
             selectedFormat: null as GameMode | null,
         };
     },
     mounted() {
         this.history = getHistory();
-        // Pre-select whatever format is already in the store
         this.selectedFormat = store.getters.americanoStore.getRules.mode as GameMode;
     },
     computed: {
         hasSavedGame(): boolean {
             return store.getters.americanoStore.getIsGamePrepared;
         },
+        currentTournamentId(): string {
+            return store.getters.americanoStore.getTournamentId;
+        },
     },
     methods: {
         pickFormat(mode: GameMode) {
             this.selectedFormat = mode;
             store.commit.americanoStore.SET_MODE(mode);
-            const router = useRouter();
+            router.push("/spil");
+        },
+        toggleOpen(entry: TournamentSummary) {
+            this.openedId = this.openedId === entry.id ? null : entry.id;
+            this.copyingId = null;
+        },
+        isCurrentGame(entry: TournamentSummary): boolean {
+            return entry.id === this.currentTournamentId;
+        },
+        resumeGame() {
             router.push("/spil");
         },
         formatDate(iso: string): string {
@@ -196,9 +225,12 @@ export default defineComponent({
         podiumIcon(index: number): string {
             return ["🥇", "🥈", "🥉"][index] ?? "";
         },
+        rankLabel(index: number): string {
+            const icons = ["🥇", "🥈", "🥉"];
+            return index < icons.length ? (icons[index] ?? "") : String(index + 1);
+        },
         async doCopy(entry: TournamentSummary) {
             await store.dispatch.americanoStore.copyFromHistory(entry);
-            const router = useRouter();
             router.push("/spil");
         },
     },
@@ -225,7 +257,6 @@ export default defineComponent({
     justify-content: center;
     text-align: center;
 }
-
 .hero-court { position: absolute; inset: 0; pointer-events: none; }
 .court-line { position: absolute; background: rgba(255,255,255,0.1); }
 .court-line--v { width: 2px; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); }
@@ -233,22 +264,17 @@ export default defineComponent({
 .court-service {
     position: absolute; left: 50%; top: 50%;
     transform: translate(-50%,-50%);
-    width: 52px; height: 52px;
-    border-radius: 50%;
+    width: 52px; height: 52px; border-radius: 50%;
     border: 2px solid rgba(255,255,255,0.14);
 }
-
 .hero-content { position: relative; z-index: 1; padding: 2rem 1.5rem; }
-
 .hero-mode-badge {
     display: inline-block;
-    background: rgba(255,255,255,0.18);
-    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9);
     font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
     text-transform: uppercase; border-radius: 999px;
     padding: 0.3rem 0.8rem; margin: 0 0 0.75rem;
 }
-
 .hero-title {
     font-size: 3rem; font-weight: 800; letter-spacing: -0.04em;
     color: #fff; margin: 0 0 0.55rem; line-height: 1;
@@ -259,89 +285,36 @@ export default defineComponent({
 }
 
 /* ─── Format picker ─── */
-.format-section {
-    margin-bottom: 1.75rem;
-}
-
+.format-section { margin-bottom: 1.75rem; }
 .format-label {
     font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--label-secondary);
     margin: 0 0 0.65rem 0.1rem;
 }
-
-.format-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.65rem;
-}
-
+.format-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
 .format-card {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    background: var(--surface);
-    border: 2px solid transparent;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 1rem 1rem 1rem;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: left;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem;
+    background: var(--surface); border: 2px solid transparent;
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+    padding: 1rem; cursor: pointer; font-family: inherit; text-align: left;
     transition: border-color 0.14s, box-shadow 0.14s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
 }
-
-.format-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 12px rgba(0,122,255,0.12);
-}
-
-.format-card:active {
-    transform: scale(0.97);
-}
-
+.format-card:hover { border-color: var(--primary-color); box-shadow: 0 2px 12px rgba(0,122,255,0.12); }
+.format-card:active { transform: scale(0.97); }
 .format-card--active {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(0,122,255,0.14), var(--shadow-sm);
 }
-
-.format-card-icon {
-    font-size: 1.6rem;
-    line-height: 1;
-    margin-bottom: 0.2rem;
-}
-
-.format-card-name {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--label-primary);
-    line-height: 1.1;
-}
-
-.format-card-desc {
-    font-size: 0.76rem;
-    color: var(--label-secondary);
-    line-height: 1.35;
-}
-
-.format-continue-hint {
-    margin-top: 0.85rem;
-    font-size: 0.82rem;
-    color: var(--label-secondary);
-    text-align: center;
-}
-
-.format-continue-link {
-    color: var(--primary-color);
-    font-weight: 600;
-    text-decoration: none;
-}
+.format-card-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.2rem; }
+.format-card-name { font-size: 1rem; font-weight: 700; color: var(--label-primary); line-height: 1.1; }
+.format-card-desc { font-size: 0.76rem; color: var(--label-secondary); line-height: 1.35; }
+.format-continue-hint { margin-top: 0.85rem; font-size: 0.82rem; color: var(--label-secondary); text-align: center; }
+.format-continue-link { color: var(--primary-color); font-weight: 600; text-decoration: none; }
 .format-continue-link:hover { text-decoration: underline; }
 
 /* ─── Features ─── */
 .features { display: flex; flex-direction: column; gap: 0.6rem; }
-
 .feat-card {
     background: var(--surface); border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm); padding: 0.95rem 1.1rem;
@@ -350,7 +323,6 @@ export default defineComponent({
 .feat-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
 .feat-card h3 { font-size: 0.92rem; font-weight: 700; margin: 0 0 0.18rem; }
 .feat-card p  { font-size: 0.82rem; color: var(--label-secondary); margin: 0; line-height: 1.4; }
-
 @media (min-width: 540px) {
     .features { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 }
@@ -360,10 +332,19 @@ export default defineComponent({
 .history-list { padding: 0; }
 
 .history-row {
-    padding: 0.9rem 1rem;
     border-bottom: 1px solid var(--separator-opaque);
 }
 .history-row:last-child { border-bottom: none; }
+
+.history-main {
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s;
+}
+.history-main:hover { background: var(--bg); }
+.history-main:active { background: var(--separator-opaque); }
 
 .history-name-row {
     display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;
@@ -372,7 +353,6 @@ export default defineComponent({
     font-weight: 700; font-size: 0.95rem; flex: 1;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-
 .history-badge {
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
     border-radius: 999px; padding: 0.18rem 0.55rem; flex-shrink: 0;
@@ -380,26 +360,68 @@ export default defineComponent({
 .badge--done { background: rgba(52,199,89,0.12); color: var(--secondary-color); }
 .badge--live { background: rgba(0,122,255,0.1);   color: var(--primary-color); }
 
+.history-chevron {
+    font-size: 1.1rem; color: var(--label-secondary); flex-shrink: 0;
+    transition: transform 0.2s; display: inline-block; line-height: 1;
+}
+.chevron--open { transform: rotate(90deg); }
+
 .history-meta {
     display: flex; flex-wrap: wrap; gap: 0.2rem;
     font-size: 0.78rem; color: var(--label-secondary);
-    margin-bottom: 0.45rem; align-items: center;
+    align-items: center;
 }
 .history-dot   { color: var(--separator-opaque); }
 .history-format { font-weight: 600; }
 
-.history-podium { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-
-.podium-chip {
-    display: inline-flex; align-items: center; gap: 0.22rem;
-    font-size: 0.78rem; font-weight: 600;
-    background: var(--bg); border-radius: 999px; padding: 0.18rem 0.55rem;
+/* ─── Expanded panel ─── */
+.history-expanded {
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--separator-opaque);
+    background: var(--bg);
 }
-.podium-score { font-weight: 800; font-size: 0.72rem; color: var(--label-secondary); }
+
+.history-resume { padding-top: 0.85rem; }
+.btn-resume {
+    width: 100%; padding: 0.75rem; font-size: 0.95rem;
+    border-radius: var(--radius-lg);
+}
+
+.history-resume-note {
+    padding-top: 0.85rem;
+    font-size: 0.82rem; color: var(--label-secondary);
+    font-style: italic;
+}
+
+.results-table {
+    margin-top: 0.85rem;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.result-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid var(--separator-opaque);
+    font-size: 0.85rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row--top { font-weight: 700; }
+
+.result-pos {
+    min-width: 1.6rem; text-align: center;
+    font-size: 0.8rem; color: var(--label-secondary);
+    font-weight: 600; flex-shrink: 0;
+}
+.result-name { flex: 1; }
+.result-score {
+    font-weight: 700; font-size: 0.88rem;
+    color: var(--primary-color);
+}
 
 /* ─── Copy button ─── */
-.history-actions { margin-top: 0.7rem; }
-
+.history-actions { margin-top: 0.75rem; }
 .btn-copy {
     background: none; border: 1.5px solid var(--primary-color);
     color: var(--primary-color); border-radius: var(--radius-lg);
@@ -407,12 +429,8 @@ export default defineComponent({
     cursor: pointer; font-family: inherit; transition: background 0.14s;
 }
 .btn-copy:hover { background: rgba(0,122,255,0.07); }
-
-.copy-confirm { background: var(--bg); border-radius: var(--radius-lg); padding: 0.75rem; }
-.copy-confirm-text {
-    font-size: 0.82rem; color: var(--label-secondary);
-    margin: 0 0 0.6rem; line-height: 1.4;
-}
+.copy-confirm { background: var(--surface); border-radius: var(--radius-lg); padding: 0.75rem; }
+.copy-confirm-text { font-size: 0.82rem; color: var(--label-secondary); margin: 0 0 0.6rem; line-height: 1.4; }
 .copy-confirm-btns { display: flex; gap: 0.5rem; }
 .btn-confirm-yes { flex: 1; padding: 0.6rem; font-size: 0.88rem; border-radius: var(--radius-lg); }
 </style>
