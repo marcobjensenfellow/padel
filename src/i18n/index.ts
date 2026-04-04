@@ -82,6 +82,22 @@ const messages: Record<Locale, Messages> = {
         // ScorePicker
         points_for: "POINTS FOR",
         gets_the_rest: "gets the rest",
+        // ShowGames secondary CTA
+        see_results_plain: "See results",
+        // Home / landing
+        home_headline: "Padel",
+        home_subheadline: "Americano & Mexicano",
+        home_tagline: "The easiest way to run your padel tournament — no login, no ads.",
+        home_cta: "Start tournament",
+        home_resume: "Continue tournament",
+        home_feat1_title: "Americano & Mexicano",
+        home_feat1_body: "Two formats in one app. Most apps only support Americano.",
+        home_feat2_title: "Smart seeding",
+        home_feat2_body: "Random, exact drag-and-drop, or category tiers. Always balanced matchups.",
+        home_feat3_title: "Preferred sides",
+        home_feat3_body: "Automatically respect each player's preferred left or right side.",
+        home_feat4_title: "Auto-saves",
+        home_feat4_body: "Your tournament is saved locally. Close the app and pick up exactly where you left off.",
         // Seeding (also declared inline above near seeding_random)
         seeding_exact: "Exact",
         seeding_category: "Category",
@@ -159,6 +175,22 @@ const messages: Record<Locale, Messages> = {
         // ScorePicker
         points_for: "POINT TIL",
         gets_the_rest: "får resten",
+        // ShowGames secondary CTA
+        see_results_plain: "Se resultater",
+        // Home / landing
+        home_headline: "Padel",
+        home_subheadline: "Americano & Mexicano",
+        home_tagline: "Den nemmeste måde at afvikle din padel turnering — ingen konto, ingen reklamer.",
+        home_cta: "Start turnering",
+        home_resume: "Fortsæt turnering",
+        home_feat1_title: "Americano & Mexicano",
+        home_feat1_body: "To formater i én app. De fleste apps understøtter kun Americano.",
+        home_feat2_title: "Intelligent seeding",
+        home_feat2_body: "Tilfældig, præcis træk-og-slip eller kategori-trin. Altid jævnbyrdige kampe.",
+        home_feat3_title: "Foretrukne sider",
+        home_feat3_body: "Respektér automatisk hver spillers foretrukne venstre- eller højreside.",
+        home_feat4_title: "Gemmes automatisk",
+        home_feat4_body: "Din turnering gemmes lokalt. Luk appen og fortsæt præcis, hvor du slap.",
         // Seeding
         seeding_exact: "Eksakt",
         seeding_category: "Kategori",

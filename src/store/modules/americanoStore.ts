@@ -284,6 +284,33 @@ export default {
 
             commit("DECREMENT_STEP");
         },
+        // Calculates scores and either jumps to next Mexicano round (staying on
+        // the games screen) or advances to the results screen for the last/only round.
+        advanceRound({ commit, getters }: AmericanoStoreActions) {
+            const updatedPlayers = updatePlayerScores(
+                getters.getPlayers,
+                getters.getGames,
+                getters.getRules.maxScore
+            );
+            commit("UPDATE_PLAYERS", updatedPlayers);
+
+            const isMexicano = getters.getRules.mode === "Mexicano";
+            const currentRound = getters.getRound;
+            const maxRounds = totalRounds(getters.getPlayers.length);
+
+            if (isMexicano && currentRound < maxRounds) {
+                const newRound = currentRound + 1;
+                commit("INCREMENT_ROUND");
+                const withSides = getters.getRules.respectPreferredSides
+                    ? updatedPlayers
+                    : updatedPlayers.map((p: PadelPlayer) => ({ ...p, preferredSide: "Both" as PreferredSide }));
+                const nextGames = prepareMexicanoRound(withSides, newRound);
+                commit("UPDATE_GAMES", nextGames);
+                // Stay on step 2 (games screen) — no step change
+            } else {
+                commit("INCREMENT_STEP");
+            }
+        },
     },
     getters: {
         getGames: (state: AmericanoStoreState) => state.games,

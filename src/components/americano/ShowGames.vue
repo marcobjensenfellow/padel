@@ -3,8 +3,16 @@
 
         <!-- Header -->
         <div class="games-header">
-            <h1>{{ $t('round_n', { n: activeRound }) }}</h1>
-            <p class="games-subtitle">{{ $t('matches_scored', { done: completedCount, total: totalMatchCount }) }}</p>
+            <button type="button" class="btn-header-nav" @click="goBack">
+                ← {{ $t('nav_setup') }}
+            </button>
+            <div class="header-center">
+                <h1>{{ $t('round_n', { n: activeRound }) }}</h1>
+                <p class="games-subtitle">{{ $t('matches_scored', { done: completedCount, total: totalMatchCount }) }}</p>
+            </div>
+            <button type="button" class="btn-header-end" @click="confirmReset = true">
+                {{ $t('end_tournament') }}
+            </button>
         </div>
 
         <!-- Round pills -->
@@ -99,21 +107,21 @@
 
         <!-- Actions -->
         <div class="games-actions">
-            <div class="games-actions-secondary">
-                <button type="button" @click="goBack" class="btn-pdl-ghost">
-                    {{ $t('nav_setup') }}
-                </button>
-                <button type="button" @click="confirmReset = true" class="btn-pdl-ghost btn-danger-ghost">
-                    {{ $t('end_tournament') }}
-                </button>
-            </div>
             <button
                 type="button"
-                @click="onCalculateScore"
+                @click="onPrimaryAction"
                 class="btn-pdl btn-calculate"
                 :disabled="!allRoundScoresSet"
             >
-                {{ allRoundScoresSet ? $t('see_results') : $t('score_all_first') }}
+                {{ allRoundScoresSet ? $t(primaryActionKey) : $t('score_all_first') }}
+            </button>
+            <button
+                v-if="showSeeResults"
+                type="button"
+                @click="onCalculateScore"
+                class="btn-pdl-ghost btn-see-results"
+            >
+                {{ $t('see_results_plain') }}
             </button>
         </div>
 
@@ -191,6 +199,23 @@ export default defineComponent({
         allRoundScoresSet(): boolean {
             return this.totalMatchCount > 0 && this.completedCount === this.totalMatchCount;
         },
+        isMexicano(): boolean {
+            return this.getRules.mode === "Mexicano";
+        },
+        isLastRound(): boolean {
+            const maxRounds = this.getRules.mode === "Mexicano"
+                ? store.getters.americanoStore.getPlayers.length - 1
+                : 1;
+            return store.getters.americanoStore.getRound >= maxRounds;
+        },
+        // Primary button shows "Næste runde" for mid-Mexicano, otherwise "Se resultater"
+        primaryActionKey(): string {
+            return (this.isMexicano && !this.isLastRound) ? "next_round" : "see_results";
+        },
+        // Show "Se resultater" as secondary only when primary is "Næste runde"
+        showSeeResults(): boolean {
+            return this.isMexicano && !this.isLastRound;
+        },
     },
     methods: {
         isRoundComplete(round: number): boolean {
@@ -231,6 +256,13 @@ export default defineComponent({
         onCalculateScore() {
             store.dispatch.americanoStore.updatePlayerScores();
         },
+        onPrimaryAction() {
+            if (this.isMexicano && !this.isLastRound) {
+                store.dispatch.americanoStore.advanceRound();
+            } else {
+                store.dispatch.americanoStore.updatePlayerScores();
+            }
+        },
         goBack() {
             store.dispatch.americanoStore.sortPlayersById();
             store.commit.americanoStore.DECREMENT_STEP();
@@ -251,9 +283,44 @@ export default defineComponent({
 }
 
 /* Header */
-.games-header { margin-bottom: 1rem; }
-.games-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
-.games-subtitle { margin: 0.1rem 0 0; color: var(--label-secondary); font-size: 0.9rem; }
+.games-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.header-center {
+    flex: 1;
+    text-align: center;
+}
+
+.games-header h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+.games-subtitle { margin: 0.1rem 0 0; color: var(--label-secondary); font-size: 0.85rem; }
+
+.btn-header-nav,
+.btn-header-end {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.25rem 0;
+    line-height: 1.3;
+    max-width: 72px;
+    text-align: left;
+    margin-top: 0.25rem;
+}
+
+.btn-header-nav { color: var(--primary-color); }
+
+.btn-header-end {
+    color: var(--destructive-color);
+    text-align: right;
+}
 
 /* Round pills */
 .round-pills {
@@ -430,22 +497,20 @@ export default defineComponent({
 .games-actions {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.6rem;
 }
-
-.games-actions-secondary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-danger-ghost { color: var(--destructive-color) !important; }
 
 .btn-calculate {
     width: 100%;
     padding: 1rem;
     font-size: 1.05rem;
     border-radius: var(--radius-lg);
+}
+
+.btn-see-results {
+    width: 100%;
+    text-align: center;
+    font-size: 0.92rem;
 }
 
 /* Confirm overlay */

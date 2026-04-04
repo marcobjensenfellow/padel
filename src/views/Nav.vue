@@ -1,7 +1,7 @@
 <template>
     <header class="ios-nav">
         <div class="ios-nav-inner">
-            <span class="ios-nav-title">{{ $t('app_title') }}</span>
+            <router-link to="/" class="ios-nav-title">{{ $t('app_title') }}</router-link>
             <button
                 class="lang-btn"
                 @click="toggleLocale"
@@ -53,6 +53,7 @@ export default defineComponent({
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #1C1C1E;
+    text-decoration: none;
 }
 
 .lang-btn {
