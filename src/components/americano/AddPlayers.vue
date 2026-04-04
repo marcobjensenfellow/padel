@@ -67,9 +67,10 @@
                 <div class="ios-row">
                     <span class="row-label">{{ $t('number_of_players') }}</span>
                     <div class="stepper">
-                        <button type="button" class="stepper-btn" @click="stepPlayers(-4)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
+                        <button type="button" class="stepper-btn" @click="stepPlayers(-1)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
                         <span class="stepper-val">{{ amountOfPlayersRule }}</span>
-                        <button type="button" class="stepper-btn" @click="stepPlayers(4)" :disabled="amountOfPlayersRule >= 40 || getIsGamePrepared">+</button>
+                        <button type="button" class="stepper-btn" @click="stepPlayers(1)" :disabled="amountOfPlayersRule >= 40 || getIsGamePrepared">+</button>
+                        <span v-if="sitOutPerRound > 0" class="sit-out-hint">{{ $t('sit_out_hint', { n: sitOutPerRound }) }}</span>
                     </div>
                 </div>
                 <!-- Court names -->
@@ -307,6 +308,9 @@ export default defineComponent({
         numberOfCourts() {
             return Math.floor(this.amountOfPlayersRule / 4);
         },
+        sitOutPerRound(): number {
+            return this.amountOfPlayersRule % 4;
+        },
     },
     methods: {
         onAddPlayers() {
@@ -348,9 +352,7 @@ export default defineComponent({
             });
         },
         stepPlayers(delta: number) {
-            // Keep values as multiples of 4, step in increments of 4
-            const current = Math.round(this.amountOfPlayersRule / 4) * 4;
-            const next = Math.min(40, Math.max(4, current + delta));
+            const next = Math.min(40, Math.max(4, this.amountOfPlayersRule + delta));
             this.amountOfPlayersRule = next;
             this.handleAmountOfPlayersChange();
         },
@@ -580,6 +582,13 @@ export default defineComponent({
     border-right: 1px solid var(--separator);
     padding: 0 4px;
     line-height: 32px;
+}
+
+.sit-out-hint {
+    font-size: 0.72rem;
+    color: var(--label-secondary);
+    margin-left: 0.5rem;
+    white-space: nowrap;
 }
 
 /* Side segmented control */

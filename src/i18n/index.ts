@@ -82,6 +82,8 @@ const messages: Record<Locale, Messages> = {
         // ScorePicker
         points_for: "POINTS FOR",
         gets_the_rest: "gets the rest",
+        // AddPlayers stepper
+        sit_out_hint: "{n} sit out / round",
         // ShowGames secondary CTA
         see_results_plain: "See results",
         // Home / landing
@@ -185,6 +187,8 @@ const messages: Record<Locale, Messages> = {
         // ScorePicker
         points_for: "POINT TIL",
         gets_the_rest: "får resten",
+        // AddPlayers stepper
+        sit_out_hint: "{n} sidder over / runde",
         // ShowGames secondary CTA
         see_results_plain: "Se resultater",
         // Home / landing
