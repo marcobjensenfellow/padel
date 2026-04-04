@@ -68,11 +68,13 @@
                     @click="selectFormat('Americano')"
                 >
                     <div class="format-card-top">
-                        <span class="format-icon">🎾</span>
-                        <span
-                            v-if="selectedFormat === 'Americano'"
-                            class="format-selected-badge"
-                        >{{ $t('home_format_selected') }}</span>
+                        <div class="format-icon">🎾</div>
+                        <div class="format-badges">
+                            <span
+                                v-if="selectedFormat === 'Americano'"
+                                class="format-selected-badge"
+                            >{{ $t('home_format_selected') }}</span>
+                        </div>
                     </div>
                     <h3 class="format-name">Americano</h3>
                     <p class="format-desc">{{ $t('home_americano_desc_long') }}</p>
@@ -87,7 +89,7 @@
                     @click="selectFormat('Mexicano')"
                 >
                     <div class="format-card-top">
-                        <span class="format-icon">📈</span>
+                        <div class="format-icon">📈</div>
                         <div class="format-badges">
                             <span class="format-popular-badge">{{ $t('home_format_most_popular') }}</span>
                             <span
@@ -247,7 +249,9 @@ export default defineComponent({
     },
     mounted() {
         this.history = getHistory();
-        this.selectedFormat = store.getters.americanoStore.getRules.mode as GameMode;
+        // Sync with store, but default to Mexicano if store has never been set
+        const storeMode = store.getters.americanoStore.getRules.mode as GameMode;
+        this.selectedFormat = storeMode ?? "Mexicano";
     },
     computed: {
         hasSavedGame(): boolean {
@@ -319,9 +323,9 @@ export default defineComponent({
     position: relative;
     overflow: hidden;
     border-radius: 22px;
-    background: linear-gradient(140deg, #E8580A 0%, #F5A623 100%);
-    padding: 2.5rem 2rem 2rem;
-    box-shadow: 0 8px 32px rgba(232, 88, 10, 0.28);
+    background: linear-gradient(140deg, #E05C10 0%, #F7A620 100%);
+    padding: 2.25rem 1.75rem 1.75rem;
+    box-shadow: 0 6px 28px rgba(220, 80, 10, 0.3);
 }
 
 /* subtle court lines */
@@ -465,19 +469,19 @@ export default defineComponent({
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
-    align-items: start;
+    align-items: stretch;
 }
 
 .format-card {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.4rem;
+    gap: 0;
     background: var(--surface);
-    border: 2px solid transparent;
+    border: 2px solid var(--separator-opaque);
     border-radius: 18px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 1.15rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 1.1rem;
     cursor: pointer;
     font-family: inherit;
     text-align: left;
@@ -485,8 +489,8 @@ export default defineComponent({
     -webkit-tap-highlight-color: transparent;
 }
 .format-card:hover {
-    border-color: rgba(0,122,255,0.3);
-    box-shadow: 0 4px 20px rgba(0,122,255,0.1);
+    border-color: rgba(0,122,255,0.35);
+    box-shadow: 0 4px 18px rgba(0,122,255,0.1);
 }
 .format-card:active { transform: scale(0.98); }
 .format-card:focus-visible {
@@ -495,70 +499,87 @@ export default defineComponent({
 }
 .format-card--selected {
     border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 4px rgba(0,122,255,0.1), 0 4px 20px rgba(0,122,255,0.12) !important;
+    background: rgba(0,122,255,0.02);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.12), 0 4px 18px rgba(0,122,255,0.1) !important;
 }
 
 .format-card-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.75rem;
 }
 
-.format-icon { font-size: 1.65rem; line-height: 1; }
+/* icon circle */
+.format-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; line-height: 1;
+    flex-shrink: 0;
+    background: rgba(52, 199, 89, 0.12); /* Americano default = green */
+}
+.format-card--mexicano .format-icon {
+    background: rgba(0, 122, 255, 0.1); /* Mexicano = blue */
+}
 
-.format-badges { display: flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
+.format-badges { display: flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
 .format-popular-badge {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
-    background: rgba(255, 149, 0, 0.12);
-    color: #C86000;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+    background: rgba(255, 149, 0, 0.1);
+    color: #B35900;
+    border: 1px solid rgba(255,149,0,0.2);
     border-radius: 999px; padding: 0.2rem 0.5rem;
 }
 
 .format-selected-badge {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
     background: rgba(0,122,255,0.1);
     color: var(--primary-color);
+    border: 1px solid rgba(0,122,255,0.2);
     border-radius: 999px; padding: 0.2rem 0.5rem;
 }
 
 .format-name {
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--label-primary);
-    margin: 0;
-    line-height: 1;
+    margin: 0 0 0.3rem;
+    line-height: 1.1;
 }
 
 .format-desc {
     font-size: 0.78rem;
     color: var(--label-secondary);
-    margin: 0;
-    line-height: 1.4;
+    margin: 0 0 0.5rem;
+    line-height: 1.45;
+    flex: 1;
 }
 
 .format-checklist {
     list-style: none;
     padding: 0;
-    margin: 0.2rem 0 0;
+    margin: 0 0 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.22rem;
 }
 .format-checklist li {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     color: var(--label-secondary);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.3;
 }
+.format-checklist li::before { content: ""; }
 
 .format-how-link {
     font-size: 0.72rem;
     color: var(--primary-color);
     font-weight: 600;
-    margin-top: 0.3rem;
+    margin-top: auto;
+    padding-top: 0.4rem;
 }
 
 /* ── Tournament cards ───────────────────────────── */
@@ -619,20 +640,25 @@ export default defineComponent({
 .tc-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.3rem;
     background: var(--bg);
+    border: 1px solid var(--separator-opaque);
     border-radius: 999px;
-    padding: 0.25rem 0.65rem;
+    padding: 0.28rem 0.7rem 0.28rem 0.5rem;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--label-primary);
     white-space: nowrap;
 }
-.chip-icon { font-size: 0.8rem; }
+.chip-icon { font-size: 0.85rem; }
 .chip-score {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--label-secondary);
+    color: var(--primary-color);
+    background: rgba(0,122,255,0.08);
+    border-radius: 999px;
+    padding: 0.05rem 0.35rem;
+    margin-left: 0.05rem;
 }
 
 .tc-actions {
