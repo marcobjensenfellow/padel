@@ -64,13 +64,15 @@
                     </div>
                 </div>
                 <!-- Number of players — stepper -->
-                <div class="ios-row">
+                <div class="ios-row" :class="{ 'ios-row--with-caption': sitOutPerRound > 0 }">
                     <span class="row-label">{{ $t('number_of_players') }}</span>
-                    <div class="stepper">
-                        <button type="button" class="stepper-btn" @click="stepPlayers(-1)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
-                        <span class="stepper-val">{{ amountOfPlayersRule }}</span>
-                        <button type="button" class="stepper-btn" @click="stepPlayers(1)" :disabled="amountOfPlayersRule >= 40 || getIsGamePrepared">+</button>
-                        <span v-if="sitOutPerRound > 0" class="sit-out-hint">{{ $t('sit_out_hint', { n: sitOutPerRound }) }}</span>
+                    <div class="stepper-col">
+                        <div class="stepper">
+                            <button type="button" class="stepper-btn" @click="stepPlayers(-1)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
+                            <span class="stepper-val">{{ amountOfPlayersRule }}</span>
+                            <button type="button" class="stepper-btn" @click="stepPlayers(1)" :disabled="amountOfPlayersRule >= 40 || getIsGamePrepared">+</button>
+                        </div>
+                        <span v-if="sitOutPerRound > 0" class="sit-out-caption">{{ $t('sit_out_hint', { n: sitOutPerRound }) }}</span>
                     </div>
                 </div>
                 <!-- Court names -->
@@ -584,10 +586,15 @@ export default defineComponent({
     line-height: 32px;
 }
 
-.sit-out-hint {
-    font-size: 0.72rem;
+.stepper-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.18rem;
+}
+.sit-out-caption {
+    font-size: 0.7rem;
     color: var(--label-secondary);
-    margin-left: 0.5rem;
     white-space: nowrap;
 }
 

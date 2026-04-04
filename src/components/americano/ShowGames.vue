@@ -154,6 +154,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
 import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PlayerScore } from "@/models/playerScore.interface";
@@ -222,6 +223,15 @@ export default defineComponent({
         showSeeResults(): boolean {
             return this.isMexicano && !this.isLastRound;
         },
+        storeRound(): number {
+            return store.getters.americanoStore.getRound;
+        },
+    },
+    watch: {
+        // When advanceRound increments the store round, jump activeRound to match
+        storeRound(newRound: number) {
+            this.activeRound = newRound;
+        },
     },
     methods: {
         isRoundComplete(round: number): boolean {
@@ -278,6 +288,7 @@ export default defineComponent({
         reset() {
             store.commit.americanoStore.RESET();
             this.confirmReset = false;
+            useRouter().push("/");
         },
     },
 });
