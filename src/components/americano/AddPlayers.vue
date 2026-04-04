@@ -67,9 +67,9 @@
                 <div class="ios-row">
                     <span class="row-label">{{ $t('number_of_players') }}</span>
                     <div class="stepper">
-                        <button type="button" class="stepper-btn" @click="stepPlayers(-1)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
+                        <button type="button" class="stepper-btn" @click="stepPlayers(-4)" :disabled="amountOfPlayersRule <= 4 || getIsGamePrepared">−</button>
                         <span class="stepper-val">{{ amountOfPlayersRule }}</span>
-                        <button type="button" class="stepper-btn" @click="stepPlayers(1)" :disabled="amountOfPlayersRule >= 64 || getIsGamePrepared">+</button>
+                        <button type="button" class="stepper-btn" @click="stepPlayers(4)" :disabled="amountOfPlayersRule >= 40 || getIsGamePrepared">+</button>
                     </div>
                 </div>
                 <!-- Court names -->
@@ -348,7 +348,9 @@ export default defineComponent({
             });
         },
         stepPlayers(delta: number) {
-            const next = Math.min(64, Math.max(4, this.amountOfPlayersRule + delta));
+            // Keep values as multiples of 4, step in increments of 4
+            const current = Math.round(this.amountOfPlayersRule / 4) * 4;
+            const next = Math.min(40, Math.max(4, current + delta));
             this.amountOfPlayersRule = next;
             this.handleAmountOfPlayersChange();
         },

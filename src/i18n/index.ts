@@ -98,6 +98,14 @@ const messages: Record<Locale, Messages> = {
         home_feat3_body: "Automatically respect each player's preferred left or right side.",
         home_feat4_title: "Auto-saves",
         home_feat4_body: "Your tournament is saved locally. Close the app and pick up exactly where you left off.",
+        // History
+        history_title: "Tournament history",
+        history_empty: "No completed tournaments yet.",
+        history_ongoing: "Ongoing",
+        history_completed: "Completed",
+        history_rounds: "Round {n} of {total}",
+        history_players: "{n} players",
+        history_winner: "Winner",
         // Seeding (also declared inline above near seeding_random)
         seeding_exact: "Exact",
         seeding_category: "Category",
@@ -191,6 +199,14 @@ const messages: Record<Locale, Messages> = {
         home_feat3_body: "Respektér automatisk hver spillers foretrukne venstre- eller højreside.",
         home_feat4_title: "Gemmes automatisk",
         home_feat4_body: "Din turnering gemmes lokalt. Luk appen og fortsæt præcis, hvor du slap.",
+        // History
+        history_title: "Turneringshistorik",
+        history_empty: "Ingen afholdte turneringer endnu.",
+        history_ongoing: "I gang",
+        history_completed: "Afsluttet",
+        history_rounds: "Runde {n} af {total}",
+        history_players: "{n} spillere",
+        history_winner: "Vinder",
         // Seeding
         seeding_exact: "Eksakt",
         seeding_category: "Kategori",

@@ -19,8 +19,8 @@ import {
     saveAmericanoState,
     getCurrentTournamentName,
     setCurrentTournamentName,
-
 } from "@/services/storageService";
+import { upsertToHistory, TournamentSummary } from "@/services/tournamentHistoryService";
 
 export interface AmericanoStoreState {
     games: PadelGame[];
@@ -30,6 +30,7 @@ export interface AmericanoStoreState {
     rules: PadelRules;
     round: number;
     tournamentName: string;
+    tournamentId: string;
 }
 
 export interface AmericanoStoreGetters {
@@ -40,6 +41,7 @@ export interface AmericanoStoreGetters {
     getRules: PadelRules;
     getRound: number;
     getTournamentName: string;
+    getTournamentId: string;
 }
 
 export interface AmericanoStoreActions {
@@ -58,8 +60,9 @@ export default {
         isGamePrepared: false,
         round: 1,
         tournamentName: new Date().toISOString().slice(0, 10),
+        tournamentId: `t_${Date.now()}`,
         rules: {
-            maxScore: 32,
+            maxScore: 24,
             randomSchedule: false,
             amountOfPlayers: 8,
             colorCode: false,
@@ -155,12 +158,30 @@ export default {
             );
         },
         RESET(state: AmericanoStoreState) {
+            // Save current tournament to history before wiping
+            if (state.isGamePrepared && state.players.some(p => p.name.trim() !== "")) {
+                const sorted = [...state.players].sort((a, b) => b.score - a.score);
+                const summary: TournamentSummary = {
+                    id: state.tournamentId,
+                    name: (state.rules as any).tournamentName?.trim() || state.tournamentName,
+                    savedAt: new Date().toISOString(),
+                    format: state.rules.mode,
+                    numPlayers: state.rules.amountOfPlayers,
+                    roundsPlayed: state.round,
+                    totalRounds: state.rules.mode === "Mexicano"
+                        ? state.rules.amountOfPlayers - 1
+                        : 1,
+                    completed: true,
+                    top3: sorted.slice(0, 3).map(p => ({ name: p.name, score: p.score })),
+                };
+                upsertToHistory(summary);
+            }
             state.players = getPadelPlayers();
             state.games = [];
             state.step = 1;
             state.round = 1;
             state.isGamePrepared = false;
-            state.rules.maxScore = 32;
+            state.rules.maxScore = 24;
             state.rules.randomSchedule = false;
             state.rules.amountOfPlayers = 8;
             state.rules.colorCode = false;
@@ -170,6 +191,7 @@ export default {
             state.rules.respectPreferredSides = false;
             removeAmericanoState(state.tournamentName);
             state.tournamentName = new Date().toISOString().slice(0, 10);
+            state.tournamentId = `t_${Date.now()}`;
         },
         LOAD_STATE(state: AmericanoStoreState, name?: string) {
             const americanoState = loadAmericanoState(name);
@@ -244,6 +266,22 @@ export default {
             );
             commit("UPDATE_PLAYERS", updatedPlayers);
 
+            // Snapshot to history so results appear even if app is closed after this
+            const sorted = [...updatedPlayers].sort((a, b) => b.score - a.score);
+            const isMexicano = getters.getRules.mode === "Mexicano";
+            const summary: TournamentSummary = {
+                id: getters.getTournamentId,
+                name: (getters.getRules as any).tournamentName?.trim() || getters.getTournamentName,
+                savedAt: new Date().toISOString(),
+                format: getters.getRules.mode,
+                numPlayers: getters.getRules.amountOfPlayers,
+                roundsPlayed: getters.getRound,
+                totalRounds: isMexicano ? getters.getRules.amountOfPlayers - 1 : 1,
+                completed: !isMexicano || getters.getRound >= getters.getRules.amountOfPlayers - 1,
+                top3: sorted.slice(0, 3).map(p => ({ name: p.name, score: p.score })),
+            };
+            upsertToHistory(summary);
+
             commit("INCREMENT_STEP");
         },
         sortPlayersByScore({ commit, getters }: AmericanoStoreActions) {
@@ -306,6 +344,19 @@ export default {
                     : updatedPlayers.map((p: PadelPlayer) => ({ ...p, preferredSide: "Both" as PreferredSide }));
                 const nextGames = prepareMexicanoRound(withSides, newRound);
                 commit("UPDATE_GAMES", nextGames);
+                // Snapshot progress to history (ongoing)
+                const sortedAdv = [...updatedPlayers].sort((a, b) => b.score - a.score);
+                upsertToHistory({
+                    id: getters.getTournamentId,
+                    name: (getters.getRules as any).tournamentName?.trim() || getters.getTournamentName,
+                    savedAt: new Date().toISOString(),
+                    format: getters.getRules.mode,
+                    numPlayers: getters.getRules.amountOfPlayers,
+                    roundsPlayed: currentRound,
+                    totalRounds: maxRounds,
+                    completed: false,
+                    top3: sortedAdv.slice(0, 3).map((p: PadelPlayer) => ({ name: p.name, score: p.score })),
+                });
                 // Stay on step 2 (games screen) — no step change
             } else {
                 commit("INCREMENT_STEP");
@@ -320,5 +371,6 @@ export default {
         getRules: (state: AmericanoStoreState) => state.rules,
         getRound: (state: AmericanoStoreState) => state.round,
         getTournamentName: (state: AmericanoStoreState) => state.tournamentName,
+        getTournamentId: (state: AmericanoStoreState) => state.tournamentId,
     },
 };
