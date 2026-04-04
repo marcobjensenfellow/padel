@@ -22,9 +22,11 @@
                 :key="round"
                 class="round-pill"
                 :class="{
-                    'round-pill--active': activeRound === round,
-                    'round-pill--done':   isRoundComplete(round) && activeRound !== round,
+                    'round-pill--active':  activeRound === round,
+                    'round-pill--done':    isRoundComplete(round) && activeRound !== round,
+                    'round-pill--future':  isRoundFuture(round),
                 }"
+                :disabled="isRoundFuture(round)"
                 @click="activeRound = round"
             >
                 {{ isRoundComplete(round) ? '✓' : round }}
@@ -156,6 +158,7 @@ import store from "@/store/index";
 import { PadelGame } from "@/models/padelGame.interface";
 import { PlayerScore } from "@/models/playerScore.interface";
 import ScorePicker from "./ScorePicker.vue";
+import { totalRounds } from "@/services/mexicanoService";
 
 export default defineComponent({
     components: { ScorePicker },
@@ -168,8 +171,9 @@ export default defineComponent({
         };
     },
     mounted() {
-        const incomplete = this.rounds.find(r => !this.isRoundComplete(r));
-        this.activeRound = incomplete ?? this.rounds[this.rounds.length - 1];
+        const generated = this.rounds.filter(r => !this.isRoundFuture(r));
+        const incomplete = generated.find(r => !this.isRoundComplete(r));
+        this.activeRound = incomplete ?? (generated[generated.length - 1] ?? 1);
     },
     computed: {
         getGames(): readonly PadelGame[] {
@@ -182,6 +186,10 @@ export default defineComponent({
             return store.getters.americanoStore.getRules;
         },
         rounds(): number[] {
+            if (this.isMexicano) {
+                const total = totalRounds(this.getPlayers.length);
+                return Array.from({ length: total }, (_, i) => i + 1);
+            }
             const max = Math.max(...this.getGames.map(g => g.round));
             return Array.from({ length: max }, (_, i) => i + 1);
         },
@@ -203,10 +211,8 @@ export default defineComponent({
             return this.getRules.mode === "Mexicano";
         },
         isLastRound(): boolean {
-            const maxRounds = this.getRules.mode === "Mexicano"
-                ? store.getters.americanoStore.getPlayers.length - 1
-                : 1;
-            return store.getters.americanoStore.getRound >= maxRounds;
+            if (!this.isMexicano) return true;
+            return store.getters.americanoStore.getRound >= totalRounds(this.getPlayers.length);
         },
         // Primary button shows "Næste runde" for mid-Mexicano, otherwise "Se resultater"
         primaryActionKey(): string {
@@ -219,9 +225,11 @@ export default defineComponent({
     },
     methods: {
         isRoundComplete(round: number): boolean {
-            return this.getGames
-                .filter(g => g.round === round && g.players.length === 4)
-                .every(g => g.homeScore !== null && g.awayScore !== null);
+            const games = this.getGames.filter(g => g.round === round && g.players.length === 4);
+            return games.length > 0 && games.every(g => g.homeScore !== null && g.awayScore !== null);
+        },
+        isRoundFuture(round: number): boolean {
+            return !this.getGames.some(g => g.round === round);
         },
         homePlayers(game: PadelGame): PlayerScore[] {
             return game.players.filter(p => p.home);
@@ -357,6 +365,12 @@ export default defineComponent({
     background: rgba(52,199,89,0.12);
     border-color: var(--secondary-color);
     color: var(--secondary-color);
+}
+
+.round-pill--future {
+    opacity: 0.28;
+    cursor: default;
+    border-style: dashed;
 }
 
 /* Courts grid */
