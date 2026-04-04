@@ -1,163 +1,224 @@
 <template>
     <div class="home-page">
 
-        <!-- Hero -->
+        <!-- ─── Hero ──────────────────────────────────────── -->
         <section class="hero">
-            <div class="hero-court">
-                <div class="court-line court-line--v"></div>
-                <div class="court-line court-line--h"></div>
-                <div class="court-service"></div>
+            <div class="hero-bg-lines" aria-hidden="true">
+                <div class="bg-line bg-line--v"></div>
+                <div class="bg-line bg-line--h"></div>
+                <div class="bg-circle"></div>
             </div>
-            <div class="hero-content">
-                <p class="hero-mode-badge">Americano &amp; Mexicano</p>
-                <h1 class="hero-title">{{ $t('home_headline') }}</h1>
-                <p class="hero-tagline">{{ $t('home_tagline') }}</p>
+            <div class="hero-body">
+                <span class="hero-badge">AMERICANO &amp; MEXICANO</span>
+                <h1 class="hero-headline">{{ $t('home_hero_headline') }}</h1>
+                <p class="hero-sub">{{ $t('home_headline_sub') }}</p>
+
+                <div class="hero-ctas">
+                    <button type="button" class="btn-hero-primary" @click="startNew">
+                        {{ $t('home_start_new') }}
+                    </button>
+                    <button
+                        v-if="hasSavedGame"
+                        type="button"
+                        class="btn-hero-secondary"
+                        @click="resumeGame"
+                    >
+                        {{ $t('home_resume') }} →
+                    </button>
+                </div>
+
+                <p v-if="lastFormat" class="hero-format-hint">
+                    {{ $t('home_last_format', { format: lastFormat }) }}
+                </p>
             </div>
         </section>
 
-        <!-- Format picker -->
-        <section class="format-section">
-            <p class="format-label">{{ $t('home_pick_format') }}</p>
-            <div class="format-cards">
+        <!-- ─── USP strip ─────────────────────────────────── -->
+        <div class="usp-card">
+            <div class="usp-grid">
+                <div class="usp-item">
+                    <span class="usp-icon">🌱</span>
+                    <span class="usp-label">{{ $t('home_feat1_title') }}</span>
+                </div>
+                <div class="usp-item">
+                    <span class="usp-icon">↔️</span>
+                    <span class="usp-label">{{ $t('home_feat2_title') }}</span>
+                </div>
+                <div class="usp-item">
+                    <span class="usp-icon">💾</span>
+                    <span class="usp-label">{{ $t('home_feat3_title') }}</span>
+                </div>
+                <div class="usp-item">
+                    <span class="usp-icon">🔄</span>
+                    <span class="usp-label">{{ $t('home_feat4_title') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Format picker ─────────────────────────────── -->
+        <section class="section">
+            <h2 class="section-title">{{ $t('home_format_section') }}</h2>
+            <div class="format-grid">
+
+                <!-- Americano -->
                 <button
                     type="button"
                     class="format-card"
-                    :class="{ 'format-card--active': selectedFormat === 'Americano' }"
-                    @click="pickFormat('Americano')"
+                    :class="{ 'format-card--selected': selectedFormat === 'Americano' }"
+                    @click="selectFormat('Americano')"
                 >
-                    <span class="format-card-icon">🔀</span>
-                    <span class="format-card-name">Americano</span>
-                    <span class="format-card-desc">{{ $t('home_americano_desc') }}</span>
+                    <div class="format-card-top">
+                        <span class="format-icon">🎾</span>
+                        <span
+                            v-if="selectedFormat === 'Americano'"
+                            class="format-selected-badge"
+                        >{{ $t('home_format_selected') }}</span>
+                    </div>
+                    <h3 class="format-name">Americano</h3>
+                    <p class="format-desc">{{ $t('home_americano_desc_long') }}</p>
+                    <span class="format-how-link">{{ $t('home_format_how') }} ›</span>
                 </button>
+
+                <!-- Mexicano -->
                 <button
                     type="button"
-                    class="format-card"
-                    :class="{ 'format-card--active': selectedFormat === 'Mexicano' }"
-                    @click="pickFormat('Mexicano')"
+                    class="format-card format-card--mexicano"
+                    :class="{ 'format-card--selected': selectedFormat === 'Mexicano' }"
+                    @click="selectFormat('Mexicano')"
                 >
-                    <span class="format-card-icon">📈</span>
-                    <span class="format-card-name">Mexicano</span>
-                    <span class="format-card-desc">{{ $t('home_mexicano_desc') }}</span>
+                    <div class="format-card-top">
+                        <span class="format-icon">📈</span>
+                        <div class="format-badges">
+                            <span class="format-popular-badge">{{ $t('home_format_most_popular') }}</span>
+                            <span
+                                v-if="selectedFormat === 'Mexicano'"
+                                class="format-selected-badge"
+                            >{{ $t('home_format_selected') }}</span>
+                        </div>
+                    </div>
+                    <h3 class="format-name">Mexicano</h3>
+                    <p class="format-desc">{{ $t('home_mexicano_desc_long') }}</p>
+                    <ul class="format-checklist" aria-label="Features">
+                        <li>✓ {{ $t('home_mexicano_feat1') }}</li>
+                        <li>✓ {{ $t('home_mexicano_feat2') }}</li>
+                        <li>✓ {{ $t('home_mexicano_feat3') }}</li>
+                    </ul>
+                    <span class="format-how-link">{{ $t('home_format_how') }} ›</span>
                 </button>
             </div>
-            <p v-if="hasSavedGame" class="format-continue-hint">
-                {{ $t('home_or_continue') }}
-                <router-link to="/spil" class="format-continue-link">
-                    {{ $t('home_resume') }} →
-                </router-link>
+        </section>
+
+        <!-- ─── Tournament history ────────────────────────── -->
+        <section class="section">
+            <h2 class="section-title">{{ $t('home_tournaments_section') }}</h2>
+
+            <p v-if="history.length === 0" class="empty-state">
+                {{ $t('home_tournaments_empty') }}
             </p>
-        </section>
 
-        <!-- Features -->
-        <section class="features">
-            <div class="feat-card">
-                <span class="feat-icon">🌱</span>
-                <div>
-                    <h3>{{ $t('home_feat1_title') }}</h3>
-                    <p>{{ $t('home_feat1_body') }}</p>
-                </div>
-            </div>
-            <div class="feat-card">
-                <span class="feat-icon">↔️</span>
-                <div>
-                    <h3>{{ $t('home_feat2_title') }}</h3>
-                    <p>{{ $t('home_feat2_body') }}</p>
-                </div>
-            </div>
-            <div class="feat-card">
-                <span class="feat-icon">💾</span>
-                <div>
-                    <h3>{{ $t('home_feat3_title') }}</h3>
-                    <p>{{ $t('home_feat3_body') }}</p>
-                </div>
-            </div>
-            <div class="feat-card">
-                <span class="feat-icon">☕️</span>
-                <div>
-                    <h3>{{ $t('home_feat4_title') }}</h3>
-                    <p>{{ $t('home_feat4_body') }}</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tournament History -->
-        <section v-if="history.length > 0" class="history-section">
-            <p class="ios-section-header">{{ $t('history_title') }}</p>
-            <div class="ios-section history-list">
+            <div v-else class="tournament-list">
                 <div
                     v-for="entry in history"
                     :key="entry.id"
-                    class="history-row"
-                    :class="{ 'history-row--open': openedId === entry.id }"
+                    class="tournament-card"
+                    :class="entry.completed ? 'tournament-card--done' : 'tournament-card--live'"
                 >
-                    <!-- Row header — clickable to expand/collapse -->
-                    <div class="history-main" @click="toggleOpen(entry)">
-                        <div class="history-name-row">
-                            <span class="history-name">{{ entry.name }}</span>
-                            <span class="history-badge" :class="entry.completed ? 'badge--done' : 'badge--live'">
-                                {{ entry.completed ? $t('history_completed') : $t('history_ongoing') }}
-                            </span>
-                            <span class="history-chevron" :class="{ 'chevron--open': openedId === entry.id }">›</span>
-                        </div>
-                        <div class="history-meta">
-                            <span class="history-format">{{ entry.format }}</span>
-                            <span class="history-dot">·</span>
-                            <span>{{ $t('history_players', { n: entry.numPlayers }) }}</span>
-                            <span class="history-dot">·</span>
-                            <span>{{ $t('history_rounds', { n: entry.roundsPlayed, total: entry.totalRounds }) }}</span>
-                            <span class="history-dot">·</span>
-                            <span class="history-date">{{ formatDate(entry.savedAt) }}</span>
+                    <!-- Card header -->
+                    <div class="tc-header">
+                        <span
+                            class="tc-badge"
+                            :class="entry.completed ? 'tc-badge--done' : 'tc-badge--live'"
+                        >
+                            {{ entry.completed ? $t('history_completed') : $t('history_ongoing') }}
+                        </span>
+                        <span class="tc-name">{{ entry.name }}</span>
+                    </div>
+
+                    <!-- Meta row -->
+                    <p class="tc-meta">
+                        <span class="tc-format">{{ entry.format }}</span>
+                        <span class="tc-sep">·</span>
+                        <span>{{ $t('history_players', { n: entry.numPlayers }) }}</span>
+                        <span class="tc-sep">·</span>
+                        <span v-if="!entry.completed">
+                            {{ $t('history_next_round', { n: Math.min(entry.roundsPlayed + 1, entry.totalRounds), total: entry.totalRounds }) }}
+                        </span>
+                        <span v-else>
+                            {{ $t('history_rounds_done', { n: entry.roundsPlayed, total: entry.totalRounds }) }}
+                        </span>
+                    </p>
+
+                    <!-- Player chips -->
+                    <div v-if="entry.top3 && entry.top3.length" class="tc-chips">
+                        <span
+                            v-for="(p, i) in entry.top3"
+                            :key="i"
+                            class="tc-chip"
+                        >
+                            <span class="chip-icon">{{ podiumIcon(i) }}</span>
+                            {{ p.name }}
+                            <span class="chip-score">{{ p.score }}</span>
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="tc-actions">
+                        <template v-if="!entry.completed">
+                            <button
+                                v-if="isCurrentGame(entry)"
+                                type="button"
+                                class="btn-tc-primary"
+                                @click="resumeGame"
+                            >
+                                {{ $t('history_continue_cta') }} →
+                            </button>
+                            <span v-else class="tc-stale-note">{{ $t('history_not_current') }}</span>
+                        </template>
+                        <template v-else>
+                            <button
+                                type="button"
+                                class="btn-tc-secondary"
+                                @click="toggleDetails(entry.id)"
+                            >
+                                {{ $t('history_details_cta') }}
+                                <span class="details-chevron" :class="{ 'details-chevron--open': openedId === entry.id }">›</span>
+                            </button>
+                        </template>
+
+                        <!-- Copy with seeding -->
+                        <button
+                            v-if="entry.players && entry.players.length && copyingId !== entry.id"
+                            type="button"
+                            class="btn-tc-ghost"
+                            @click.stop="copyingId = entry.id"
+                        >
+                            🔁 {{ $t('history_copy') }}
+                        </button>
+                    </div>
+
+                    <!-- Copy confirm -->
+                    <div v-if="copyingId === entry.id" class="tc-copy-confirm">
+                        <p class="tc-copy-text">{{ $t('history_copy_confirm') }}</p>
+                        <div class="tc-copy-btns">
+                            <button type="button" class="btn-tc-primary" @click="doCopy(entry)">
+                                {{ $t('home_cta') }} →
+                            </button>
+                            <button type="button" class="btn-tc-ghost" @click.stop="copyingId = null">
+                                {{ $t('end_confirm_cancel') }}
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Expanded panel -->
-                    <div v-if="openedId === entry.id" class="history-expanded">
-
-                        <!-- Continue button for the active ongoing game -->
-                        <div v-if="!entry.completed && isCurrentGame(entry)" class="history-resume">
-                            <button type="button" class="btn-pdl btn-resume" @click="resumeGame">
-                                {{ $t('history_resume_btn') }} →
-                            </button>
-                        </div>
-                        <div v-else-if="!entry.completed && !isCurrentGame(entry)" class="history-resume-note">
-                            {{ $t('history_not_current') }}
-                        </div>
-
-                        <!-- Full results table -->
-                        <div v-if="entry.players && entry.players.length > 0" class="results-table">
-                            <div
-                                v-for="(p, i) in entry.players"
-                                :key="i"
-                                class="result-row"
-                                :class="{ 'result-row--top': i < 3 }"
-                            >
-                                <span class="result-pos">{{ rankLabel(i) }}</span>
-                                <span class="result-name">{{ p.name }}</span>
-                                <span class="result-score">{{ p.score }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Copy with seeding -->
-                        <div v-if="entry.players && entry.players.length > 0" class="history-actions">
-                            <button
-                                v-if="copyingId !== entry.id"
-                                type="button"
-                                class="btn-copy"
-                                @click.stop="copyingId = entry.id"
-                            >
-                                🔁 {{ $t('history_copy') }}
-                            </button>
-                            <div v-else class="copy-confirm">
-                                <p class="copy-confirm-text">{{ $t('history_copy_confirm') }}</p>
-                                <div class="copy-confirm-btns">
-                                    <button type="button" class="btn-pdl btn-confirm-yes" @click="doCopy(entry)">
-                                        {{ $t('home_cta') }} →
-                                    </button>
-                                    <button type="button" class="btn-pdl-ghost" @click.stop="copyingId = null">
-                                        {{ $t('end_confirm_cancel') }}
-                                    </button>
-                                </div>
-                            </div>
+                    <!-- Expanded results -->
+                    <div v-if="openedId === entry.id && entry.players && entry.players.length" class="tc-results">
+                        <div
+                            v-for="(p, i) in entry.players"
+                            :key="i"
+                            class="tc-result-row"
+                        >
+                            <span class="res-pos">{{ rankLabel(i) }}</span>
+                            <span class="res-name">{{ p.name }}</span>
+                            <span class="res-score">{{ p.score }}</span>
                         </div>
                     </div>
                 </div>
@@ -181,7 +242,7 @@ export default defineComponent({
             history: [] as TournamentSummary[],
             copyingId: null as string | null,
             openedId: null as string | null,
-            selectedFormat: null as GameMode | null,
+            selectedFormat: "Mexicano" as GameMode,
         };
     },
     mounted() {
@@ -195,22 +256,34 @@ export default defineComponent({
         currentTournamentId(): string {
             return store.getters.americanoStore.getTournamentId;
         },
+        lastFormat(): string {
+            return store.getters.americanoStore.getRules.mode;
+        },
     },
     methods: {
-        pickFormat(mode: GameMode) {
+        selectFormat(mode: GameMode) {
             this.selectedFormat = mode;
             store.commit.americanoStore.SET_MODE(mode);
+        },
+        startNew() {
+            store.commit.americanoStore.SET_MODE(this.selectedFormat);
             router.push("/spil");
         },
-        toggleOpen(entry: TournamentSummary) {
-            this.openedId = this.openedId === entry.id ? null : entry.id;
-            this.copyingId = null;
+        resumeGame() {
+            router.push("/spil");
+        },
+        toggleDetails(id: string) {
+            this.openedId = this.openedId === id ? null : id;
         },
         isCurrentGame(entry: TournamentSummary): boolean {
             return entry.id === this.currentTournamentId;
         },
-        resumeGame() {
-            router.push("/spil");
+        podiumIcon(index: number): string {
+            return ["🥇", "🥈", "🥉"][index] ?? "";
+        },
+        rankLabel(index: number): string {
+            const icons = ["🥇", "🥈", "🥉"];
+            return index < icons.length ? (icons[index] ?? "") : String(index + 1);
         },
         formatDate(iso: string): string {
             try {
@@ -222,13 +295,6 @@ export default defineComponent({
                 return iso.slice(0, 10);
             }
         },
-        podiumIcon(index: number): string {
-            return ["🥇", "🥈", "🥉"][index] ?? "";
-        },
-        rankLabel(index: number): string {
-            const icons = ["🥇", "🥈", "🥉"];
-            return index < icons.length ? (icons[index] ?? "") : String(index + 1);
-        },
         async doCopy(entry: TournamentSummary) {
             await store.dispatch.americanoStore.copyFromHistory(entry);
             router.push("/spil");
@@ -238,199 +304,495 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* ── Page shell ─────────────────────────────────── */
 .home-page {
-    max-width: 680px;
+    max-width: 660px;
     margin: 0 auto;
-    padding: 0 1rem 4rem;
+    padding: 1.25rem 1rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-/* ─── Hero ─── */
+/* ── Hero ───────────────────────────────────────── */
 .hero {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius-lg);
-    margin: 1.2rem 0 1.5rem;
-    background: #C2784A;
-    min-height: 220px;
+    border-radius: 22px;
+    background: linear-gradient(140deg, #E8580A 0%, #F5A623 100%);
+    padding: 2.5rem 2rem 2rem;
+    box-shadow: 0 8px 32px rgba(232, 88, 10, 0.28);
+}
+
+/* subtle court lines */
+.hero-bg-lines { position: absolute; inset: 0; pointer-events: none; }
+.bg-line { position: absolute; background: rgba(255,255,255,0.08); }
+.bg-line--v { width: 1px; top: 0; bottom: 0; left: 50%; }
+.bg-line--h { height: 1px; left: 0; right: 0; top: 42%; }
+.bg-circle {
+    position: absolute; width: 180px; height: 180px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+    right: -40px; bottom: -60px;
+}
+
+.hero-body { position: relative; z-index: 1; }
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; border-radius: 999px;
+    padding: 0.28rem 0.75rem; margin-bottom: 0.9rem;
+}
+
+.hero-headline {
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    line-height: 1.15;
+    margin: 0 0 0.55rem;
+    max-width: 420px;
+}
+
+.hero-sub {
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.5;
+    margin: 0 0 1.6rem;
+    max-width: 340px;
+}
+
+.hero-ctas {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.btn-hero-primary {
+    background: #fff;
+    color: #E8580A;
+    font-weight: 700;
+    font-size: 0.97rem;
+    font-family: inherit;
+    border: none;
+    border-radius: 14px;
+    padding: 0.8rem 1.6rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+.btn-hero-primary:hover { opacity: 0.9; }
+.btn-hero-primary:active { transform: scale(0.97); }
+.btn-hero-primary:focus-visible {
+    outline: 3px solid rgba(255,255,255,0.8);
+    outline-offset: 2px;
+}
+
+.btn-hero-secondary {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.92rem;
+    font-family: inherit;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 14px;
+    padding: 0.75rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+    backdrop-filter: blur(4px);
+}
+.btn-hero-secondary:hover { background: rgba(255,255,255,0.26); }
+.btn-hero-secondary:active { transform: scale(0.97); }
+.btn-hero-secondary:focus-visible {
+    outline: 3px solid rgba(255,255,255,0.8);
+    outline-offset: 2px;
+}
+
+.hero-format-hint {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    margin: 0;
+}
+
+/* ── USP strip ──────────────────────────────────── */
+.usp-card {
+    background: var(--surface);
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 1.1rem 1.2rem;
+}
+
+.usp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+}
+
+.usp-item {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.25rem;
     text-align: center;
 }
-.hero-court { position: absolute; inset: 0; pointer-events: none; }
-.court-line { position: absolute; background: rgba(255,255,255,0.1); }
-.court-line--v { width: 2px; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); }
-.court-line--h { height: 2px; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
-.court-service {
-    position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%,-50%);
-    width: 52px; height: 52px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.14);
-}
-.hero-content { position: relative; z-index: 1; padding: 2rem 1.5rem; }
-.hero-mode-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9);
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; border-radius: 999px;
-    padding: 0.3rem 0.8rem; margin: 0 0 0.75rem;
-}
-.hero-title {
-    font-size: 3rem; font-weight: 800; letter-spacing: -0.04em;
-    color: #fff; margin: 0 0 0.55rem; line-height: 1;
-}
-.hero-tagline {
-    color: rgba(255,255,255,0.82); font-size: 0.95rem;
-    max-width: 300px; margin: 0 auto; line-height: 1.4;
+
+.usp-icon { font-size: 1.35rem; line-height: 1; }
+.usp-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--label-secondary);
+    line-height: 1.25;
 }
 
-/* ─── Format picker ─── */
-.format-section { margin-bottom: 1.75rem; }
-.format-label {
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--label-secondary);
-    margin: 0 0 0.65rem 0.1rem;
+/* ── Section shared ─────────────────────────────── */
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--label-primary);
+    margin: 0;
 }
-.format-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+
+/* ── Format cards ───────────────────────────────── */
+.format-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    align-items: start;
+}
+
 .format-card {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem;
-    background: var(--surface); border: 2px solid transparent;
-    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
-    padding: 1rem; cursor: pointer; font-family: inherit; text-align: left;
-    transition: border-color 0.14s, box-shadow 0.14s, transform 0.1s;
-    -webkit-tap-highlight-color: transparent;
-}
-.format-card:hover { border-color: var(--primary-color); box-shadow: 0 2px 12px rgba(0,122,255,0.12); }
-.format-card:active { transform: scale(0.97); }
-.format-card--active {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0,122,255,0.14), var(--shadow-sm);
-}
-.format-card-icon { font-size: 1.6rem; line-height: 1; margin-bottom: 0.2rem; }
-.format-card-name { font-size: 1rem; font-weight: 700; color: var(--label-primary); line-height: 1.1; }
-.format-card-desc { font-size: 0.76rem; color: var(--label-secondary); line-height: 1.35; }
-.format-continue-hint { margin-top: 0.85rem; font-size: 0.82rem; color: var(--label-secondary); text-align: center; }
-.format-continue-link { color: var(--primary-color); font-weight: 600; text-decoration: none; }
-.format-continue-link:hover { text-decoration: underline; }
-
-/* ─── Features ─── */
-.features { display: flex; flex-direction: column; gap: 0.6rem; }
-.feat-card {
-    background: var(--surface); border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm); padding: 0.95rem 1.1rem;
-    display: flex; align-items: flex-start; gap: 0.9rem;
-}
-.feat-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
-.feat-card h3 { font-size: 0.92rem; font-weight: 700; margin: 0 0 0.18rem; }
-.feat-card p  { font-size: 0.82rem; color: var(--label-secondary); margin: 0; line-height: 1.4; }
-@media (min-width: 540px) {
-    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
-}
-
-/* ─── History ─── */
-.history-section { margin-top: 2rem; }
-.history-list { padding: 0; }
-
-.history-row {
-    border-bottom: 1px solid var(--separator-opaque);
-}
-.history-row:last-child { border-bottom: none; }
-
-.history-main {
-    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 1.15rem;
     cursor: pointer;
-    user-select: none;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.1s;
 }
-.history-main:hover { background: var(--bg); }
-.history-main:active { background: var(--separator-opaque); }
+.format-card:hover {
+    border-color: rgba(0,122,255,0.3);
+    box-shadow: 0 4px 20px rgba(0,122,255,0.1);
+}
+.format-card:active { transform: scale(0.98); }
+.format-card:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+.format-card--selected {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 4px rgba(0,122,255,0.1), 0 4px 20px rgba(0,122,255,0.12) !important;
+}
 
-.history-name-row {
-    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;
+.format-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.15rem;
 }
-.history-name {
-    font-weight: 700; font-size: 0.95rem; flex: 1;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
+.format-icon { font-size: 1.65rem; line-height: 1; }
+
+.format-badges { display: flex; gap: 0.3rem; align-items: center; flex-wrap: wrap; }
+
+.format-popular-badge {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+    background: rgba(255, 149, 0, 0.12);
+    color: #C86000;
+    border-radius: 999px; padding: 0.2rem 0.5rem;
 }
-.history-badge {
+
+.format-selected-badge {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+    background: rgba(0,122,255,0.1);
+    color: var(--primary-color);
+    border-radius: 999px; padding: 0.2rem 0.5rem;
+}
+
+.format-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--label-primary);
+    margin: 0;
+    line-height: 1;
+}
+
+.format-desc {
+    font-size: 0.78rem;
+    color: var(--label-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.format-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0.2rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.format-checklist li {
+    font-size: 0.75rem;
+    color: var(--label-secondary);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.format-how-link {
+    font-size: 0.72rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 0.3rem;
+}
+
+/* ── Tournament cards ───────────────────────────── */
+.tournament-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.tournament-card {
+    background: var(--surface);
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 1.1rem 1.2rem;
+    border-left: 4px solid transparent;
+}
+.tournament-card--live { border-left-color: var(--primary-color); }
+.tournament-card--done { border-left-color: var(--secondary-color); }
+
+.tc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.tc-badge {
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
-    border-radius: 999px; padding: 0.18rem 0.55rem; flex-shrink: 0;
+    border-radius: 999px; padding: 0.2rem 0.6rem; flex-shrink: 0;
 }
-.badge--done { background: rgba(52,199,89,0.12); color: var(--secondary-color); }
-.badge--live { background: rgba(0,122,255,0.1);   color: var(--primary-color); }
+.tc-badge--live { background: rgba(0,122,255,0.1); color: var(--primary-color); }
+.tc-badge--done { background: rgba(52,199,89,0.1); color: var(--secondary-color); }
 
-.history-chevron {
-    font-size: 1.1rem; color: var(--label-secondary); flex-shrink: 0;
-    transition: transform 0.2s; display: inline-block; line-height: 1;
+.tc-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--label-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.chevron--open { transform: rotate(90deg); }
 
-.history-meta {
-    display: flex; flex-wrap: wrap; gap: 0.2rem;
-    font-size: 0.78rem; color: var(--label-secondary);
+.tc-meta {
+    font-size: 0.78rem;
+    color: var(--label-secondary);
+    margin: 0 0 0.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
     align-items: center;
 }
-.history-dot   { color: var(--separator-opaque); }
-.history-format { font-weight: 600; }
+.tc-format { font-weight: 600; }
+.tc-sep { color: var(--separator-opaque); }
 
-/* ─── Expanded panel ─── */
-.history-expanded {
-    padding: 0 1rem 1rem;
-    border-top: 1px solid var(--separator-opaque);
+.tc-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+
+.tc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     background: var(--bg);
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--label-primary);
+    white-space: nowrap;
+}
+.chip-icon { font-size: 0.8rem; }
+.chip-score {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--label-secondary);
 }
 
-.history-resume { padding-top: 0.85rem; }
-.btn-resume {
-    width: 100%; padding: 0.75rem; font-size: 0.95rem;
-    border-radius: var(--radius-lg);
+.tc-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.history-resume-note {
-    padding-top: 0.85rem;
-    font-size: 0.82rem; color: var(--label-secondary);
+.btn-tc-primary {
+    background: var(--primary-color);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+.btn-tc-primary:hover { opacity: 0.88; }
+.btn-tc-primary:active { transform: scale(0.97); }
+.btn-tc-primary:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 3px; }
+
+.btn-tc-secondary {
+    background: var(--bg);
+    color: var(--label-primary);
+    font-weight: 600;
+    font-size: 0.88rem;
+    font-family: inherit;
+    border: 1.5px solid var(--separator-opaque);
+    border-radius: 12px;
+    padding: 0.55rem 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+.btn-tc-secondary:hover { background: var(--separator-opaque); }
+.btn-tc-secondary:active { transform: scale(0.97); }
+.btn-tc-secondary:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 3px; }
+
+.details-chevron {
+    display: inline-block;
+    font-size: 1rem;
+    transition: transform 0.2s;
+    line-height: 1;
+}
+.details-chevron--open { transform: rotate(90deg); }
+
+.btn-tc-ghost {
+    background: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.82rem;
+    font-family: inherit;
+    border: 1.5px solid rgba(0,122,255,0.3);
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+    transition: background 0.14s;
+    flex-shrink: 0;
+}
+.btn-tc-ghost:hover { background: rgba(0,122,255,0.06); }
+.btn-tc-ghost:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 3px; }
+
+.tc-stale-note {
+    font-size: 0.78rem;
+    color: var(--label-secondary);
     font-style: italic;
 }
 
-.results-table {
+/* ── Copy confirm ───────────────────────────────── */
+.tc-copy-confirm {
+    margin-top: 0.75rem;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 0.85rem;
+}
+.tc-copy-text {
+    font-size: 0.82rem;
+    color: var(--label-secondary);
+    margin: 0 0 0.65rem;
+    line-height: 1.4;
+}
+.tc-copy-btns { display: flex; gap: 0.5rem; }
+.tc-copy-btns .btn-tc-primary { flex: 1; text-align: center; }
+
+/* ── Results panel ──────────────────────────────── */
+.tc-results {
     margin-top: 0.85rem;
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
+    border-top: 1px solid var(--separator-opaque);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
-.result-row {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.55rem 0.85rem;
-    border-bottom: 1px solid var(--separator-opaque);
-    font-size: 0.85rem;
+.tc-result-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.42rem 0.25rem;
+    border-radius: 8px;
+    transition: background 0.1s;
 }
-.result-row:last-child { border-bottom: none; }
-.result-row--top { font-weight: 700; }
+.tc-result-row:hover { background: var(--bg); }
 
-.result-pos {
-    min-width: 1.6rem; text-align: center;
-    font-size: 0.8rem; color: var(--label-secondary);
-    font-weight: 600; flex-shrink: 0;
+.res-pos {
+    min-width: 1.8rem;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--label-secondary);
+    font-weight: 600;
+    flex-shrink: 0;
 }
-.result-name { flex: 1; }
-.result-score {
-    font-weight: 700; font-size: 0.88rem;
+.res-name {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--label-primary);
+}
+.res-score {
+    font-size: 0.88rem;
+    font-weight: 700;
     color: var(--primary-color);
 }
 
-/* ─── Copy button ─── */
-.history-actions { margin-top: 0.75rem; }
-.btn-copy {
-    background: none; border: 1.5px solid var(--primary-color);
-    color: var(--primary-color); border-radius: var(--radius-lg);
-    font-size: 0.82rem; font-weight: 600; padding: 0.4rem 0.85rem;
-    cursor: pointer; font-family: inherit; transition: background 0.14s;
+/* ── Empty state ────────────────────────────────── */
+.empty-state {
+    font-size: 0.9rem;
+    color: var(--label-secondary);
+    text-align: center;
+    padding: 2rem 1rem;
+    background: var(--surface);
+    border-radius: 18px;
+    margin: 0;
 }
-.btn-copy:hover { background: rgba(0,122,255,0.07); }
-.copy-confirm { background: var(--surface); border-radius: var(--radius-lg); padding: 0.75rem; }
-.copy-confirm-text { font-size: 0.82rem; color: var(--label-secondary); margin: 0 0 0.6rem; line-height: 1.4; }
-.copy-confirm-btns { display: flex; gap: 0.5rem; }
-.btn-confirm-yes { flex: 1; padding: 0.6rem; font-size: 0.88rem; border-radius: var(--radius-lg); }
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 500px) {
+    .hero { padding: 2rem 1.4rem 1.6rem; }
+    .hero-headline { font-size: 1.4rem; }
+
+    .hero-ctas { flex-direction: column; }
+    .btn-hero-primary,
+    .btn-hero-secondary { width: 100%; text-align: center; }
+
+    .usp-grid { grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+    .usp-item { padding: 0.6rem 0.4rem; }
+
+    .format-grid { grid-template-columns: 1fr; }
+
+    .tc-actions { flex-direction: column; align-items: stretch; }
+    .btn-tc-primary,
+    .btn-tc-secondary,
+    .btn-tc-ghost { width: 100%; text-align: center; justify-content: center; }
+}
 </style>
