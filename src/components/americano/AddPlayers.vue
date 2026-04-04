@@ -1,6 +1,9 @@
 <template>
     <div class="setup-page">
 
+        <!-- ── Back to home ──────────────────────── -->
+        <router-link to="/" class="back-home">← {{ $t('back_home') }}</router-link>
+
         <!-- ── Header + tournament name ───────────── -->
         <div class="setup-header">
             <h1>{{ $t('new_tournament') }}</h1>
@@ -415,7 +418,11 @@ export default defineComponent({
             const updated = [...this.getPlayers];
             const idx = updated.findIndex(p => p.id === player.id);
             if (idx !== -1) updated[idx] = { ...updated[idx], seedCategory: catIndex };
-            store.commit.americanoStore.UPDATE_PLAYERS(updated);
+            // Sort players so same-category players are grouped together (Top first → Bottom last)
+            const sorted = [...updated].sort(
+                (a, b) => (a.seedCategory ?? 0) - (b.seedCategory ?? 0)
+            );
+            store.commit.americanoStore.UPDATE_PLAYERS(sorted);
         },
         /* ── Drag to reorder (Mexicano exact seeding) ── */
         onDragStart(index: number) {
@@ -485,6 +492,18 @@ export default defineComponent({
     margin: 0 auto;
     padding: 1.2rem 1rem 3rem;
 }
+
+.back-home {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-bottom: 0.4rem;
+    padding: 0.15rem 0;
+}
+.back-home:hover { opacity: 0.75; }
 
 .setup-header {
     padding: 0.8rem 0 0.4rem;

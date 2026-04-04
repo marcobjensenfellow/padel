@@ -12,19 +12,44 @@
                 <p class="hero-mode-badge">Americano &amp; Mexicano</p>
                 <h1 class="hero-title">{{ $t('home_headline') }}</h1>
                 <p class="hero-tagline">{{ $t('home_tagline') }}</p>
-                <div class="hero-ctas">
-                    <router-link to="/spil" class="hero-btn-primary">
-                        {{ $t('home_cta') }} →
-                    </router-link>
-                    <router-link
-                        v-if="hasSavedGame"
-                        to="/spil"
-                        class="hero-btn-secondary"
-                    >
-                        {{ $t('home_resume') }}
-                    </router-link>
-                </div>
             </div>
+        </section>
+
+        <!-- Format picker -->
+        <section class="format-section">
+            <p class="format-label">{{ $t('home_pick_format') }}</p>
+            <div class="format-cards">
+                <!-- Americano -->
+                <button
+                    type="button"
+                    class="format-card"
+                    :class="{ 'format-card--active': selectedFormat === 'Americano' }"
+                    @click="pickFormat('Americano')"
+                >
+                    <span class="format-card-icon">🔀</span>
+                    <span class="format-card-name">Americano</span>
+                    <span class="format-card-desc">{{ $t('home_americano_desc') }}</span>
+                </button>
+                <!-- Mexicano -->
+                <button
+                    type="button"
+                    class="format-card"
+                    :class="{ 'format-card--active': selectedFormat === 'Mexicano' }"
+                    @click="pickFormat('Mexicano')"
+                >
+                    <span class="format-card-icon">📈</span>
+                    <span class="format-card-name">Mexicano</span>
+                    <span class="format-card-desc">{{ $t('home_mexicano_desc') }}</span>
+                </button>
+            </div>
+
+            <!-- Continue saved game link -->
+            <p v-if="hasSavedGame" class="format-continue-hint">
+                {{ $t('home_or_continue') }}
+                <router-link to="/spil" class="format-continue-link">
+                    {{ $t('home_resume') }} →
+                </router-link>
+            </p>
         </section>
 
         <!-- Features — the 4 real USPs -->
@@ -122,17 +147,6 @@
             </div>
         </section>
 
-        <div v-else class="history-empty">
-            <p>{{ $t('history_empty') }}</p>
-        </div>
-
-        <!-- Bottom CTA -->
-        <div class="home-footer">
-            <router-link to="/spil" class="btn-pdl home-footer-btn">
-                {{ $t('home_cta') }} →
-            </router-link>
-        </div>
-
     </div>
 </template>
 
@@ -141,6 +155,7 @@ import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import store from "@/store/index";
 import { getHistory, TournamentSummary } from "@/services/tournamentHistoryService";
+import type { GameMode } from "@/models/padelRules.interface";
 
 export default defineComponent({
     name: "Home",
@@ -148,10 +163,13 @@ export default defineComponent({
         return {
             history: [] as TournamentSummary[],
             copyingId: null as string | null,
+            selectedFormat: null as GameMode | null,
         };
     },
     mounted() {
         this.history = getHistory();
+        // Pre-select whatever format is already in the store
+        this.selectedFormat = store.getters.americanoStore.getRules.mode as GameMode;
     },
     computed: {
         hasSavedGame(): boolean {
@@ -159,6 +177,12 @@ export default defineComponent({
         },
     },
     methods: {
+        pickFormat(mode: GameMode) {
+            this.selectedFormat = mode;
+            store.commit.americanoStore.SET_MODE(mode);
+            const router = useRouter();
+            router.push("/spil");
+        },
         formatDate(iso: string): string {
             try {
                 return new Date(iso).toLocaleDateString(
@@ -174,7 +198,6 @@ export default defineComponent({
         },
         async doCopy(entry: TournamentSummary) {
             await store.dispatch.americanoStore.copyFromHistory(entry);
-            // Navigate imperatively via the router instance
             const router = useRouter();
             router.push("/spil");
         },
@@ -196,7 +219,7 @@ export default defineComponent({
     border-radius: var(--radius-lg);
     margin: 1.2rem 0 1.5rem;
     background: #C2784A;
-    min-height: 300px;
+    min-height: 220px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -215,7 +238,7 @@ export default defineComponent({
     border: 2px solid rgba(255,255,255,0.14);
 }
 
-.hero-content { position: relative; z-index: 1; padding: 2.5rem 1.5rem; }
+.hero-content { position: relative; z-index: 1; padding: 2rem 1.5rem; }
 
 .hero-mode-badge {
     display: inline-block;
@@ -232,24 +255,89 @@ export default defineComponent({
 }
 .hero-tagline {
     color: rgba(255,255,255,0.82); font-size: 0.95rem;
-    max-width: 300px; margin: 0 auto 1.6rem; line-height: 1.4;
+    max-width: 300px; margin: 0 auto; line-height: 1.4;
 }
 
-.hero-ctas { display: flex; flex-direction: column; gap: 0.55rem; align-items: center; }
+/* ─── Format picker ─── */
+.format-section {
+    margin-bottom: 1.75rem;
+}
 
-.hero-btn-primary {
-    font-size: 1.05rem; padding: 0.85rem 2rem;
+.format-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--label-secondary);
+    margin: 0 0 0.65rem 0.1rem;
+}
+
+.format-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.format-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    background: var(--surface);
+    border: 2px solid transparent;
     border-radius: var(--radius-lg);
-    background: #fff; color: #C2784A; font-weight: 700;
-    text-decoration: none; display: inline-block; font-family: inherit;
-    transition: opacity 0.15s;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem 1rem 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.14s, box-shadow 0.14s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
 }
-.hero-btn-primary:hover { opacity: 0.88; }
 
-.hero-btn-secondary {
-    font-size: 0.88rem; color: rgba(255,255,255,0.88);
-    text-decoration: none; display: inline-block; padding: 0.35rem 0.6rem;
+.format-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 12px rgba(0,122,255,0.12);
 }
+
+.format-card:active {
+    transform: scale(0.97);
+}
+
+.format-card--active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0,122,255,0.14), var(--shadow-sm);
+}
+
+.format-card-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+}
+
+.format-card-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--label-primary);
+    line-height: 1.1;
+}
+
+.format-card-desc {
+    font-size: 0.76rem;
+    color: var(--label-secondary);
+    line-height: 1.35;
+}
+
+.format-continue-hint {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: var(--label-secondary);
+    text-align: center;
+}
+
+.format-continue-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.format-continue-link:hover { text-decoration: underline; }
 
 /* ─── Features ─── */
 .features { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -327,15 +415,4 @@ export default defineComponent({
 }
 .copy-confirm-btns { display: flex; gap: 0.5rem; }
 .btn-confirm-yes { flex: 1; padding: 0.6rem; font-size: 0.88rem; border-radius: var(--radius-lg); }
-
-/* ─── Empty / Footer ─── */
-.history-empty {
-    margin-top: 2rem; text-align: center;
-    color: var(--label-secondary); font-size: 0.88rem;
-}
-.home-footer { text-align: center; margin-top: 2rem; }
-.home-footer-btn {
-    font-size: 1rem; padding: 0.85rem 2.5rem;
-    border-radius: var(--radius-lg); text-decoration: none; display: inline-block;
-}
 </style>

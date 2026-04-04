@@ -146,6 +146,17 @@ export default {
                 state.tournamentName
             );
         },
+        SET_MODE(state: AmericanoStoreState, mode: import("@/models/padelRules.interface").GameMode) {
+            state.rules.mode = mode;
+            saveAmericanoState(
+                state.players,
+                state.games,
+                state.step,
+                state.rules,
+                state.round,
+                state.tournamentName
+            );
+        },
         SET_TOURNAMENT_NAME(state: AmericanoStoreState, name: string) {
             state.tournamentName = name;
             saveAmericanoState(

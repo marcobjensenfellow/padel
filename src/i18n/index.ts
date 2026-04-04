@@ -83,6 +83,7 @@ const messages: Record<Locale, Messages> = {
         points_for: "POINTS FOR",
         gets_the_rest: "gets the rest",
         // AddPlayers stepper
+        back_home: "Home",
         sit_out_hint: "{n} sit out / round",
         // ShowGames secondary CTA
         see_results_plain: "See results",
@@ -92,6 +93,12 @@ const messages: Record<Locale, Messages> = {
         home_tagline: "The easiest way to run your padel tournament — no login, no ads.",
         home_cta: "Start tournament",
         home_resume: "Continue tournament",
+        home_new_tournament: "New tournament",
+        home_continue: "Continue tournament →",
+        home_americano_desc: "Random draw · everyone plays everyone",
+        home_mexicano_desc: "Adaptive seeding · best plays best",
+        home_pick_format: "Pick a format to get started",
+        home_or_continue: "or continue where you left off",
         home_feat1_title: "Intelligent seeding",
         home_feat1_body: "Random draw, exact drag-and-drop, or tier categories. Copy a previous tournament to seed directly from those results.",
         home_feat2_title: "Preferred sides",
@@ -188,6 +195,7 @@ const messages: Record<Locale, Messages> = {
         points_for: "POINT TIL",
         gets_the_rest: "får resten",
         // AddPlayers stepper
+        back_home: "Forside",
         sit_out_hint: "{n} sidder over / runde",
         // ShowGames secondary CTA
         see_results_plain: "Se resultater",
@@ -197,6 +205,12 @@ const messages: Record<Locale, Messages> = {
         home_tagline: "Den nemmeste måde at afvikle din padel turnering — ingen konto, ingen reklamer.",
         home_cta: "Start turnering",
         home_resume: "Fortsæt turnering",
+        home_new_tournament: "Ny turnering",
+        home_continue: "Fortsæt turnering →",
+        home_americano_desc: "Tilfældig lodtrækning · alle spiller mod alle",
+        home_mexicano_desc: "Adaptiv seeding · bedste spiller mod bedste",
+        home_pick_format: "Vælg format for at komme i gang",
+        home_or_continue: "eller fortsæt hvor du slap",
         home_feat1_title: "Intelligent seeding",
         home_feat1_body: "Tilfældig lodtrækning, præcis træk-og-slip eller kategoritrin. Kopier en tidligere turnering og brug dens rangering som udgangspunkt.",
         home_feat2_title: "Foretrukne sider",
