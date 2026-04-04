@@ -173,6 +173,7 @@ export default {
                         : 1,
                     completed: true,
                     top3: sorted.slice(0, 3).map(p => ({ name: p.name, score: p.score })),
+                    players: sorted.map(p => ({ name: p.name, score: p.score })),
                 };
                 upsertToHistory(summary);
             }
@@ -279,6 +280,7 @@ export default {
                 totalRounds: isMexicano ? getters.getRules.amountOfPlayers - 1 : 1,
                 completed: !isMexicano || getters.getRound >= getters.getRules.amountOfPlayers - 1,
                 top3: sorted.slice(0, 3).map(p => ({ name: p.name, score: p.score })),
+                players: sorted.map(p => ({ name: p.name, score: p.score })),
             };
             upsertToHistory(summary);
 
@@ -294,6 +296,31 @@ export default {
         },
         newGame({ commit }: AmericanoStoreActions) {
             commit("RESET");
+        },
+        // Load players from a history entry with seeds assigned by final ranking.
+        // Caller should navigate to /spil after dispatching.
+        copyFromHistory({ commit, getters }: AmericanoStoreActions, summary: TournamentSummary) {
+            // First do a full reset (saves current state to history if needed)
+            commit("RESET");
+
+            // Build new players from the history's ranked list
+            const players: PadelPlayer[] = summary.players.map((hp, idx) => ({
+                id: idx + 1,
+                name: hp.name,
+                score: 0,
+                preferredSide: "Both" as PreferredSide,
+                seed: idx + 1,          // rank 1 → seed 1
+                seedCategory: 0,
+            }));
+            commit("UPDATE_PLAYERS", players);
+
+            // Mirror the original format; seeding mode = exact so the ranking is visible
+            commit("SET_RULES", {
+                ...getters.getRules,
+                mode: summary.format as any,
+                amountOfPlayers: players.length,
+                seedingMode: "exact" as any,
+            });
         },
         saveStateManually({ getters }: AmericanoStoreActions) {
             saveAmericanoState(
@@ -356,6 +383,7 @@ export default {
                     totalRounds: maxRounds,
                     completed: false,
                     top3: sortedAdv.slice(0, 3).map((p: PadelPlayer) => ({ name: p.name, score: p.score })),
+                    players: sortedAdv.map((p: PadelPlayer) => ({ name: p.name, score: p.score })),
                 });
                 // Stay on step 2 (games screen) — no step change
             } else {

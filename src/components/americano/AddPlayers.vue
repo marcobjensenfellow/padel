@@ -698,8 +698,10 @@ export default defineComponent({
     background: var(--bg);
     border-radius: var(--radius-sm);
     padding: 0.4rem 0.7rem;
-    flex: 1;
+    flex: 1 1 calc(50% - 0.25rem);
+    max-width: calc(50% - 0.25rem);
     min-width: 120px;
+    box-sizing: border-box;
 }
 .court-name-label { font-size: 0.78rem; color: var(--label-secondary); white-space: nowrap; }
 .court-name-input { font-size: 0.9rem; }

@@ -15,6 +15,7 @@ export interface TournamentSummary {
     totalRounds: number;
     completed: boolean;
     top3: HistoryPlayer[];
+    players: HistoryPlayer[];  // all players sorted by final score (for copy-with-seeding)
 }
 
 function load(): TournamentSummary[] {

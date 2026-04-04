@@ -27,31 +27,31 @@
             </div>
         </section>
 
-        <!-- Features -->
+        <!-- Features — the 4 real USPs -->
         <section class="features">
             <div class="feat-card">
-                <span class="feat-icon">🎯</span>
+                <span class="feat-icon">🌱</span>
                 <div>
                     <h3>{{ $t('home_feat1_title') }}</h3>
                     <p>{{ $t('home_feat1_body') }}</p>
                 </div>
             </div>
             <div class="feat-card">
-                <span class="feat-icon">🌱</span>
+                <span class="feat-icon">↔️</span>
                 <div>
                     <h3>{{ $t('home_feat2_title') }}</h3>
                     <p>{{ $t('home_feat2_body') }}</p>
                 </div>
             </div>
             <div class="feat-card">
-                <span class="feat-icon">↔️</span>
+                <span class="feat-icon">💾</span>
                 <div>
                     <h3>{{ $t('home_feat3_title') }}</h3>
                     <p>{{ $t('home_feat3_body') }}</p>
                 </div>
             </div>
             <div class="feat-card">
-                <span class="feat-icon">💾</span>
+                <span class="feat-icon">☕️</span>
                 <div>
                     <h3>{{ $t('home_feat4_title') }}</h3>
                     <p>{{ $t('home_feat4_body') }}</p>
@@ -89,11 +89,33 @@
                                 v-for="(p, i) in entry.top3"
                                 :key="i"
                                 class="podium-chip"
-                                :class="`podium-chip--${i}`"
                             >
                                 {{ podiumIcon(i) }} {{ p.name }}
                                 <span class="podium-score">{{ p.score }}</span>
                             </span>
+                        </div>
+                    </div>
+
+                    <!-- Copy with seeding -->
+                    <div v-if="entry.players && entry.players.length > 0" class="history-actions">
+                        <button
+                            v-if="copyingId !== entry.id"
+                            type="button"
+                            class="btn-copy"
+                            @click="copyingId = entry.id"
+                        >
+                            🔁 {{ $t('history_copy') }}
+                        </button>
+                        <div v-else class="copy-confirm">
+                            <p class="copy-confirm-text">{{ $t('history_copy_confirm') }}</p>
+                            <div class="copy-confirm-btns">
+                                <button type="button" class="btn-pdl btn-confirm-yes" @click="doCopy(entry)">
+                                    {{ $t('home_cta') }} →
+                                </button>
+                                <button type="button" class="btn-pdl-ghost" @click="copyingId = null">
+                                    {{ $t('end_confirm_cancel') }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,6 +138,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
 import store from "@/store/index";
 import { getHistory, TournamentSummary } from "@/services/tournamentHistoryService";
 
@@ -124,6 +147,7 @@ export default defineComponent({
     data() {
         return {
             history: [] as TournamentSummary[],
+            copyingId: null as string | null,
         };
     },
     mounted() {
@@ -147,6 +171,12 @@ export default defineComponent({
         },
         podiumIcon(index: number): string {
             return ["🥇", "🥈", "🥉"][index] ?? "";
+        },
+        async doCopy(entry: TournamentSummary) {
+            await store.dispatch.americanoStore.copyFromHistory(entry);
+            // Navigate imperatively via the router instance
+            const router = useRouter();
+            router.push("/spil");
         },
     },
 });
@@ -173,14 +203,12 @@ export default defineComponent({
     text-align: center;
 }
 
-/* Decorative court lines */
 .hero-court { position: absolute; inset: 0; pointer-events: none; }
 .court-line { position: absolute; background: rgba(255,255,255,0.1); }
 .court-line--v { width: 2px; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); }
 .court-line--h { height: 2px; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
 .court-service {
-    position: absolute;
-    left: 50%; top: 50%;
+    position: absolute; left: 50%; top: 50%;
     transform: translate(-50%,-50%);
     width: 52px; height: 52px;
     border-radius: 50%;
@@ -193,69 +221,44 @@ export default defineComponent({
     display: inline-block;
     background: rgba(255,255,255,0.18);
     color: rgba(255,255,255,0.9);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    margin: 0 0 0.75rem;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; border-radius: 999px;
+    padding: 0.3rem 0.8rem; margin: 0 0 0.75rem;
 }
 
 .hero-title {
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    color: #fff;
-    margin: 0 0 0.55rem;
-    line-height: 1;
+    font-size: 3rem; font-weight: 800; letter-spacing: -0.04em;
+    color: #fff; margin: 0 0 0.55rem; line-height: 1;
 }
-
 .hero-tagline {
-    color: rgba(255,255,255,0.82);
-    font-size: 0.95rem;
-    max-width: 300px;
-    margin: 0 auto 1.6rem;
-    line-height: 1.4;
+    color: rgba(255,255,255,0.82); font-size: 0.95rem;
+    max-width: 300px; margin: 0 auto 1.6rem; line-height: 1.4;
 }
 
 .hero-ctas { display: flex; flex-direction: column; gap: 0.55rem; align-items: center; }
 
 .hero-btn-primary {
-    font-size: 1.05rem;
-    padding: 0.85rem 2rem;
+    font-size: 1.05rem; padding: 0.85rem 2rem;
     border-radius: var(--radius-lg);
-    background: #fff;
-    color: #C2784A;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-block;
-    font-family: inherit;
+    background: #fff; color: #C2784A; font-weight: 700;
+    text-decoration: none; display: inline-block; font-family: inherit;
     transition: opacity 0.15s;
 }
 .hero-btn-primary:hover { opacity: 0.88; }
 
 .hero-btn-secondary {
-    font-size: 0.88rem;
-    color: rgba(255,255,255,0.88);
-    text-decoration: none;
-    display: inline-block;
-    padding: 0.35rem 0.6rem;
+    font-size: 0.88rem; color: rgba(255,255,255,0.88);
+    text-decoration: none; display: inline-block; padding: 0.35rem 0.6rem;
 }
 
 /* ─── Features ─── */
 .features { display: flex; flex-direction: column; gap: 0.6rem; }
 
 .feat-card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 0.95rem 1.1rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.9rem;
+    background: var(--surface); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm); padding: 0.95rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 0.9rem;
 }
-
 .feat-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
 .feat-card h3 { font-size: 0.92rem; font-weight: 700; margin: 0 0 0.18rem; }
 .feat-card p  { font-size: 0.82rem; color: var(--label-secondary); margin: 0; line-height: 1.4; }
@@ -266,7 +269,6 @@ export default defineComponent({
 
 /* ─── History ─── */
 .history-section { margin-top: 2rem; }
-
 .history-list { padding: 0; }
 
 .history-row {
@@ -276,81 +278,64 @@ export default defineComponent({
 .history-row:last-child { border-bottom: none; }
 
 .history-name-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.2rem;
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;
 }
-
 .history-name {
-    font-weight: 700;
-    font-size: 0.95rem;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-weight: 700; font-size: 0.95rem; flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 .history-badge {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    border-radius: 999px;
-    padding: 0.18rem 0.55rem;
-    flex-shrink: 0;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+    border-radius: 999px; padding: 0.18rem 0.55rem; flex-shrink: 0;
 }
 .badge--done { background: rgba(52,199,89,0.12); color: var(--secondary-color); }
-.badge--live { background: rgba(0,122,255,0.1); color: var(--primary-color); }
+.badge--live { background: rgba(0,122,255,0.1);   color: var(--primary-color); }
 
 .history-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem;
-    font-size: 0.78rem;
-    color: var(--label-secondary);
-    margin-bottom: 0.45rem;
-    align-items: center;
+    display: flex; flex-wrap: wrap; gap: 0.2rem;
+    font-size: 0.78rem; color: var(--label-secondary);
+    margin-bottom: 0.45rem; align-items: center;
 }
-.history-dot { color: var(--separator-opaque); }
+.history-dot   { color: var(--separator-opaque); }
 .history-format { font-weight: 600; }
-.history-date { color: var(--label-tertiary, var(--label-secondary)); }
 
-.history-podium {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-}
+.history-podium { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 
 .podium-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.22rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    background: var(--bg);
-    border-radius: 999px;
-    padding: 0.18rem 0.55rem;
+    display: inline-flex; align-items: center; gap: 0.22rem;
+    font-size: 0.78rem; font-weight: 600;
+    background: var(--bg); border-radius: 999px; padding: 0.18rem 0.55rem;
 }
-.podium-score {
-    font-weight: 800;
-    font-size: 0.72rem;
-    color: var(--label-secondary);
+.podium-score { font-weight: 800; font-size: 0.72rem; color: var(--label-secondary); }
+
+/* ─── Copy button ─── */
+.history-actions { margin-top: 0.7rem; }
+
+.btn-copy {
+    background: none; border: 1.5px solid var(--primary-color);
+    color: var(--primary-color); border-radius: var(--radius-lg);
+    font-size: 0.82rem; font-weight: 600; padding: 0.4rem 0.85rem;
+    cursor: pointer; font-family: inherit; transition: background 0.14s;
 }
+.btn-copy:hover { background: rgba(0,122,255,0.07); }
+
+.copy-confirm { background: var(--bg); border-radius: var(--radius-lg); padding: 0.75rem; }
+.copy-confirm-text {
+    font-size: 0.82rem; color: var(--label-secondary);
+    margin: 0 0 0.6rem; line-height: 1.4;
+}
+.copy-confirm-btns { display: flex; gap: 0.5rem; }
+.btn-confirm-yes { flex: 1; padding: 0.6rem; font-size: 0.88rem; border-radius: var(--radius-lg); }
 
 /* ─── Empty / Footer ─── */
 .history-empty {
-    margin-top: 2rem;
-    text-align: center;
-    color: var(--label-secondary);
-    font-size: 0.88rem;
+    margin-top: 2rem; text-align: center;
+    color: var(--label-secondary); font-size: 0.88rem;
 }
-
 .home-footer { text-align: center; margin-top: 2rem; }
 .home-footer-btn {
-    font-size: 1rem;
-    padding: 0.85rem 2.5rem;
-    border-radius: var(--radius-lg);
-    text-decoration: none;
-    display: inline-block;
+    font-size: 1rem; padding: 0.85rem 2.5rem;
+    border-radius: var(--radius-lg); text-decoration: none; display: inline-block;
 }
 </style>
