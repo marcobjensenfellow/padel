@@ -244,7 +244,7 @@ export default defineComponent({
 }
 
 .score-header { margin-bottom: 1.2rem; }
-.score-header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+.score-header h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; margin: 0; }
 .score-subtitle { margin: 0.1rem 0 0; color: var(--label-secondary); font-size: 0.9rem; }
 
 /* Standings table */
@@ -287,9 +287,14 @@ export default defineComponent({
 
 .standing-score {
     font-size: 1.2rem;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -0.02em;
-    color: var(--primary-color);
+    color: var(--padel-blue);
+    background: var(--padel-blue-light);
+    border-radius: 8px;
+    padding: 0.1rem 0.55rem;
+    min-width: 44px;
+    text-align: center;
 }
 
 .standing-row--gold   .standing-name { font-weight: 700; }

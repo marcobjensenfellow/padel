@@ -334,7 +334,7 @@ export default defineComponent({
     margin-top: 0.25rem;
 }
 
-.btn-header-nav { color: var(--primary-color); }
+.btn-header-nav { color: var(--padel-blue); }
 
 .btn-header-end {
     color: var(--destructive-color);
@@ -367,15 +367,16 @@ export default defineComponent({
 }
 
 .round-pill--active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: var(--padel-blue);
+    border-color: var(--padel-blue);
     color: #fff;
+    box-shadow: 0 2px 8px rgba(0,82,255,0.30);
 }
 
 .round-pill--done {
-    background: rgba(52,199,89,0.12);
+    background: rgba(16,185,129,0.12);
     border-color: var(--secondary-color);
-    color: var(--secondary-color);
+    color: #059669;
 }
 
 .round-pill--future {
@@ -394,12 +395,13 @@ export default defineComponent({
 
 /* Court card */
 .court-card {
-    background: #C2784A;
-    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, #1A2E1A 0%, #2D4A2D 100%);
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.06);
 }
 
 .court-label {
@@ -461,8 +463,8 @@ export default defineComponent({
     flex-shrink: 0;
 }
 
-.chip-side--l { background: #0fb9b1; color: #fff; }
-.chip-side--r { background: #3b82f6; color: #fff; }
+.chip-side--l { background: #14B8A6; color: #fff; }
+.chip-side--r { background: var(--padel-blue); color: #fff; }
 
 /* Score row */
 .score-row {
@@ -499,7 +501,7 @@ export default defineComponent({
 }
 
 .score-pill:hover      { background: rgba(255,255,255,0.22); }
-.score-pill--set       { background: rgba(255,255,255,0.92); color: #1C1C1E; border-color: transparent; }
+.score-pill--set       { background: rgba(255,255,255,0.92); color: var(--label); border-color: transparent; font-weight: 800; }
 
 /* Rest card */
 .rest-card {

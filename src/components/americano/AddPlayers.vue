@@ -529,12 +529,12 @@ export default defineComponent({
     border-radius: 0;
     padding: 0.45rem 0;
     background: transparent;
-    color: var(--label-primary);
+    color: var(--label);
     font-family: inherit;
 }
 .name-input:focus {
     outline: none;
-    border-bottom-color: var(--primary-color);
+    border-bottom-color: var(--padel-blue);
 }
 .name-input::placeholder { color: var(--label-tertiary); }
 
@@ -598,7 +598,7 @@ export default defineComponent({
     text-align: center;
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--label-primary);
+    color: var(--label);
     border-left: 1px solid var(--separator);
     border-right: 1px solid var(--separator);
     padding: 0 4px;
@@ -651,7 +651,7 @@ export default defineComponent({
 .ios-toggle-track {
     display: block;
     width: 51px; height: 31px;
-    background: #E5E5EA;
+    background: var(--separator-opaque);
     border-radius: 31px;
     transition: background 0.2s;
     position: relative;
@@ -686,7 +686,7 @@ export default defineComponent({
 
 .player-row { gap: 0.5rem; cursor: default; }
 .player-row[draggable="true"] { cursor: grab; }
-.player-row.drag-over { background: rgba(0,122,255,0.06); }
+.player-row.drag-over { background: var(--padel-blue-light); }
 
 .seed-badge {
     flex-shrink: 0;
